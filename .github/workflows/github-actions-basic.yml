@@ -20,7 +20,7 @@ jobs:
       with:
         fetch-depth: 0
         repository: PigsCanFlyLabs/message-backend
-        ref: master
+        ref: main
     - name: Sync the current branch with the latest in spark-testing-base
       if: github.repository != 'PigsCanFlyLabs/message-backend'
       id: sync-branch
