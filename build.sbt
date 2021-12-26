@@ -1,25 +1,37 @@
-lazy val core = (project in file("."))
+import Dependencies._
+
+scalaVersion := "2.13.7"
+lazy val sparkMiscUtils = (project in file("spark-misc-utils"))
   .settings(
     name := "spark-misc-utils",
     commonSettings,
     publishSettings,
     libraryDependencies ++= Seq(
-        "com.thesamet.scalapb" %% "compilerplugin" % "0.11.1",
-	"com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf"
-    ),
+      scalaPbCompiler,
+      scalaPbRuntime
+    )
+  ).dependsOn(common)
+lazy val common = (project in file("common"))
+  .settings(
+    libraryDependencies ++= commonDependencies,
+    commonSettings
   )
-
-Compile / PB.targets := Seq(
-  scalapb.gen() -> (Compile / sourceManaged).value / "scalapb"
-)
-
-val commonSettings = Seq(
+lazy val akkaClient = (project in file("akkaClient"))
+  .settings(
+    commonSettings,
+    libraryDependencies ++= Seq(
+      actor,
+      akkaStream,
+      akkaHttp,
+      scalaMock,
+      sclaTest,
+      akkaTestKit
+    )
+  ).dependsOn(common)
+lazy val commonSettings = Seq(
   organization := "ca.pigscanfly.ca.satellite.backend",
   publishMavenStyle := true,
   version := "0.0.1",
-  scalaVersion := {
-    "2.13.7"
-  },
   scalacOptions ++= Seq("-deprecation", "-unchecked", "-Yrangepos", "-Ywarn-unused-import"),
   javacOptions ++= {
     Seq("-source", "1.11", "-target", "1.11")
@@ -29,8 +41,12 @@ val commonSettings = Seq(
   parallelExecution in Test := false,
   fork := true,
 
-  scalastyleSources in Compile ++= {unmanagedSourceDirectories in Compile}.value,
-  scalastyleSources in Test ++= {unmanagedSourceDirectories in Test}.value,
+  scalastyleSources in Compile ++= {
+    unmanagedSourceDirectories in Compile
+  }.value,
+  scalastyleSources in Test ++= {
+    unmanagedSourceDirectories in Test
+  }.value,
 
   resolvers ++= Seq(
     "JBoss Repository" at "https://repository.jboss.org/nexus/content/repositories/releases/",
@@ -45,7 +61,6 @@ val commonSettings = Seq(
     Resolver.sonatypeRepo("public")
   )
 )
-
 // publish settings
 lazy val publishSettings = Seq(
   pomIncludeRepository := { _ => false },
@@ -54,7 +69,7 @@ lazy val publishSettings = Seq(
     if (isSnapshot.value)
       Some("snapshots" at nexus + "content/repositories/snapshots")
     else
-      Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+      Some("releases" at nexus + "service/local/staging/deploy/maven2")
   },
 
   licenses := Seq("Apache License 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.html")),
@@ -75,6 +90,11 @@ lazy val publishSettings = Seq(
   useGpg := true,
 )
 
-
+Compile / PB.targets := Seq(
+  scalapb.gen() -> (Compile / sourceManaged).value / "scalapb"
+)
 lazy val noPublishSettings =
   skip in publish := true
+lazy val root = (project in file("."))
+  .aggregate(common, akkaClient, sparkMiscUtils)
+val akkaVersion = "2.5.32"
