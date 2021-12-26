@@ -6,10 +6,12 @@ import io.circe.parser._
 
 case class Message(packetId: Int,
                    deviceType: Int,
-                   viaDeviceId: Int,
+                   deviceId: Int,
+                   deviceName: String,
                    dataType: Int,
                    userApplicationId: Int,
-                   len: Int, data: String,
+                   len: Int,
+                   data: String,
                    ackPacketId: Int,
                    status: Int,
                    hiveRxTime: String)
