@@ -9,10 +9,11 @@ import ca.pigscanfly.models.MessageRetrieval._
 import ca.pigscanfly.models.MessagePost.encoder
 import io.circe.parser
 import akka.http.scaladsl.model.headers.Cookie
-
+import io.circe.syntax._
 import scala.concurrent.{ExecutionContext, Future}
 
-trait SwarmMessageClient { this: HttpClient =>
+trait SwarmMessageClient {
+  this: HttpClient =>
   implicit def actorSystem: ActorSystem
 
   implicit def executionContext: ExecutionContext
@@ -32,13 +33,12 @@ trait SwarmMessageClient { this: HttpClient =>
 
   def postMessage(url: String, msg: MessagePost): Future[MessageDelivery] = {
     val cookieHeader = Cookie("JSESSIONID", "B120DCEBC05C9F6CE3FBCA259356C17E")
-    val req = encoder.apply(msg).toString()
     for {
       response <- sendRequest(HttpRequest(
         method = HttpMethods.POST,
         uri = url,
         headers = List(cookieHeader),
-        entity = HttpEntity(ContentTypes.`application/json`, req)
+        entity = HttpEntity(ContentTypes.`application/json`, msg.asJson.toString())
       ))
       encodedResponse <- Unmarshal(response.entity).to[String]
       response <- parser.decode[MessageDelivery](encodedResponse) match {

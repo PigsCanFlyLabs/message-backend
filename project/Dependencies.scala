@@ -8,6 +8,8 @@ trait Versions {
   val ScalaMockVersion = "5.1.0"
   val circeVersion = "0.15.0-M1"
   val scalaMatcher = "3.3.0-SNAP3"
+  val twilioVersion = "8.23.0"
+  val sendGridVersion = "4.8.1"
 }
 
 object Dependencies extends Versions {
@@ -21,6 +23,8 @@ object Dependencies extends Versions {
   val circeCore = "io.circe" %% "circe-core" % circeVersion
   val circeParser = "io.circe" %% "circe-parser" % circeVersion
   val circeGeneric = "io.circe" %% "circe-generic" % circeVersion
+  val twilio =  "com.twilio.sdk" % "twilio" % twilioVersion
+  val sendGrid =  "com.sendgrid" % "sendgrid-java" % sendGridVersion
 
   //Testing
   val scalaMock = "org.scalamock" %% "scalamock" % "4.4.0"
@@ -31,6 +35,8 @@ object Dependencies extends Versions {
     typeConf,
     circeCore,
     circeParser,
-    circeGeneric
+    circeGeneric,
+    twilio,
+    sendGrid
   )
 }

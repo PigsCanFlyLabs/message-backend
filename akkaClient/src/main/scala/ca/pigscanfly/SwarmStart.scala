@@ -1,8 +1,10 @@
 package ca.pigscanfly
 
 import akka.actor.ActorSystem
+import ca.pigscanfly.configs.Constants.SwarmBaseUrl
 import ca.pigscanfly.httpClient.ClientHandler
 import ca.pigscanfly.models.MessagePost
+import ca.pigscanfly.sendgrid.SendGridEmailer
 
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
@@ -18,7 +20,7 @@ object SwarmStart extends App {
     override implicit def executionContext: ExecutionContext = actorSystem.dispatcher
   }
 
-  newMessage.getMessages("https://bumblebee.hive.swarm.space/hive/api/v1/messages").onComplete { res =>
+  newMessage.getMessages(s"$SwarmBaseUrl/hive/api/v1/messages").onComplete { res =>
     res match {
       case Success(value) =>
         println(value)
@@ -27,7 +29,7 @@ object SwarmStart extends App {
     newMessage.shutDown()
   }
 
-  newMessage.postMessage("https://bumblebee.hive.swarm.space/hive/api/v1/messages", new MessagePost(deviceType = 0, deviceId = 0, userApplicationId = 0, data = "un-encoded data")).onComplete { res =>
+  newMessage.postMessage(s"$SwarmBaseUrl/hive/api/v1/messages", MessagePost(deviceType = 1, deviceId = 1, userApplicationId = 1234, data = "Some Message")).onComplete { res =>
     res match {
       case Success(value) =>
         println(value)
@@ -36,7 +38,7 @@ object SwarmStart extends App {
     newMessage.shutDown()
   }
 
-  newMessage.ackMessage("https://bumblebee.hive.swarm.space/hive/api/v1/messages/rxack", 0).onComplete { res =>
+  newMessage.ackMessage(s"$SwarmBaseUrl/hive/api/v1/messages/rxack", 0).onComplete { res =>
     res match {
       case Success(value) =>
         println(value)
