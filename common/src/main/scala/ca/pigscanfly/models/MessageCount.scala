@@ -21,6 +21,7 @@ object MessageCount {
   implicit val decoderMessageCountsByDevice: Decoder[MessageCountsByDevice] = deriveDecoder[MessageCountsByDevice]
 }
 
+//TODO Remove this JSON after End to End testing
 //{
 //  "totalMessageCount": 5,
 //  "totalFromDeviceMessageCount": 4,
