@@ -1,6 +1,7 @@
 import Dependencies._
 
 scalaVersion := "2.13.7"
+
 lazy val sparkMiscUtils = (project in file("spark-misc-utils"))
   .settings(
     name := "spark-misc-utils",
@@ -11,11 +12,13 @@ lazy val sparkMiscUtils = (project in file("spark-misc-utils"))
       scalaPbRuntime
     )
   ).dependsOn(common)
+
 lazy val common = (project in file("common"))
   .settings(
     libraryDependencies ++= commonDependencies,
     commonSettings
   )
+
 lazy val akkaClient = (project in file("akkaClient"))
   .settings(
     commonSettings,
@@ -28,6 +31,7 @@ lazy val akkaClient = (project in file("akkaClient"))
       akkaTestKit
     )
   ).dependsOn(common)
+
 lazy val commonSettings = Seq(
   organization := "ca.pigscanfly.ca.satellite.backend",
   publishMavenStyle := true,
@@ -61,6 +65,7 @@ lazy val commonSettings = Seq(
     Resolver.sonatypeRepo("public")
   )
 )
+
 // publish settings
 lazy val publishSettings = Seq(
   pomIncludeRepository := { _ => false },
@@ -97,4 +102,3 @@ lazy val noPublishSettings =
   skip in publish := true
 lazy val root = (project in file("."))
   .aggregate(common, akkaClient, sparkMiscUtils)
-val akkaVersion = "2.5.32"

@@ -10,6 +10,8 @@ trait Versions {
   val scalaMatcher = "3.3.0-SNAP3"
   val twilioVersion = "8.23.0"
   val sendGridVersion = "4.8.1"
+  val macwireVersion = "2.5.2"
+  val macwireAkkaVersion = "2.5.2"
 }
 
 object Dependencies extends Versions {
@@ -25,6 +27,8 @@ object Dependencies extends Versions {
   val circeGeneric = "io.circe" %% "circe-generic" % circeVersion
   val twilio =  "com.twilio.sdk" % "twilio" % twilioVersion
   val sendGrid =  "com.sendgrid" % "sendgrid-java" % sendGridVersion
+  val macwire = "com.softwaremill.macwire" %% "macros" % macwireVersion % "provided"
+  val macwireAkka = "com.softwaremill.macwire" %% "macrosakka" % macwireAkkaVersion % "provided"
 
   //Testing
   val scalaMock = "org.scalamock" %% "scalamock" % "4.4.0"
