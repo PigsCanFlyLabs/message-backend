@@ -76,7 +76,7 @@ class SwarmStartTest extends TestKit(ActorSystem("test"))
       swarmMessageClient.mock
         .expects(HttpRequest(uri = s"$SwarmBaseUrl/hive/api/v1/messages", headers = List(cookieHeader)))
         .returning(Future.successful(HttpResponse(entity = HttpEntity(ByteString(json)))))
-      val response = swarmMessageClient.getMessages(s"$SwarmBaseUrl/hive/api/v1/messages")
+      val response = swarmMessageClient.getMessages(s"$SwarmBaseUrl/hive/api/v1/messages", List(cookieHeader))
       Thread.sleep(5000) //TODO REMOVE THIS THREAD SLEEP
       for {
         messages <- response
@@ -95,7 +95,7 @@ class SwarmStartTest extends TestKit(ActorSystem("test"))
         ))
         .returning(Future.successful(HttpResponse(entity = HttpEntity(ByteString(ackResponseMock)))))
 
-      val response = swarmMessageClient.ackMessage(s"$SwarmBaseUrl/hive/api/v1/messages/rxack", 0)
+      val response = swarmMessageClient.ackMessage(s"$SwarmBaseUrl/hive/api/v1/messages/rxack", 0, List(cookieHeader))
       Thread.sleep(5000) //TODO REMOVE THIS THREAD SLEEP
       for {
         resp <- response
@@ -115,7 +115,7 @@ class SwarmStartTest extends TestKit(ActorSystem("test"))
         ))
         .returning(Future.successful(HttpResponse(entity = HttpEntity(ByteString(ackResponseMock)))))
 
-      val response = swarmMessageClient.postMessage(s"$SwarmBaseUrl/hive/api/v1/messages", MessagePost(deviceType = 1, deviceId = 1, userApplicationId = 1234, data = "Some Message"))
+      val response = swarmMessageClient.sendMessage(s"$SwarmBaseUrl/hive/api/v1/messages", MessagePost(deviceType = 1, deviceId = 1, userApplicationId = 1234, data = "Some Message"), List(cookieHeader))
       Thread.sleep(5000) //TODO REMOVE THIS THREAD SLEEP
       for {
         resp <- response

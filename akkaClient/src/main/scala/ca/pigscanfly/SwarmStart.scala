@@ -1,10 +1,10 @@
 package ca.pigscanfly
 
 import akka.actor.ActorSystem
+import akka.http.scaladsl.model.headers.Cookie
 import ca.pigscanfly.configs.Constants.SwarmBaseUrl
 import ca.pigscanfly.httpClient.ClientHandler
 import ca.pigscanfly.models.MessagePost
-import ca.pigscanfly.sendgrid.SendGridEmailer
 
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
@@ -19,8 +19,9 @@ object SwarmStart extends App {
 
     override implicit def executionContext: ExecutionContext = actorSystem.dispatcher
   }
+  val cookieHeader = Cookie("JSESSIONID", "B120DCEBC05C9F6CE3FBCA259356C17E")
 
-  newMessage.getMessages(s"$SwarmBaseUrl/hive/api/v1/messages").onComplete { res =>
+  newMessage.getMessages(s"$SwarmBaseUrl/hive/api/v1/messages", List(cookieHeader)).onComplete { res =>
     res match {
       case Success(value) =>
         println(value)
@@ -29,7 +30,7 @@ object SwarmStart extends App {
     newMessage.shutDown()
   }
 
-  newMessage.postMessage(s"$SwarmBaseUrl/hive/api/v1/messages", MessagePost(deviceType = 1, deviceId = 1, userApplicationId = 1234, data = "Some Message")).onComplete { res =>
+  newMessage.sendMessage(s"$SwarmBaseUrl/hive/api/v1/messages", MessagePost(deviceType = 1, deviceId = 1, userApplicationId = 1234, data = "Some Message"), List(cookieHeader)).onComplete { res =>
     res match {
       case Success(value) =>
         println(value)
@@ -38,7 +39,7 @@ object SwarmStart extends App {
     newMessage.shutDown()
   }
 
-  newMessage.ackMessage(s"$SwarmBaseUrl/hive/api/v1/messages/rxack", 0).onComplete { res =>
+  newMessage.ackMessage(s"$SwarmBaseUrl/hive/api/v1/messages/rxack", 0, List(cookieHeader)).onComplete { res =>
     res match {
       case Success(value) =>
         println(value)
