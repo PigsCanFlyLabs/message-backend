@@ -9,7 +9,7 @@ import ca.pigscanfly.models.MessagePost
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
 
-object SwarmStart extends App {
+object SwarmStart {
 
   implicit val system: ActorSystem = ActorSystem("Swarm-Start")
   implicit val executionContext: ExecutionContext = system.dispatcher
