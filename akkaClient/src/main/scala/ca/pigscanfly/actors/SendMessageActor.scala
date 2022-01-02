@@ -19,5 +19,7 @@ class SendMessageActor extends Actor {
   override def receive: Receive = {
     case postMessage: PostMessageCommand =>
       newMessage.sendMessage(postMessage.url, postMessage.message, postMessage.headers)
+    case _ =>
+      println("Unhandled request") //TODO REPLACE IT WITH LOGGER
   }
 }

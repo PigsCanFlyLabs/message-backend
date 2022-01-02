@@ -22,5 +22,7 @@ class GetMessageActor extends Actor {
       newMessage.getMessages(getMessageCommand.url, getMessageCommand.headers)
     case messageAck: MessageAck =>
       newMessage.ackMessage(messageAck.url, messageAck.packageId, messageAck.headers)
+    case _ =>
+      println("Unhandled request") //TODO REPLACE IT WITH LOGGER
   }
 }
