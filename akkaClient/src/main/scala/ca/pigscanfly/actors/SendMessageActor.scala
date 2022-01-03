@@ -5,6 +5,8 @@ import akka.http.scaladsl.model.HttpHeader
 import ca.pigscanfly.SwarmStart.swarmMessageClient
 import ca.pigscanfly.actors.SendMessageActor.PostMessageCommand
 import ca.pigscanfly.models.MessagePost
+import scala.concurrent.ExecutionContext.Implicits.global
+import akka.pattern.pipe
 
 object SendMessageActor {
 
@@ -18,7 +20,7 @@ object SendMessageActor {
 class SendMessageActor extends Actor {
   override def receive: Receive = {
     case postMessage: PostMessageCommand =>
-      swarmMessageClient.sendMessage(postMessage.url, postMessage.message, postMessage.headers)
+      swarmMessageClient.sendMessage(postMessage.url, postMessage.message, postMessage.headers).pipeTo(sender())
     case _ =>
       println("Unhandled request") //TODO REPLACE IT WITH LOGGER
   }

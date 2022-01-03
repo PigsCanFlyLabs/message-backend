@@ -1,6 +1,7 @@
 package ca.pigscanfly.controllers
 
 import akka.actor.{ActorRef, ActorSystem}
+import akka.http.scaladsl.model.StatusCodes.InternalServerError
 import akka.http.scaladsl.model.headers.Cookie
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
 import akka.http.scaladsl.server.Directives._
@@ -17,6 +18,7 @@ import io.circe.syntax._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
+import scala.util.{Failure, Success}
 
 class SwarmController(actorSystem: ActorSystem) {
 
@@ -32,12 +34,17 @@ class SwarmController(actorSystem: ActorSystem) {
           Cookie(cookie.name, cookie.value)
         }
         val messagesFut = (getMessageActor ? GetMessage(s"$SwarmBaseUrl/hive/api/v1/messages", cookies.toList)).mapTo[MessageRetrieval]
+
         messagesFut.map { messages =>
           messages.messageResponse.map { message =>
             getMessageActor ! MessageAck(s"$SwarmBaseUrl/hive/api/v1/messages/rxack", message.ackPacketId, cookies.toList)
           }
         }
-        complete(HttpEntity(ContentTypes.`application/json`, messagesFut.map(_.asJson).toString))
+        onComplete(messagesFut) {
+          case Success(messages) => complete(HttpEntity(ContentTypes.`application/json`, messages.asJson.toString))
+          case Failure(ex) => complete(InternalServerError, s"An error occurred: ${ex.getMessage}")
+        }
+
       }
     }
   } ~ path("send/messages") {
@@ -47,8 +54,12 @@ class SwarmController(actorSystem: ActorSystem) {
           val cookies = req.cookies.map { cookie =>
             Cookie(cookie.name, cookie.value)
           }
-          val response = (sendMessageActor ? PostMessageCommand(s"$SwarmBaseUrl/hive/api/v1/messages", messagePost.copy(data = java.util.Base64.getEncoder.encodeToString(messagePost.data.getBytes())), cookies.toList)).mapTo[MessageDelivery].map(_.asJson)
-          complete(HttpEntity(ContentTypes.`application/json`, response.toString))
+          val responseFut = (sendMessageActor ? PostMessageCommand(s"$SwarmBaseUrl/hive/api/v1/messages", messagePost.copy(data = java.util.Base64.getEncoder.encodeToString(messagePost.data.getBytes())), cookies.toList)).mapTo[MessageDelivery].map(_.asJson)
+          onComplete(responseFut) {
+            case Success(response) => complete(HttpEntity(ContentTypes.`application/json`, response.toString))
+            case Failure(ex) => complete(InternalServerError, s"An error occurred: ${ex.getMessage}")
+          }
+
         }
       }
     }

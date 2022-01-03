@@ -4,6 +4,8 @@ import akka.actor.{Actor, Props}
 import akka.http.scaladsl.model.HttpHeader
 import ca.pigscanfly.SwarmStart.swarmMessageClient
 import ca.pigscanfly.actors.GetMessageActor.{GetMessage, MessageAck}
+import scala.concurrent.ExecutionContext.Implicits.global
+import akka.pattern.pipe
 
 object GetMessageActor {
 
@@ -19,9 +21,9 @@ object GetMessageActor {
 class GetMessageActor extends Actor {
   override def receive: Receive = {
     case getMessageCommand: GetMessage =>
-      swarmMessageClient.getMessages(getMessageCommand.url, getMessageCommand.headers)
+      swarmMessageClient.getMessages(getMessageCommand.url, getMessageCommand.headers).pipeTo(sender())
     case messageAck: MessageAck =>
-      swarmMessageClient.ackMessage(messageAck.url, messageAck.packageId, messageAck.headers)
+      swarmMessageClient.ackMessage(messageAck.url, messageAck.packageId, messageAck.headers).pipeTo(sender())
     case _ =>
       println("Unhandled request") //TODO REPLACE IT WITH
   }
