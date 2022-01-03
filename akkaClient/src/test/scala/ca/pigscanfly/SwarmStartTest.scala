@@ -41,7 +41,7 @@ class SwarmStartTest extends TestKit(ActorSystem("test"))
       |"dataType": 0,
       |"userApplicationId": 0,
       |"len": 0,
-      |"data": "string",
+      |"data": "VGhpcyBpcyBhIGJhc2g2NCBlbmNvZGVkIHN0cmluZw==",
       |"ackPacketId": 0,
       |"status": 0,
       |"hiveRxTime": "2021-12-26T07:44:26.374Z"
@@ -77,13 +77,15 @@ class SwarmStartTest extends TestKit(ActorSystem("test"))
         .expects(HttpRequest(uri = s"$SwarmBaseUrl/hive/api/v1/messages", headers = List(cookieHeader)))
         .returning(Future.successful(HttpResponse(entity = HttpEntity(ByteString(json)))))
       val response = swarmMessageClient.getMessages(s"$SwarmBaseUrl/hive/api/v1/messages", List(cookieHeader))
-      Thread.sleep(5000) //TODO REMOVE THIS THREAD SLEEP
-      for {
+
+      val result = for {
         messages <- response
       } yield {
         println("messages" + messages)
-        assert(messages === MessageRetrieval(List(Message(0, 0, 0, "string", 0, 0, 0, "string", 0, 0, "string"))))
+        messages
       }
+      Thread.sleep(5000) //TODO REMOVE THIS THREAD SLEEP
+      assert(result.toString === Future.successful(MessageRetrieval(List(Message(0, 0, 0, "string", 0, 0, 0, "This is a bash64 encoded string", 0, 0, "2021-12-26T07:44:26.374Z")))).toString)
     }
 
     "messageAckSuccess" in {

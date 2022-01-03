@@ -24,7 +24,7 @@ trait SwarmMessageClient {
       messagesString <- Unmarshal(response.entity).to[String]
       messages <- parser.decode[List[Message]](messagesString) match {
         case Right(messages) =>
-          Future(messages)
+          Future(messages.map(message => message.copy(data = new String(java.util.Base64.getDecoder.decode(message.data)))))
         case Left(err) => Future.failed(err)
       }
     } yield MessageRetrieval(messages)

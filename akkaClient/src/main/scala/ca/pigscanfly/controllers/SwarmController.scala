@@ -47,7 +47,7 @@ class SwarmController(actorSystem: ActorSystem) {
           val cookies = req.cookies.map { cookie =>
             Cookie(cookie.name, cookie.value)
           }
-          val response = (sendMessageActor ? PostMessageCommand(s"$SwarmBaseUrl/hive/api/v1/messages", messagePost, cookies.toList)).mapTo[MessageDelivery].map(_.asJson)
+          val response = (sendMessageActor ? PostMessageCommand(s"$SwarmBaseUrl/hive/api/v1/messages", messagePost.copy(data = java.util.Base64.getEncoder.encodeToString(messagePost.data.getBytes())), cookies.toList)).mapTo[MessageDelivery].map(_.asJson)
           complete(HttpEntity(ContentTypes.`application/json`, response.toString))
         }
       }

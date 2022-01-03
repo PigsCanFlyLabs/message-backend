@@ -2,7 +2,7 @@ package ca.pigscanfly.actors
 
 import akka.actor.{Actor, Props}
 import akka.http.scaladsl.model.HttpHeader
-import ca.pigscanfly.SwarmStart.newMessage
+import ca.pigscanfly.SwarmStart.swarmMessageClient
 import ca.pigscanfly.actors.GetMessageActor.{GetMessage, MessageAck}
 
 object GetMessageActor {
@@ -19,10 +19,10 @@ object GetMessageActor {
 class GetMessageActor extends Actor {
   override def receive: Receive = {
     case getMessageCommand: GetMessage =>
-      newMessage.getMessages(getMessageCommand.url, getMessageCommand.headers)
+      swarmMessageClient.getMessages(getMessageCommand.url, getMessageCommand.headers)
     case messageAck: MessageAck =>
-      newMessage.ackMessage(messageAck.url, messageAck.packageId, messageAck.headers)
+      swarmMessageClient.ackMessage(messageAck.url, messageAck.packageId, messageAck.headers)
     case _ =>
-      println("Unhandled request") //TODO REPLACE IT WITH LOGGER
+      println("Unhandled request") //TODO REPLACE IT WITH
   }
 }
