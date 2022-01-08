@@ -4,10 +4,9 @@ import akka.actor.{ActorRef, ActorSystem}
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.model.headers.{Cookie, HttpCookiePair}
-import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.pattern.ask
 import akka.util.Timeout
-import ca.pigscanfly.SwarmStart.{executionContext, system}
+import ca.pigscanfly.Application.executionContext
 import ca.pigscanfly.actors.GetMessageActor.{GetMessage, MessageAck}
 import ca.pigscanfly.actors.SendMessageActor.PostMessageCommand
 import ca.pigscanfly.actors.{GetMessageActor, SendMessageActor}
@@ -32,20 +31,18 @@ class SwarmService(twilioService: TwilioService)(actorSystem: ActorSystem) exten
     messagesFut.map { messages =>
       messages.messageResponse.foreach { message =>
         getMessageActor ! MessageAck(s"$SwarmBaseUrl/hive/api/v1/messages/rxack", message.ackPacketId, cookies.toList)
+        //TODO: Check DB to see if valid
         twilioService.sendToTwilio(Constants.EmptyString, Constants.EmptyString, message.data)
       }
     }
     messagesFut
   }
 
-  def postMessages(req: HttpRequest): Future[MessageDelivery] = {
+  def postMessages(from: String, to: String, data: String, req: HttpRequest): Future[MessageDelivery] = {
     val cookies = extractCookies(req.cookies)
-
-    val entity: Future[MessagePost] = Unmarshal(req.entity).to[MessagePost]
-    entity.flatMap { messagePost =>
-      val updatedMessage = messagePost.copy(data = java.util.Base64.getEncoder.encodeToString(messagePost.data.getBytes()))
-      (sendMessageActor ? PostMessageCommand(s"$SwarmBaseUrl/hive/api/v1/messages", updatedMessage, cookies.toList)).mapTo[MessageDelivery]
-    }
+    //TODO: Use DB to get device details for SENDER number AND THEN SEND MESSAGE
+    val messagePost = MessagePost(1, 1, 1, java.util.Base64.getEncoder.encodeToString(data.getBytes()))
+    (sendMessageActor ? PostMessageCommand(s"$SwarmBaseUrl/hive/api/v1/messages", messagePost, cookies.toList)).mapTo[MessageDelivery]
   }
 
   private def extractCookies(cookies: Seq[HttpCookiePair]): Seq[Cookie] = {
