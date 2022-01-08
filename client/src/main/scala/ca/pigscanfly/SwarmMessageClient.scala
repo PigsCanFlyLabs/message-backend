@@ -23,8 +23,8 @@ trait SwarmMessageClient extends SprayJsonSupport with HttpClient {
   def getMessages(url: String, headers: List[HttpHeader]): Future[MessageRetrieval] = {
     sendRequest(url, headers, Constants.EmptyString, HttpMethods.GET).flatMap { response =>
       Unmarshal(response.entity).to[List[Message]].map { messages =>
-        messages.map { message => message.copy(data = new String(java.util.Base64.getDecoder.decode(message.data))) }
-        MessageRetrieval(messages)
+        val updatedMessages = messages.map { message => message.copy(data = new String(java.util.Base64.getDecoder.decode(message.data))) }
+        MessageRetrieval(updatedMessages)
       }
     }
   }
