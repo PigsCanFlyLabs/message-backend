@@ -2,11 +2,12 @@ package ca.pigscanfly.actors
 
 import akka.actor.{Actor, Props}
 import akka.http.scaladsl.model.HttpHeader
+import akka.pattern.pipe
 import ca.pigscanfly.SwarmStart.swarmMessageClient
 import ca.pigscanfly.actors.SendMessageActor.PostMessageCommand
 import ca.pigscanfly.models.MessagePost
+
 import scala.concurrent.ExecutionContext.Implicits.global
-import akka.pattern.pipe
 
 object SendMessageActor {
 

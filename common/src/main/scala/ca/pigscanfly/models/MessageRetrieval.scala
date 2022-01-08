@@ -3,6 +3,8 @@ package ca.pigscanfly.models
 import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto._
 import io.circe.parser._
+import spray.json.{DefaultJsonProtocol, RootJsonFormat}
+
 
 case class Message(packetId: Int,
                    deviceType: Int,
@@ -16,9 +18,15 @@ case class Message(packetId: Int,
                    status: Int,
                    hiveRxTime: String)
 
+object Message extends DefaultJsonProtocol {
+  implicit val format: RootJsonFormat[Message] = jsonFormat11(Message.apply)
+}
+
 case class MessageRetrieval(messageResponse: List[Message])
 
-object MessageRetrieval {
+object MessageRetrieval extends DefaultJsonProtocol {
+  implicit val format: RootJsonFormat[MessageRetrieval] = jsonFormat1(MessageRetrieval.apply)
+
   implicit val encoder: Encoder[MessageRetrieval] = deriveEncoder[MessageRetrieval]
   implicit val decoder: Decoder[MessageRetrieval] = deriveDecoder[MessageRetrieval]
 

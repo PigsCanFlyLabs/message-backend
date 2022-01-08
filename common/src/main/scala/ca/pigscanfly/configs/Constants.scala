@@ -11,5 +11,8 @@ object Constants {
 
   val SwarmBaseUrl: String = config.getString("swarm.server.base.url")
   val SendgridSecretKey: String = config.getString("sendgrid.secret.key")
+  val EmptyString: String = ""
+  val AccountSID: String = config.getString("twilio.account_sid")
+  val AuthToken: String = config.getString("twilio.auth_token")
 
 }

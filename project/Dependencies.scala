@@ -32,8 +32,9 @@ object Dependencies extends Versions {
 
   //Testing
   val scalaMock = "org.scalamock" %% "scalamock" % "4.4.0"
-  val sclaTest = "org.scalatest" %% "scalatest" % "3.0.8"
+  val scalaTest = "org.scalatest" %% "scalatest" % "3.0.8"
   val akkaTestKit = "com.typesafe.akka" %% "akka-testkit" % "2.6.8"
+  val sprayJson = "com.typesafe.akka" %% "akka-http-spray-json" % "10.2.7"
 
   val commonDependencies = List(
     typeConf,
@@ -41,6 +42,7 @@ object Dependencies extends Versions {
     circeParser,
     circeGeneric,
     twilio,
-    sendGrid
+    sendGrid,
+    sprayJson
   )
 }

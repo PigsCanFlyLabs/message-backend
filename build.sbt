@@ -19,7 +19,7 @@ lazy val common = (project in file("common"))
     commonSettings
   )
 
-lazy val akkaClient = (project in file("akkaClient"))
+lazy val client = (project in file("client"))
   .settings(
     commonSettings,
     libraryDependencies ++= Seq(
@@ -27,7 +27,7 @@ lazy val akkaClient = (project in file("akkaClient"))
       akkaStream,
       akkaHttp,
       scalaMock,
-      sclaTest,
+      scalaTest,
       akkaTestKit
     )
   ).dependsOn(common)
@@ -101,4 +101,4 @@ Compile / PB.targets := Seq(
 lazy val noPublishSettings =
   skip in publish := true
 lazy val root = (project in file("."))
-  .aggregate(common, akkaClient, sparkMiscUtils)
+  .aggregate(common, client, sparkMiscUtils)
