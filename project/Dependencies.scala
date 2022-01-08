@@ -25,8 +25,8 @@ object Dependencies extends Versions {
   val circeCore = "io.circe" %% "circe-core" % circeVersion
   val circeParser = "io.circe" %% "circe-parser" % circeVersion
   val circeGeneric = "io.circe" %% "circe-generic" % circeVersion
-  val twilio =  "com.twilio.sdk" % "twilio" % twilioVersion
-  val sendGrid =  "com.sendgrid" % "sendgrid-java" % sendGridVersion
+  val twilio = "com.twilio.sdk" % "twilio" % twilioVersion
+  val sendGrid = "com.sendgrid" % "sendgrid-java" % sendGridVersion
   val macwire = "com.softwaremill.macwire" %% "macros" % macwireVersion % "provided"
   val macwireAkka = "com.softwaremill.macwire" %% "macrosakka" % macwireAkkaVersion % "provided"
 
@@ -45,6 +45,8 @@ object Dependencies extends Versions {
     twilio,
     sendGrid,
     sprayJson,
+    scalaPbCompiler,
+    scalaPbRuntime,
     "ch.qos.logback" % "logback-classic" % "1.2.3"
   )
 }

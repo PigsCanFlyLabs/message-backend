@@ -63,6 +63,9 @@ lazy val commonSettings = Seq(
     "Second Typesafe repo" at "https://repo.typesafe.com/typesafe/maven-releases/",
     "Mesosphere Public Repository" at "https://downloads.mesosphere.io/maven",
     Resolver.sonatypeRepo("public")
+  ),
+  Compile / PB.targets := Seq(
+    scalapb.gen() -> (Compile / sourceManaged).value / "scalapb"
   )
 )
 
@@ -95,9 +98,6 @@ lazy val publishSettings = Seq(
   useGpg := true,
 )
 
-Compile / PB.targets := Seq(
-  scalapb.gen() -> (Compile / sourceManaged).value / "scalapb"
-)
 lazy val noPublishSettings =
   skip in publish := true
 lazy val root = (project in file("."))

@@ -9,12 +9,13 @@ import ca.pigscanfly.httpClient.HttpClient
 import ca.pigscanfly.models.MessagePost.encoder
 import ca.pigscanfly.models.MessageRetrieval._
 import ca.pigscanfly.models.{Message, MessageDelivery, MessagePost, MessageRetrieval}
+import ca.pigscanfly.util.ProtoUtils
 import io.circe.syntax._
 
 import scala.concurrent.{ExecutionContext, Future}
 
 
-trait SwarmMessageClient extends SprayJsonSupport with HttpClient {
+trait SwarmMessageClient extends SprayJsonSupport with HttpClient with ProtoUtils {
 
   implicit def actorSystem: ActorSystem
 
@@ -23,14 +24,14 @@ trait SwarmMessageClient extends SprayJsonSupport with HttpClient {
   def getMessages(url: String, headers: List[HttpHeader]): Future[MessageRetrieval] = {
     sendRequest(url, headers, Constants.EmptyString, HttpMethods.GET).flatMap { response =>
       Unmarshal(response.entity).to[List[Message]].map { messages =>
-        val updatedMessages = messages.map { message => message.copy(data = new String(java.util.Base64.getDecoder.decode(message.data))) }
+        val updatedMessages = messages.map { message => message.copy(data = decodeMessage(message.data).data) }
         MessageRetrieval(updatedMessages)
       }
     }
   }
 
   def sendMessage(url: String, msg: MessagePost, headers: List[HttpHeader]): Future[MessageDelivery] = {
-    sendRequest(url, headers, msg.asJson.toString(), HttpMethods.POST).flatMap { response =>
+    sendRequest(url, headers, msg.copy(data = encodeMessage(msg.data)).asJson.toString(), HttpMethods.POST).flatMap { response =>
       Unmarshal(response.entity).to[MessageDelivery]
     }
   }

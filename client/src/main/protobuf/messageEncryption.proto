@@ -1,0 +1,7 @@
+syntax = "proto2";
+
+package ca.pigscanfly.proto;
+
+message MessageData {
+  required string data = 1;
+}

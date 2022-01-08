@@ -41,7 +41,7 @@ class SwarmStartTest extends TestKit(ActorSystem("test"))
       |"dataType": 0,
       |"userApplicationId": 0,
       |"len": 0,
-      |"data": "VGhpcyBpcyBhIGJhc2g2NCBlbmNvZGVkIHN0cmluZw==",
+      |"data": "ChFUaGlzIGlzIGEgbWVzc2FnZQ==",
       |"ackPacketId": 0,
       |"status": 0,
       |"hiveRxTime": "2021-12-26T07:44:26.374Z"
@@ -59,7 +59,7 @@ class SwarmStartTest extends TestKit(ActorSystem("test"))
       |  "deviceType" : 1,
       |  "deviceId" : 1,
       |  "userApplicationId" : 1234,
-      |  "data" : "Some Message"
+      |  "data" : "CgxTb21lIE1lc3NhZ2U="
       |}
       |""".stripMargin
 
@@ -73,7 +73,7 @@ class SwarmStartTest extends TestKit(ActorSystem("test"))
   "Swarm Client" should {
     "Get Messages" in {
       swarmMessageClient.mock
-        .expects(s"$SwarmBaseUrl/hive/api/v1/messages", List(cookieHeader, contentTypeHeader),"", HttpMethods.GET)
+        .expects(s"$SwarmBaseUrl/hive/api/v1/messages", List(cookieHeader, contentTypeHeader), "", HttpMethods.GET)
         .returning(Future.successful(HttpResponse(status = StatusCodes.OK, headers = List(contentTypeHeader), entity = HttpEntity(ContentTypes.`application/json`, json))))
       val response = swarmMessageClient.getMessages(s"$SwarmBaseUrl/hive/api/v1/messages", List(cookieHeader, contentTypeHeader))
 
@@ -84,12 +84,12 @@ class SwarmStartTest extends TestKit(ActorSystem("test"))
         messages
       }
       Thread.sleep(5000) //TODO REMOVE THIS THREAD SLEEP
-      assert(result.toString === Future.successful(MessageRetrieval(List(Message(0, 0, 0, "string", 0, 0, 0, "This is a bash64 encoded string", 0, 0, "2021-12-26T07:44:26.374Z")))).toString)
+      assert(result.toString === Future.successful(MessageRetrieval(List(Message(0, 0, 0, "string", 0, 0, 0, "This is a message", 0, 0, "2021-12-26T07:44:26.374Z")))).toString)
     }
 
     "messageAckSuccess" in {
       swarmMessageClient.mock
-        .expects(s"$SwarmBaseUrl/hive/api/v1/messages/rxack/0", List(cookieHeader),"", HttpMethods.POST)
+        .expects(s"$SwarmBaseUrl/hive/api/v1/messages/rxack/0", List(cookieHeader), "", HttpMethods.POST)
         .returning(Future.successful(HttpResponse(entity = HttpEntity(ackResponseMock))))
 
       val response = swarmMessageClient.ackMessage(s"$SwarmBaseUrl/hive/api/v1/messages/rxack", 0, List(cookieHeader))
@@ -105,7 +105,7 @@ class SwarmStartTest extends TestKit(ActorSystem("test"))
     "PostSuccess" in {
       val requestBody = MessagePost(deviceType = 1, deviceId = 1, userApplicationId = 1234, data = "Some Message")
       swarmMessageClient.mock
-        .expects(s"$SwarmBaseUrl/hive/api/v1/messages",  List(cookieHeader),requestBody.asJson.toString(), HttpMethods.POST)
+        .expects(s"$SwarmBaseUrl/hive/api/v1/messages", List(cookieHeader), requestBody.copy(data = "CgxTb21lIE1lc3NhZ2U=").asJson.toString(), HttpMethods.POST)
         .returning(Future.successful(HttpResponse(entity = HttpEntity(ByteString(ackResponseMock)))))
 
       val response = swarmMessageClient.sendMessage(s"$SwarmBaseUrl/hive/api/v1/messages", requestBody, List(cookieHeader))
