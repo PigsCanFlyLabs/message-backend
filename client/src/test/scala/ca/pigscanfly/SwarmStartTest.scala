@@ -75,16 +75,9 @@ class SwarmStartTest extends TestKit(ActorSystem("test"))
       swarmMessageClient.mock
         .expects(s"$SwarmBaseUrl/hive/api/v1/messages", List(cookieHeader, contentTypeHeader), "", HttpMethods.GET)
         .returning(Future.successful(HttpResponse(status = StatusCodes.OK, headers = List(contentTypeHeader), entity = HttpEntity(ContentTypes.`application/json`, json))))
-      val response = swarmMessageClient.getMessages(s"$SwarmBaseUrl/hive/api/v1/messages", List(cookieHeader, contentTypeHeader))
-
-      val result = for {
-        messages <- response
-      } yield {
-        println("messages" + messages)
-        messages
+      swarmMessageClient.getMessages(s"$SwarmBaseUrl/hive/api/v1/messages", List(cookieHeader, contentTypeHeader)).map { response =>
+        assert(response.toString === Future.successful(MessageRetrieval(List(Message(0, 0, 0, "string", 0, 0, 0, "This is a message", 0, 0, "2021-12-26T07:44:26.374Z")))).toString)
       }
-      Thread.sleep(5000) //TODO REMOVE THIS THREAD SLEEP
-      assert(result.toString === Future.successful(MessageRetrieval(List(Message(0, 0, 0, "string", 0, 0, 0, "This is a message", 0, 0, "2021-12-26T07:44:26.374Z")))).toString)
     }
 
     "messageAckSuccess" in {
@@ -92,13 +85,8 @@ class SwarmStartTest extends TestKit(ActorSystem("test"))
         .expects(s"$SwarmBaseUrl/hive/api/v1/messages/rxack/0", List(cookieHeader), "", HttpMethods.POST)
         .returning(Future.successful(HttpResponse(entity = HttpEntity(ackResponseMock))))
 
-      val response = swarmMessageClient.ackMessage(s"$SwarmBaseUrl/hive/api/v1/messages/rxack", 0, List(cookieHeader))
-      Thread.sleep(5000) //TODO REMOVE THIS THREAD SLEEP
-      for {
-        resp <- response
-      } yield {
-        println("ackResponse: " + resp)
-        assert(resp === MessageDelivery(0, "string"))
+      swarmMessageClient.ackMessage(s"$SwarmBaseUrl/hive/api/v1/messages/rxack", 0, List(cookieHeader)).map { response =>
+        assert(response === MessageDelivery(0, "string"))
       }
     }
 
@@ -108,12 +96,7 @@ class SwarmStartTest extends TestKit(ActorSystem("test"))
         .expects(s"$SwarmBaseUrl/hive/api/v1/messages", List(cookieHeader), requestBody.copy(data = "CgxTb21lIE1lc3NhZ2U=").asJson.toString(), HttpMethods.POST)
         .returning(Future.successful(HttpResponse(entity = HttpEntity(ByteString(ackResponseMock)))))
 
-      val response = swarmMessageClient.sendMessage(s"$SwarmBaseUrl/hive/api/v1/messages", requestBody, List(cookieHeader))
-      Thread.sleep(5000) //TODO REMOVE THIS THREAD SLEEP
-      for {
-        resp <- response
-      } yield {
-        println("postResponse: " + resp)
+      val response = swarmMessageClient.sendMessage(s"$SwarmBaseUrl/hive/api/v1/messages", requestBody, List(cookieHeader)).map{ resp =>
         assert(resp === MessageDelivery(0, "OK"))
       }
     }
