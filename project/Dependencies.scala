@@ -34,6 +34,7 @@ object Dependencies extends Versions {
   val scalaMock = "org.scalamock" %% "scalamock" % "4.4.0"
   val scalaTest = "org.scalatest" %% "scalatest" % "3.0.8"
   val akkaTestKit = "com.typesafe.akka" %% "akka-testkit" % "2.6.8"
+
   val sprayJson = "com.typesafe.akka" %% "akka-http-spray-json" % "10.2.7"
 
   val commonDependencies = List(
@@ -43,6 +44,7 @@ object Dependencies extends Versions {
     circeGeneric,
     twilio,
     sendGrid,
-    sprayJson
+    sprayJson,
+    "ch.qos.logback" % "logback-classic" % "1.2.3"
   )
 }

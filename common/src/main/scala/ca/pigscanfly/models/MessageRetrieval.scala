@@ -1,8 +1,7 @@
 package ca.pigscanfly.models
 
-import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto._
-import io.circe.parser._
+import io.circe.{Decoder, Encoder}
 import spray.json.{DefaultJsonProtocol, RootJsonFormat}
 
 
@@ -33,19 +32,3 @@ object MessageRetrieval extends DefaultJsonProtocol {
   implicit val encoderMessage: Encoder[Message] = deriveEncoder[Message]
   implicit val decoderMessage: Decoder[Message] = deriveDecoder[Message]
 }
-
-//[
-//{
-//"packetId": 0,
-//"deviceType": 0,
-//"deviceId": 0,
-//"deviceName": "string",
-//"dataType": 0,
-//"userApplicationId": 0,
-//"len": 0,
-//"data": "string",
-//"ackPacketId": 0,
-//"status": 0,
-//"hiveRxTime": "2021-12-26T07:44:26.374Z"
-//}
-//]
