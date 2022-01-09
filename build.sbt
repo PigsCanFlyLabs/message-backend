@@ -1,25 +1,41 @@
-lazy val core = (project in file("."))
+import Dependencies._
+
+scalaVersion := "2.13.7"
+
+lazy val sparkMiscUtils = (project in file("spark-misc-utils"))
   .settings(
     name := "spark-misc-utils",
     commonSettings,
     publishSettings,
     libraryDependencies ++= Seq(
-        "com.thesamet.scalapb" %% "compilerplugin" % "0.11.1",
-	"com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf"
-    ),
+      scalaPbCompiler,
+      scalaPbRuntime
+    )
+  ).dependsOn(common)
+
+lazy val common = (project in file("common"))
+  .settings(
+    libraryDependencies ++= commonDependencies,
+    commonSettings
   )
 
-Compile / PB.targets := Seq(
-  scalapb.gen() -> (Compile / sourceManaged).value / "scalapb"
-)
+lazy val client = (project in file("client"))
+  .settings(
+    commonSettings,
+    libraryDependencies ++= Seq(
+      actor,
+      akkaStream,
+      akkaHttp,
+      scalaMock,
+      scalaTest,
+      akkaTestKit
+    )
+  ).dependsOn(common)
 
-val commonSettings = Seq(
+lazy val commonSettings = Seq(
   organization := "ca.pigscanfly.ca.satellite.backend",
   publishMavenStyle := true,
   version := "0.0.1",
-  scalaVersion := {
-    "2.13.7"
-  },
   scalacOptions ++= Seq("-deprecation", "-unchecked", "-Yrangepos", "-Ywarn-unused-import"),
   javacOptions ++= {
     Seq("-source", "1.11", "-target", "1.11")
@@ -29,8 +45,12 @@ val commonSettings = Seq(
   parallelExecution in Test := false,
   fork := true,
 
-  scalastyleSources in Compile ++= {unmanagedSourceDirectories in Compile}.value,
-  scalastyleSources in Test ++= {unmanagedSourceDirectories in Test}.value,
+  scalastyleSources in Compile ++= {
+    unmanagedSourceDirectories in Compile
+  }.value,
+  scalastyleSources in Test ++= {
+    unmanagedSourceDirectories in Test
+  }.value,
 
   resolvers ++= Seq(
     "JBoss Repository" at "https://repository.jboss.org/nexus/content/repositories/releases/",
@@ -43,6 +63,9 @@ val commonSettings = Seq(
     "Second Typesafe repo" at "https://repo.typesafe.com/typesafe/maven-releases/",
     "Mesosphere Public Repository" at "https://downloads.mesosphere.io/maven",
     Resolver.sonatypeRepo("public")
+  ),
+  Compile / PB.targets := Seq(
+    scalapb.gen() -> (Compile / sourceManaged).value / "scalapb"
   )
 )
 
@@ -54,7 +77,7 @@ lazy val publishSettings = Seq(
     if (isSnapshot.value)
       Some("snapshots" at nexus + "content/repositories/snapshots")
     else
-      Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+      Some("releases" at nexus + "service/local/staging/deploy/maven2")
   },
 
   licenses := Seq("Apache License 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.html")),
@@ -75,6 +98,7 @@ lazy val publishSettings = Seq(
   useGpg := true,
 )
 
-
 lazy val noPublishSettings =
   skip in publish := true
+lazy val root = (project in file("."))
+  .aggregate(common, client, sparkMiscUtils)
