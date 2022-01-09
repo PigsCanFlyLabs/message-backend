@@ -7,26 +7,18 @@ import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import ca.pigscanfly.actor.AdminActor._
 import ca.pigscanfly.components._
+import ca.pigscanfly.models.JWTTokenHelper
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
-trait AdminHandler {
+trait AdminHandler extends JWTTokenHelper {
 
   implicit val system: ActorSystem
 
   implicit val materializer: ActorMaterializer
   implicit val timeOut: Timeout = Timeout(40 seconds)
-
-  def getAppHealth(command: ActorRef): Future[HttpResponse] = {
-    ask(command, TestActorCall).mapTo[Int].map {
-      case 0 =>
-        HttpResponse.apply()
-      case 1 =>
-        HttpResponse.apply()
-    }
-  }
 
   def createUser(command: ActorRef,
                  user: User): Future[HttpResponse] = {
@@ -157,7 +149,9 @@ trait AdminHandler {
       case ValidationResponse(true) =>
         HttpResponse(status = StatusCodes.OK,
           headers = Nil,
-          entity = HttpEntity.Empty,
+          entity = HttpEntity(
+            ContentTypes.`application/json`,
+            createJwtTokenWithRole(adminLogin.email, adminLogin.role)),
           protocol = HttpProtocols.`HTTP/1.1`)
     }
 

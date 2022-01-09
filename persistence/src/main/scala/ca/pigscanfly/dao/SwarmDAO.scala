@@ -97,10 +97,4 @@ class SwarmDAO(implicit val db: Database,
 
   def createAdminUser(details: AdminLogin): Future[Int] = db.run(adminLoginQuery += details)
 
-  def checkDbConnection(): Future[Int] = {
-    val query =
-      sqlu"""UPDATE public.cls SET displayorder=${6.0} WHERE id=10001"""
-    db.run(query)
-  }
-
 }

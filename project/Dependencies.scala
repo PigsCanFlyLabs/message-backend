@@ -4,7 +4,7 @@ trait Versions {
   val typeConfVersion = "1.4.1"
   val AkkaVersion = "2.6.8"
   val AkkaHttpVersion = "10.2.7"
-  val akkaHttpCirceVersion          = "1.26.0"
+  val akkaHttpCirceVersion = "1.26.0"
   val ScalaTestVersion = "3.3.0-SNAP3"
   val ScalaMockVersion = "5.1.0"
   val circeVersion = "0.15.0-M1"
@@ -21,6 +21,7 @@ trait Versions {
   val hikaricpVersion = "3.2.3"
   val slickCircePgVersion = "0.19.4"
   val flywayVersion = "3.2.1"
+  val jwtCirceVersion = "7.1.2"
 }
 
 object Dependencies extends Versions {
@@ -57,6 +58,8 @@ object Dependencies extends Versions {
   val hikaricp        = "com.typesafe.slick" %% "slick-hikaricp" % hikaricpVersion
   val slickCirce =  "com.github.tminglei" %% "slick-pg_circe-json" % slickCircePgVersion
   val flyway = "org.flywaydb" % "flyway-core" % flywayVersion
+  val jwtCirce =  "com.github.jwt-scala" %% "jwt-circe" % jwtCirceVersion
+
   val commonDependencies = List(
     akkaHttpCirce,
     typeConf,
@@ -71,8 +74,8 @@ object Dependencies extends Versions {
     "ch.qos.logback" % "logback-classic" % "1.2.3",
     jansi,
     pureConfig,
-    flyway
-
+    flyway,
+    jwtCirce
   )
 
   val dbDependencies = Seq(slick, slickPg, postgres, hikaricp, slickCirce)

@@ -16,10 +16,6 @@ class AdminActor(swarmDAO: SwarmDAO)(
 
   //noinspection ScalaStyle
   override def receive: Receive = {
-    case TestActorCall =>
-      val res = swarmDAO.checkDbConnection()
-      res.pipeTo(sender())
-
     case ValidateUserCommand(email: String, deviceId: String) =>
       val res = swarmDAO.checkIfUserExists(email, deviceId).map {
         case 1 =>
@@ -113,8 +109,6 @@ object AdminActor {
   sealed trait Command
 
   sealed trait Response
-
-  final case class TestActorCall() extends Command
 
   final case class ValidationResponse(status: Boolean) extends Response
 

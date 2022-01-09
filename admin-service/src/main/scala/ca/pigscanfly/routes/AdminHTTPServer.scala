@@ -27,7 +27,7 @@ object AdminHTTPServer
 
   import system.dispatcher
 
-  lazy val routes: Route = getUserRoutes(adminServiceActor)
+  lazy val routes: Route = adminUserRoutes(adminServiceActor)
 
   val dbConfig = DBConfig(profile = dbProfile,
     driver = dbDriver,

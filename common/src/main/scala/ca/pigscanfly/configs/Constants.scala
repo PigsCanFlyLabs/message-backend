@@ -31,4 +31,8 @@ object Constants {
   val dbThreadsPoolCount = config.getInt("db.config.threads.pool.count")
   val dbQueueSize = config.getInt("db.config.queue.size")
   val dbSearchLimit = config.getInt("db.config.search.limit")
+
+  val jwtKey = config.getString("jwt.scala.circe.key")
+  val jwtExpiryDuration: Int = config.getInt("jwt.scala.circe.expire-duration-sec")
+
 }
