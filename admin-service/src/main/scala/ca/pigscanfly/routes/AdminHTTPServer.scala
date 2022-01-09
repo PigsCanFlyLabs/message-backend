@@ -51,12 +51,12 @@ object AdminHTTPServer
   )
   implicit val schema: String = dbConfig.schema
 
-  implicit val searchLimit: Int = 10
+  implicit val searchLimit: Int = dbConfig.searchLimit
+
+  val futureAwaitTime: FiniteDuration = akkaAwaitDuration.minutes
 
   implicit val futureAwaitDuration: FiniteDuration =
     FiniteDuration(futureAwaitTime.length, futureAwaitTime.unit)
-
-  val futureAwaitTime: FiniteDuration = akkaAwaitDuration.minutes
 
   val flyWayService = new FlywayService(dbConfig)
   flyWayService.migrateDatabaseSchema()

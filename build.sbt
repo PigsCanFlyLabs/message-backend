@@ -121,3 +121,5 @@ lazy val noPublishSettings =
   skip in publish := true
 lazy val root = (project in file("."))
   .aggregate(common, client, sparkMiscUtils, adminService, persistence)
+
+envFileName in ThisBuild := ".env-swarmservice"
