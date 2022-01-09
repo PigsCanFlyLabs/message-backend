@@ -27,7 +27,7 @@ object AdminHTTPServer
 
   import system.dispatcher
 
-  lazy val routes: Route = getUserRoutes(campaignViewActor)
+  lazy val routes: Route = getUserRoutes(adminServiceActor)
 
   val dbConfig = DBConfig(profile = dbProfile,
     driver = dbDriver,
@@ -38,7 +38,6 @@ object AdminHTTPServer
     threadsPoolCount = dbThreadsPoolCount,
     queueSize = dbQueueSize,
     searchLimit = dbSearchLimit)
-
 
   implicit val db: Database = Database.forURL(
     url = dbConfig.url,
@@ -64,7 +63,7 @@ object AdminHTTPServer
   val swarmDAO = new SwarmDAO()
 
   implicit val routeCache: RoleAuthorizationCache = new RoleAuthorizationCache(swarmDAO)
-  val campaignViewActor: ActorRef = system.actorOf(
+  val adminServiceActor: ActorRef = system.actorOf(
     AdminActor
       .props(swarmDAO)
       .withRouter(RoundRobinPool(nrOfInstances = 10)),
