@@ -2,6 +2,19 @@ import Dependencies._
 
 scalaVersion := "2.13.7"
 
+// Docker packaging
+enablePlugins(JavaAppPackaging)
+
+dockerBaseImage := "jdk11u-debian-nightly"
+
+import com.typesafe.sbt.packager.docker._
+
+dockerCommands ++= Seq(  Cmd("USER", "root"),  ExecCmd("RUN", "apt-get", "install", "-y", "bash"))
+
+packageName in Docker := "holdenk/dockerised-akka-http-messaging-app"
+
+// Normal build
+
 lazy val sparkMiscUtils = (project in file("spark-misc-utils"))
   .settings(
     name := "spark-misc-utils",
