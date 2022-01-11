@@ -1,7 +1,7 @@
 ## Admin Service
 
 This module is developed using Akka HTTP with Slick intergration to execute database queries.
-This project handles authorization for multiple roles i.e. each route is accessible by specified role only.
+This project handles authorization using JWT HS256 encoding for multiple roles i.e. each route is accessible by specified role only.
 
 ### clean
 
@@ -64,7 +64,7 @@ URL <- localhost:8081
 }
 ````
 
-#### Create Admin User
+#### Create Admin User  (accessible by admin/ super admin)
 ###### Request: POST <- /admin/create-admin-user
 ###### Header: requires admin/ super admin bearer token
 ###### Body: raw JSON
@@ -76,7 +76,7 @@ URL <- localhost:8081
 }
 ````
 
-#### Create new User
+#### Create new User  (accessible by admin/ super admin)
 ###### Request: POST <- /admin/create-user
 ###### Header: requires admin/ super admin bearer token
 ###### Body: raw JSON
@@ -89,7 +89,7 @@ URL <- localhost:8081
 }
 ````
 
-##### Update user details based on email and device id
+##### Update user details based on email and device id (accessible by admin/ super admin)
 ###### Request: POST <- /admin/update-user
 ###### Header: requires admin/ super admin bearer token
 ###### Body: raw JSON
@@ -102,7 +102,7 @@ URL <- localhost:8081
 }
 ````
 
-##### Enable/ disable user
+##### Enable/ disable user  (accessible by admin/ super admin)
 ###### Request: POST <- /admin/update-user
 ###### Header: requires admin/ super admin bearer token
 ###### Body: raw JSON
@@ -115,15 +115,15 @@ URL <- localhost:8081
 }
 ````
 
-##### Get subject marks
+##### Get subject marks  (accessible by admin/ super admin)
 ###### Header: requires admin/ super admin bearer token
 ````
 Request: GET <- /admin/get-user-details?emailId=email@email.com&deviceId=123
 ````
 
-##### Delete User
+##### Delete User  (accessible by super admin)
 ###### Request: DELETE <- /admin/delete-user
-###### Header: requires admin/ super admin bearer token
+###### Header: requires super admin bearer token
 ###### Body: raw JSON
 
 ````
