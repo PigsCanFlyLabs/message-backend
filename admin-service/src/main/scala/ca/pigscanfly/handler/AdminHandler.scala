@@ -70,9 +70,8 @@ trait AdminHandler extends JWTTokenHelper {
   }
 
   def getUserDetails(command: ActorRef,
-                     email: String,
                      deviceId: String): Future[HttpResponse] = {
-    ask(command, GetUserCommand(email, deviceId)).map {
+    ask(command, GetUserCommand(deviceId)).map {
       case _: NoDataFound => HttpResponse(status = StatusCodes.NoContent,
         headers = Nil,
         entity = HttpEntity.Empty,
