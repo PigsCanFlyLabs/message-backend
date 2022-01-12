@@ -5,3 +5,4 @@ project/target
 #project/project
 .bsp
 .idea
+.env-swarmservice

@@ -34,7 +34,7 @@ object Application extends App {
   bindingFuture.onComplete {
     case Success(binding) ⇒
       val localAddress = binding.localAddress
-      logger.info(s"Swarm Application is listening on ${localAddress.getHostName}:${localAddress.getPort}!!!!")
-    case Failure(exception) => logger.info("Unable to start Exposure Data API Service due to ", exception)
+      logger.info(s"Application is listening on ${localAddress.getHostName}:${localAddress.getPort}!!!!")
+    case Failure(exception) => logger.info("Unable to start Application Service due to ", exception)
   }
 }

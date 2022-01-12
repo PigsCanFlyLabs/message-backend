@@ -32,6 +32,25 @@ lazy val common = (project in file("common"))
     commonSettings
   )
 
+lazy val persistence = (project in file("persistence"))
+  .settings(
+    libraryDependencies ++= commonDependencies ++ dbDependencies,
+    commonSettings
+  ) dependsOn common
+
+lazy val adminService = (project in file("admin-service"))
+  .settings(
+    commonSettings,
+    libraryDependencies ++= Seq(
+      actor,
+      akkaStream,
+      akkaHttp,
+      scalaMock,
+      scalaTest,
+      akkaTestKit
+    )
+  ).dependsOn(common, persistence)
+
 lazy val client = (project in file("client"))
   .settings(
     commonSettings,
@@ -114,4 +133,6 @@ lazy val publishSettings = Seq(
 lazy val noPublishSettings =
   skip in publish := true
 lazy val root = (project in file("."))
-  .aggregate(common, client, sparkMiscUtils)
+  .aggregate(common, client, sparkMiscUtils, adminService, persistence)
+
+envFileName in ThisBuild := ".env-swarmservice"
