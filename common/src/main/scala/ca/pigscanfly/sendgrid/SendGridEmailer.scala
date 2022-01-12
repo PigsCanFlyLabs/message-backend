@@ -8,12 +8,12 @@ import com.sendgrid.helpers.mail.objects._
 
 trait SendGridEmailer {
 
-  def sendDummyMail() {
+  def sendMail(to:String, msg:String) {
     val from = new Email("jashangoyal96@gmail.com")
-    val to = new Email("kumar.driviz@gmail.com")
+    val to = new Email(to)
 
     val subject = "Sending with Twilio SendGrid"
-    val content = new Content("text/html", "Test Mesage")
+    val content = new Content("text/html", msg)
 
     val mail = new Mail(from, subject, to, content)
 
