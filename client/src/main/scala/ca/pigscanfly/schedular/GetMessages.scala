@@ -2,6 +2,7 @@ package ca.pigscanfly.schedular
 
 import akka.actor.{Actor, Scheduler}
 import akka.http.scaladsl.model.headers.Cookie
+import ca.pigscanfly.Application.swarmDAO
 import ca.pigscanfly.schedular.GetMessages._
 import ca.pigscanfly.service.SwarmService
 
@@ -36,8 +37,8 @@ class GetMessages(swarmService: SwarmService) extends Actor {
   def getMessages: Unit ={
     val cookieHeader: Cookie = Cookie("JSESSIONID", "B120DCEBC05C9F6CE3FBCA259356C17E") //TODO should get from Login
     val msg = swarmService.getMessages(List(cookieHeader)) onComplete {
-      case Success(value) => value.messageResponse.map{x=>
-        x.deviceId // Should hit DB and get users info and send SMS based upon that
+      case Success(value) => value.messageResponse.map{message=>
+        swarmDAO.getUserDetails(message.deviceId)
       }
       case Failure(exception) =>
 

@@ -39,7 +39,7 @@ class SwarmDAO(implicit val db: Database,
     db.run(query)
   }
 
-  def checkIfUserExists(email: String, deviceId: String): Future[Int] = {
+  def checkIfUserExists(email: String, deviceId: Int): Future[Int] = {
     val query = userQuery
       .filter(col => (col.email === email &&
         col.deviceId === deviceId))
@@ -48,7 +48,7 @@ class SwarmDAO(implicit val db: Database,
     db.run(query)
   }
 
-  def getUserDetails(deviceId: String): Future[Option[User]] = {
+  def getUserDetails(deviceId: Int): Future[Option[User]] = {
     val query = userQuery
       .filter(col => col.deviceId === deviceId)
       .result

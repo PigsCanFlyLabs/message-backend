@@ -16,7 +16,7 @@ class AdminActor(swarmDAO: SwarmDAO)(
 
   //noinspection ScalaStyle
   override def receive: Receive = {
-    case ValidateUserCommand(email: String, deviceId: String) =>
+    case ValidateUserCommand(email: String, deviceId: Int) =>
       val res = swarmDAO.checkIfUserExists(email, deviceId).map {
         case 1 =>
           ValidationResponse(true)
@@ -25,7 +25,7 @@ class AdminActor(swarmDAO: SwarmDAO)(
       }
       res.pipeTo(sender())
 
-    case GetUserCommand(deviceId: String) =>
+    case GetUserCommand(deviceId: Int) =>
       val res = swarmDAO.getUserDetails(deviceId).map {
         case None =>
           NoDataFound()
@@ -118,9 +118,9 @@ object AdminActor {
 
   final case class GetUserDetailsResponse(details: User) extends Response
 
-  final case class ValidateUserCommand(email: String, deviceId: String) extends Command
+  final case class ValidateUserCommand(email: String, deviceId: Int) extends Command
 
-  final case class GetUserCommand(deviceId: String) extends Command
+  final case class GetUserCommand(deviceId: Int) extends Command
 
   final case class CreateUserCommand(user: User) extends Command
 

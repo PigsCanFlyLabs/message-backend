@@ -14,7 +14,7 @@ final case class UserTable(tag: Tag)(implicit val schema: String)
       email,
       isActive).shaped <> (User.tupled, User.unapply)
 
-  def deviceId: Rep[String] = column[String]("device_id", O.PrimaryKey)
+  def deviceId: Rep[Int] = column[Int]("device_id", O.PrimaryKey)
 
   def name: Rep[String] = column[String]("name")
 

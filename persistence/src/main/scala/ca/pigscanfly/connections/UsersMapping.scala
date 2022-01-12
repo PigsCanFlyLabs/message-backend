@@ -13,7 +13,7 @@ final case class UsersMapping(tag: Tag)(implicit val schema: String)
       email,
       isDisabled).shaped <> (User.tupled, User.unapply)
 
-  def deviceId: Rep[String] = column[String]("device_id")
+  def deviceId: Rep[Int] = column[Int]("device_id")
 
   def name: Rep[String] = column[String]("name")
 
@@ -21,8 +21,7 @@ final case class UsersMapping(tag: Tag)(implicit val schema: String)
 
   def isDisabled: Rep[Boolean] = column[Boolean]("is_disabled")
 
-  implicit def primary: (Rep[String], Rep[String]) =
-    (email, deviceId)
+  implicit def primary: Rep[Int] = deviceId
 
-  def pk: PrimaryKey = primaryKey("pk_a", (email, deviceId))
+  def pk: PrimaryKey = primaryKey("pk_a", deviceId)
 }
