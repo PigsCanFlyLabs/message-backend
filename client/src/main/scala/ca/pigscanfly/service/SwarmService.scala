@@ -24,8 +24,7 @@ class SwarmService(twilioService: TwilioService)(actorSystem: ActorSystem) exten
 
   implicit val timeout: Timeout = Timeout(3.seconds)
 
-  def getMessages(req: HttpRequest): Future[MessageRetrieval] = {
-    val cookies = extractCookies(req.cookies)
+  def getMessages(cookies: Seq[Cookie]): Future[MessageRetrieval] = {
     val messagesFut = (getMessageActor ? GetMessage(s"$SwarmBaseUrl/hive/api/v1/messages", cookies.toList)).mapTo[MessageRetrieval]
 
     messagesFut.map { messages =>
@@ -45,7 +44,7 @@ class SwarmService(twilioService: TwilioService)(actorSystem: ActorSystem) exten
     (sendMessageActor ? PostMessageCommand(s"$SwarmBaseUrl/hive/api/v1/messages", messagePost, cookies.toList)).mapTo[MessageDelivery]
   }
 
-  private def extractCookies(cookies: Seq[HttpCookiePair]): Seq[Cookie] = {
+  def extractCookies(cookies: Seq[HttpCookiePair]): Seq[Cookie] = {
     cookies.map { cookie =>
       Cookie(cookie.name, cookie.value)
     }

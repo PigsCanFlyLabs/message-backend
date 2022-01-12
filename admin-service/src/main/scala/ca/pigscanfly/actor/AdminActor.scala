@@ -25,8 +25,8 @@ class AdminActor(swarmDAO: SwarmDAO)(
       }
       res.pipeTo(sender())
 
-    case GetUserCommand(email: String, deviceId: String) =>
-      val res = swarmDAO.getUserDetails(email, deviceId).map {
+    case GetUserCommand(deviceId: String) =>
+      val res = swarmDAO.getUserDetails(deviceId).map {
         case None =>
           NoDataFound()
         case Some(details) =>
@@ -120,7 +120,7 @@ object AdminActor {
 
   final case class ValidateUserCommand(email: String, deviceId: String) extends Command
 
-  final case class GetUserCommand(email: String, deviceId: String) extends Command
+  final case class GetUserCommand(deviceId: String) extends Command
 
   final case class CreateUserCommand(user: User) extends Command
 
