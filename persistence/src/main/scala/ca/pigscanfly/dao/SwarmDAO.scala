@@ -48,10 +48,9 @@ class SwarmDAO(implicit val db: Database,
     db.run(query)
   }
 
-  def getUserDetails(email: String, deviceId: String): Future[Option[User]] = {
+  def getUserDetails(deviceId: String): Future[Option[User]] = {
     val query = userQuery
-      .filter(col => (col.email === email &&
-        col.deviceId === deviceId))
+      .filter(col => col.deviceId === deviceId)
       .result
       .headOption
     db.run(query)
