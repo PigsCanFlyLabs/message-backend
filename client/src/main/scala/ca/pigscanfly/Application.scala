@@ -2,8 +2,8 @@ package ca.pigscanfly
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
-import ca.pigscanfly.configs.ClientConstants.dbConfig
-import ca.pigscanfly.configs.Constants.{AccountSID, AuthToken, ServerHost, ServerPort}
+import ca.pigscanfly.configs.ClientConstants.{dbConfig, serverHost, serverPort}
+import ca.pigscanfly.configs.Constants.{AccountSID, AuthToken}
 import ca.pigscanfly.controllers.SwarmController
 import ca.pigscanfly.dao.SwarmDAO
 import ca.pigscanfly.httpClient.HttpClient
@@ -46,7 +46,7 @@ object Application extends App {
   val swarmService = new SwarmService(twilioService)(system)
   val notificationController = new SwarmController(swarmService)
   val routerHandler = notificationController.routes
-  val bindingFuture = Http().newServerAt(ServerHost, ServerPort).bind(routerHandler)
+  val bindingFuture = Http().newServerAt(serverHost, serverPort).bind(routerHandler)
 
   bindingFuture.onComplete {
     case Success(binding) ⇒

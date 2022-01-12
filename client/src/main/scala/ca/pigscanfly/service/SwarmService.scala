@@ -2,17 +2,17 @@ package ca.pigscanfly.service
 
 import akka.actor.{ActorRef, ActorSystem}
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import akka.http.scaladsl.model.HttpRequest
+import akka.http.scaladsl.model.{HttpHeader, HttpRequest}
 import akka.http.scaladsl.model.headers.{Cookie, HttpCookiePair}
 import akka.pattern.ask
 import akka.util.Timeout
 import ca.pigscanfly.Application.executionContext
-import ca.pigscanfly.actors.GetMessageActor.{GetMessage, MessageAck}
+import ca.pigscanfly.actors.GetMessageActor.{GetMessage, SwarmLogin, MessageAck}
 import ca.pigscanfly.actors.SendMessageActor.PostMessageCommand
 import ca.pigscanfly.actors.{GetMessageActor, SendMessageActor}
 import ca.pigscanfly.configs.Constants
 import ca.pigscanfly.configs.Constants.SwarmBaseUrl
-import ca.pigscanfly.models.{MessageDelivery, MessagePost, MessageRetrieval}
+import ca.pigscanfly.models.{LoginCredentials, MessageDelivery, MessagePost, MessageRetrieval}
 
 import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
@@ -24,7 +24,11 @@ class SwarmService(twilioService: TwilioService)(actorSystem: ActorSystem) exten
 
   implicit val timeout: Timeout = Timeout(3.seconds)
 
-  def getMessages(cookies: Seq[Cookie]): Future[MessageRetrieval] = {
+  def swarmLogin(loginCredentials:LoginCredentials): Future[Seq[HttpHeader]] = {
+    (getMessageActor ? SwarmLogin(s"$SwarmBaseUrl/login",loginCredentials)).mapTo[Seq[HttpHeader]]
+  }
+
+  def getMessages(cookies: Seq[HttpHeader]): Future[MessageRetrieval] = {
     val messagesFut = (getMessageActor ? GetMessage(s"$SwarmBaseUrl/hive/api/v1/messages", cookies.toList)).mapTo[MessageRetrieval]
 
     messagesFut.map { messages =>

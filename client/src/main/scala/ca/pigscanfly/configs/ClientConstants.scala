@@ -7,9 +7,11 @@ object ClientConstants {
 
   val config: Config = ConfigFactory.load
 
-  val adminHost = config.getString("admin.host")
-  val adminPort: Int = config.getInt("admin.port")
+  val serverHost: String = config.getString("server.host")
+  val serverPort: Int = config.getInt("server.port")
 
+  val swarmUserName = config.getString("swarm.username")
+  val swarmPassword = config.getString("swarm.password")
 
   val dbProfile = config.getString("db.config.profile")
   val dbDriver = config.getString("db.config.driver")

@@ -6,9 +6,6 @@ object Constants {
 
   val config: Config = ConfigFactory.load
 
-  val ServerHost: String = config.getString("server.host")
-  val ServerPort: Int = config.getInt("server.port")
-
   val SwarmBaseUrl: String = config.getString("swarm.server.base.url")
   val SendgridSecretKey: String = config.getString("sendgrid.secret.key")
   val EmptyString: String = ""
