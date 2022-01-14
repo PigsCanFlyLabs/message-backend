@@ -84,7 +84,7 @@ class SwarmStartTest extends TestKit(ActorSystem("test")) with AsyncWordSpec
         .returning(Future.successful(HttpResponse(entity = HttpEntity(ackResponseMock))))
 
       swarmMessageClient.ackMessage(s"$SwarmBaseUrl/hive/api/v1/messages/rxack", 0, List(cookieHeader)).map { response =>
-        assert(response === MessageDelivery(0, "asdfstring"))
+        assert(response === MessageDelivery(0, "string"))
       }
     }
 
@@ -95,7 +95,7 @@ class SwarmStartTest extends TestKit(ActorSystem("test")) with AsyncWordSpec
         .returning(Future.successful(HttpResponse(entity = HttpEntity(ByteString(ackResponseMock)))))
 
       swarmMessageClient.sendMessage(s"$SwarmBaseUrl/hive/api/v1/messages", requestBody, List(cookieHeader)).map{ resp =>
-        assert(resp === MessageDelivery(0, "sadfOK"))
+        assert(resp === MessageDelivery(0, "OK"))
       }
     }
 Thread.sleep(5000)
