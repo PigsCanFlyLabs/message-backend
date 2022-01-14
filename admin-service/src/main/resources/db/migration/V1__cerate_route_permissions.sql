@@ -21,8 +21,8 @@ CREATE TABLE IF NOT EXISTS admin.admin_login (
 
 CREATE TABLE IF NOT EXISTS admin.users_mapping (
 	email VARCHAR NOT NULL,
-	device_id VARCHAR NOT NULL,
+	device_id INT NOT NULL,
 	name VARCHAR NOT NULL,
 	is_disabled BOOLEAN default false,
-	primary key (email,device_id)
+	primary key (device_id)
 );
