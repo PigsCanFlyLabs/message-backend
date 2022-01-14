@@ -98,7 +98,7 @@ class SwarmStartTest extends TestKit(ActorSystem("test")) with AsyncWordSpec
         assert(resp === MessageDelivery(0, "OK"))
       }
     }
-Thread.sleep(5000)
+
     "LoginSuccess" in {
       val requestBody = LoginCredentials("username","password")
       swarmMessageClient.mock
@@ -108,7 +108,6 @@ Thread.sleep(5000)
       val response = swarmMessageClient.login(s"$SwarmBaseUrl/login", requestBody)
       Thread.sleep(5000)
 
-      println("aaaaaaaaaaa"+response)
       assert(response === MessageDelivery(0, "OK"))
     }
   }

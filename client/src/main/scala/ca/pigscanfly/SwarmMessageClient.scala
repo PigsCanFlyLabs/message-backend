@@ -24,7 +24,6 @@ trait SwarmMessageClient extends SprayJsonSupport with HttpClient with ProtoUtil
   implicit def executionContext: ExecutionContext
 
   def login(url: String, loginCredentials: LoginCredentials): Future[Seq[HttpHeader]] = {
-    println("Hitting get new cookies route")
     sendRequest(url, List.empty, loginCredentials.asJson.toString(), HttpMethods.GET).map { response =>
       response.headers
     }
