@@ -9,11 +9,11 @@ import ca.pigscanfly.actor.AdminActor
 import ca.pigscanfly.cache.RoleAuthorizationCache
 import ca.pigscanfly.configs.Constants._
 import ca.pigscanfly.dao._
-import ca.pigscanfly.db.DatabaseApi.api._
 import ca.pigscanfly.flyway.FlywayService
 import ca.pigscanfly.models.DBConfig
 import org.fusesource.jansi.Ansi.Color._
 import org.fusesource.jansi.Ansi._
+import slick.jdbc.MySQLProfile.api._
 
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}

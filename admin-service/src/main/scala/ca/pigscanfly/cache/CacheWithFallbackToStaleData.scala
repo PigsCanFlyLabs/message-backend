@@ -139,12 +139,11 @@ trait CacheWithFallbackToStaleData[K, V] {
   private[this] def doGetEntry(key: K)(
     failureFunction: Throwable => CacheEntry[V]): CacheEntry[V] = {
     Try(refresh(key)) match {
-      case Success(value) => {
+      case Success(value) =>
         CacheEntry(
           value = value,
           expiresAt = ZonedDateTime.now.plusSeconds(expirationInSeconds(value))
         )
-      }
       case Failure(ex) => failureFunction(ex)
     }
   }
