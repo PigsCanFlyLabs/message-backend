@@ -9,7 +9,7 @@ case class DBConfig(profile: String,
                     url: String,
                     user: String,
                     password: String,
-                    schema: String,
+                    adminSchema: String,
                     threadsPoolCount: Int,
                     queueSize: Int,
                     searchLimit: Int)

@@ -7,7 +7,7 @@ CREATE TABLE admin.resource_permission (
 );
 
 CREATE TABLE admin.roles_resource_access (
-    id VARCHAR(100) NOT NULL,
+    id VARCHAR(100) PRIMARY KEY,
 	user_type varchar(100) NULL,
 	resource VARCHAR(500) NULL
 );
@@ -19,10 +19,12 @@ CREATE TABLE IF NOT EXISTS admin.admin_login (
 	role VARCHAR(50) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS admin.users_mapping (
-	email VARCHAR(50) NOT NULL,
-	device_id VARCHAR(50) NOT NULL,
-	name VARCHAR(50) NOT NULL,
-	is_disabled BOOLEAN default false,
-	primary key (email,device_id)
+
+CREATE SCHEMA IF NOT EXISTS users;
+
+CREATE TABLE IF NOT EXISTS users.users_mapping (
+	email VARCHAR(50) NOT NULL UNIQUE,
+	device_id BIGINT PRIMARY KEY,
+	phone_number VARCHAR(50) NOT NULL UNIQUE,
+	is_disabled BOOLEAN DEFAULT FALSE NOT NULL
 );

@@ -2,27 +2,22 @@ package ca.pigscanfly.connections
 
 import ca.pigscanfly.components._
 import slick.jdbc.MySQLProfile.api._
-import slick.lifted.{PrimaryKey, ProvenShape}
+import slick.lifted.ProvenShape
 
-final case class UsersMapping(tag: Tag)(implicit val schema: String)
-  extends Table[User](tag, Some(schema), "users_mapping") {
+final case class UsersMapping(tag: Tag)
+  extends Table[User](tag, Some("users"), "users_mapping") {
 
   def * : ProvenShape[User] =
     (deviceId,
-      name,
+      phone,
       email,
       isDisabled).shaped <> (User.tupled, User.unapply)
 
-  def name: Rep[String] = column[String]("name")
+  def phone: Rep[String] = column[String]("phone_number")
 
   def isDisabled: Rep[Boolean] = column[Boolean]("is_disabled")
 
-  def pk: PrimaryKey = primaryKey("pk_a", (email, deviceId))
+  def deviceId: Rep[Long] = column[Long]("device_id")
 
-  def deviceId: Rep[String] = column[String]("device_id")
-
-  implicit def primary: (Rep[String], Rep[String]) =
-    (email, deviceId)
-
-  def email: Rep[String] = column[String]("email")
+  def email: Rep[String] = column[String]("email", O.PrimaryKey)
 }
