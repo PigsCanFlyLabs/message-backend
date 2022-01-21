@@ -58,4 +58,13 @@ class UserDAO(implicit val db: Database,
     db.run(query)
   }
 
+  def getDeviceIdFromEmailOrPhone(from:String): Future[Option[Long]] ={
+    val query=userQuery
+      .filter(col => col.email === from || col.phone === from)
+      .map(_.deviceId)
+      .result
+      .headOption
+    db.run(query)
+  }
+
 }

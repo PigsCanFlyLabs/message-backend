@@ -2,12 +2,15 @@ package ca.pigscanfly
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
-import ca.pigscanfly.configs.Constants.{AccountSID, AuthToken, ServerHost, ServerPort}
+import ca.pigscanfly.configs.Constants.{AccountSID, AuthToken, ServerHost, ServerPort, dbDriver, dbPassword, dbProfile, dbQueueSize, dbSchema, dbSearchLimit, dbThreadsPoolCount, dbUrl, dbUser}
 import ca.pigscanfly.controllers.SwarmController
+import ca.pigscanfly.dao.UserDAO
 import ca.pigscanfly.httpClient.HttpClient
+import ca.pigscanfly.models.DBConfig
 import ca.pigscanfly.service.{SwarmService, TwilioService}
 import com.twilio.Twilio
 import org.slf4j.{Logger, LoggerFactory}
+import slick.jdbc.MySQLProfile.api._
 
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
@@ -24,9 +27,33 @@ object Application extends App {
     override implicit def executionContext: ExecutionContext = actorSystem.dispatcher
   }
 
+  val dbConfig = DBConfig(profile = dbProfile,
+    driver = dbDriver,
+    url = dbUrl,
+    user = dbUser,
+    password = dbPassword,
+    adminSchema = dbSchema,
+    threadsPoolCount = dbThreadsPoolCount,
+    queueSize = dbQueueSize,
+    searchLimit = dbSearchLimit)
+
+  implicit val db: Database = Database.forURL(
+    url = dbConfig.url,
+    user = dbConfig.user,
+    password = dbConfig.password,
+    driver = dbConfig.driver,
+    executor = AsyncExecutor("postgres",
+      numThreads = dbConfig.threadsPoolCount,
+      queueSize = dbConfig.queueSize)
+  )
+  implicit val schema: String = dbConfig.adminSchema
+
+  implicit val searchLimit: Int = dbConfig.searchLimit
+
+  val userDAO=new UserDAO()
   val twilio: Unit = Twilio.init(AccountSID, AuthToken)
   val twilioService = new TwilioService()
-  val swarmService = new SwarmService(twilioService)(system)
+  val swarmService = new SwarmService(twilioService)(system,userDAO)
   val notificationController = new SwarmController(swarmService)
   val routerHandler = notificationController.routes
   val bindingFuture = Http().newServerAt(ServerHost, ServerPort).bind(routerHandler)
