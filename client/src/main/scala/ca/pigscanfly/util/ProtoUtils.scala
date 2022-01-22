@@ -1,14 +1,13 @@
 package ca.pigscanfly.util
 
-import ca.pigscanfly.proto.messageEncryption._
-import java.util.Base64
+import ca.pigscanfly.proto.MessageDataPB.MessageDataPB
 
 trait ProtoUtils {
 
-  def encodeMessage(data: String): String =
-    Base64.getEncoder.encodeToString(MessageData(data = data).toByteArray)
+  def encodePostMessage(messageDataPB: MessageDataPB): String =
+    java.util.Base64.getEncoder.encodeToString(messageDataPB.toByteArray)
 
-  def decodeMessage(data: String): MessageData =
-    MessageData.parseFrom(Base64.getDecoder.decode(data))
+//  def decodeMessage(data: String): MessageData =
+//    MessageData.parseFrom(Base64.getDecoder.decode(data))
 
 }

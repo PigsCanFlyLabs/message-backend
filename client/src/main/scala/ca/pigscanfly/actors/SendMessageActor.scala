@@ -28,9 +28,9 @@ object SendMessageActor {
 
 class SendMessageActor(userDAO:UserDAO) extends Actor with HttpClient with SprayJsonSupport {
   override def receive: Receive = {
-    case GetDeviceIdFromEmailOrPhone(from:String) =>
-     val res= getDeviceIdFromEmailOrPhone(from)
-     res.pipeTo(sender())
+    case GetDeviceIdFromEmailOrPhone(from: String) =>
+      val res: Future[Response] = getDeviceIdFromEmailOrPhone(from)
+      res.pipeTo(sender())
     case postMessage: PostMessageCommand =>
       swarmMessageClient.sendMessage(postMessage.url, postMessage.message, postMessage.headers).pipeTo(sender())
     case _ =>

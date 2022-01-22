@@ -14,14 +14,16 @@ import ca.pigscanfly.configs.Constants
 import ca.pigscanfly.configs.Constants.SwarmBaseUrl
 import ca.pigscanfly.dao.UserDAO
 import ca.pigscanfly.models.{MessageDelivery, MessagePost, MessageRetrieval}
-import ca.pigscanfly.util.Validations
+import ca.pigscanfly.util.{ProtoUtils, Validations}
+import ca.pigscanfly.proto.MessageDataPB.{Message, MessageDataPB, Protocol}
 
 import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
 
 class SwarmService(twilioService: TwilioService)(actorSystem: ActorSystem,userDAO:UserDAO)
   extends SprayJsonSupport
-  with Validations {
+  with Validations
+  with ProtoUtils {
 
   val getMessageActor: ActorRef = actorSystem.actorOf(GetMessageActor.props)
   val sendMessageActor: ActorRef = actorSystem.actorOf(SendMessageActor.props(userDAO))
@@ -44,14 +46,20 @@ class SwarmService(twilioService: TwilioService)(actorSystem: ActorSystem,userDA
 
   def postMessages(from: String, to: String, data: String, req: HttpRequest): Future[MessageDelivery] = {
     val cookies = extractCookies(req.cookies)
-    if(validEmailPhone(from)){
-      ask(sendMessageActor, GetDeviceIdFromEmailOrPhone(from)).map{
-        case response:GetDeviceIdSuccess=>
-          val deviceId=response.deviceId
+    if (validEmailPhone(from)) {
+      ask(sendMessageActor, GetDeviceIdFromEmailOrPhone(from)).flatMap {
+        case response: GetDeviceIdSuccess =>
+          response.deviceId.fold(throw new Exception(s"Device is not present for phone number $from")) { deviceId =>
+            val msg = Message(data, to, Protocol.values(2))
+            //TODO Gather msg in time window
+            val messageDataPB: MessageDataPB = MessageDataPB(1, Seq(msg), false)
+            val messagePost = MessagePost(1, deviceId, 1, encodePostMessage(messageDataPB))
+            (sendMessageActor ? PostMessageCommand(s"$SwarmBaseUrl/hive/api/v1/messages", messagePost, cookies.toList)).mapTo[MessageDelivery]
+          }
       }
+    } else {
+      throw new Exception(s"Message received from $from i.e. is not a phone number")
     }
-    val messagePost = MessagePost(1, 1, 1, java.util.Base64.getEncoder.encodeToString(data.getBytes()))
-    (sendMessageActor ? PostMessageCommand(s"$SwarmBaseUrl/hive/api/v1/messages", messagePost, cookies.toList)).mapTo[MessageDelivery]
   }
 
   private def extractCookies(cookies: Seq[HttpCookiePair]): Seq[Cookie] = {

@@ -1,6 +1,6 @@
 package ca.pigscanfly.controllers
 
-import akka.http.scaladsl.model.StatusCodes.InternalServerError
+import akka.http.scaladsl.model.StatusCodes.{InternalServerError, OK}
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
@@ -24,18 +24,26 @@ class SwarmController(swarmService: SwarmService) {
           case Failure(ex) => complete(InternalServerError, s"An error occurred: ${ex.getMessage}")
         }
       }
-    } ~ post {
-      extractRequest { request =>
-        formFields("From", "To", "Body") { (from, to, body) =>
-          val result = swarmService.postMessages(from, to, body, request).map(_.asJson)
-          onComplete(result) {
-            case Success(response) => complete(HttpEntity(ContentTypes.`application/json`, response.toString))
-            case Failure(ex) => complete(InternalServerError, s"An error occurred: ${ex.getMessage}")
+    } ~ path("sms/messages") {
+      post {
+        extractRequest { request =>
+          formFields("From", "To", "Body") { (from, to, body) =>
+            val result = swarmService.postMessages(from, to, body, request).map(_.asJson)
+            onComplete(result) {
+              case Success(response) => complete(HttpEntity(ContentTypes.`application/json`, response.toString))
+              case Failure(ex) => complete(InternalServerError, s"An error occurred: ${ex.getMessage}")
+            }
+          }
+        }
+      }
+    } ~ path("email/messages") {
+      post {
+        extractRequest { request =>
+          complete(OK)
           }
         }
       }
     }
-  }
 }
 
 
