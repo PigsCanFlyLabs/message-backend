@@ -2,7 +2,7 @@ package ca.pigscanfly.dao
 
 import ca.pigscanfly.components._
 import ca.pigscanfly.connections._
-import ca.pigscanfly.db.DatabaseApi.api._
+import slick.jdbc.MySQLProfile.api._
 import slick.lifted.TableQuery
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -18,7 +18,7 @@ class SwarmDAO(implicit val db: Database,
   val adminLoginQuery = TableQuery[AdminLoginMapping]
 
   def getResourcePermissions()
-  : Future[(Seq[RolesResourceAccess], Seq[ResourcePermissions])] = {
+  : Future[(Seq[RolesResourceAccessDB], Seq[ResourcePermissionsDB])] = {
     val roles = rolesResourcesQuery.result
     val resources = resourcePermissionsQuery.result
     val result = db.run(
