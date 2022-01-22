@@ -1,65 +1,53 @@
 package ca.pigscanfly.components
 
 
-import ca.pigscanfly.db.DatabaseApi.api._
+import slick.jdbc.MySQLProfile.api._
 import slick.lifted.ProvenShape
 
-case class RouteResources(route: String, resource: String)
+case class ResourcePermissionsDB(resource: String, permission: String)
 
 case class ResourcePermissions(resource: String, permission: List[String])
 
+case class RolesResourceAccessDB(userType: String,
+                                 resource: String,
+                                 id: Int)
+
 case class RolesResourceAccess(userType: String,
-                               resource: List[String],
-                               id: Int)
-
-final class RouteResourcesTable(tag: Tag)(implicit val schema: String)
-  extends Table[RouteResources](tag, Some(schema), "route_resource") {
-
-  //noinspection ScalaStyle
-  def * : ProvenShape[RouteResources] =
-    (
-      route,
-      resource
-      ).shaped <> (RouteResources.tupled, RouteResources.unapply)
-
-  def route: Rep[String] = column[String]("route")
-
-  def resource: Rep[String] = column[String]("resource")
-}
+                               resource: List[String])
 
 final class ResourcePermissionsTable(tag: Tag)(implicit val schema: String)
-  extends Table[ResourcePermissions](tag,
+  extends Table[ResourcePermissionsDB](tag,
     Some(schema),
     "resource_permission") {
 
   //noinspection ScalaStyle
-  def * : ProvenShape[ResourcePermissions] =
+  def * : ProvenShape[ResourcePermissionsDB] =
     (
       resource,
       permission
-      ).shaped <> (ResourcePermissions.tupled, ResourcePermissions.unapply)
+      ).shaped <> (ResourcePermissionsDB.tupled, ResourcePermissionsDB.unapply)
 
   def resource: Rep[String] = column[String]("resource")
 
-  def permission: Rep[List[String]] = column[List[String]]("permission")
+  def permission: Rep[String] = column[String]("permission")
 }
 
 final class RolesResourceAccessTable(tag: Tag)(implicit val schema: String)
-  extends Table[RolesResourceAccess](tag,
+  extends Table[RolesResourceAccessDB](tag,
     Some(schema),
     "roles_resource_access") {
 
   //noinspection ScalaStyle
-  def * : ProvenShape[RolesResourceAccess] =
+  def * : ProvenShape[RolesResourceAccessDB] =
     (
       userType,
       resource,
       id
-      ).shaped <> (RolesResourceAccess.tupled, RolesResourceAccess.unapply)
+      ).shaped <> (RolesResourceAccessDB.tupled, RolesResourceAccessDB.unapply)
 
   def userType: Rep[String] = column[String]("user_type")
 
-  def resource: Rep[List[String]] = column[List[String]]("resource")
+  def resource: Rep[String] = column[String]("resource")
 
   def id: Rep[Int] = column[Int]("id")
 }

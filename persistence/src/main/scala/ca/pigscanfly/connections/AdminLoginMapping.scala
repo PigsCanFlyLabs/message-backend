@@ -1,7 +1,7 @@
 package ca.pigscanfly.connections
 
 import ca.pigscanfly.components._
-import ca.pigscanfly.db.DatabaseApi.api._
+import slick.jdbc.MySQLProfile.api._
 import slick.lifted.ProvenShape
 
 final case class AdminLoginMapping(tag: Tag)(implicit val schema: String)
