@@ -5,7 +5,7 @@ import slick.jdbc.MySQLProfile.api._
 import slick.lifted.ProvenShape
 
 final case class UsersMapping(tag: Tag)
-  extends Table[User](tag, Some("users"), "users_mapping") {
+  extends Table[User](tag, Some("spacebeaver"), "users_mapping") {
 
   def * : ProvenShape[User] =
     (deviceId,
