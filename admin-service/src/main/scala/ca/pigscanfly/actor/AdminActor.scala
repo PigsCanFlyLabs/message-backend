@@ -4,20 +4,20 @@ import akka.actor.{ActorLogging, Props}
 import akka.pattern.pipe
 import ca.pigscanfly.actor.AdminActor._
 import ca.pigscanfly.components._
-import ca.pigscanfly.dao.SwarmDAO
+import ca.pigscanfly.dao.{AdminDAO, UserDAO}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.FiniteDuration
 
-class AdminActor(swarmDAO: SwarmDAO)(
+class AdminActor(swarmDAO: AdminDAO, userDAO: UserDAO)(
   implicit futureAwaitDuration: FiniteDuration)
   extends FailurePropatingActor
     with ActorLogging {
 
   //noinspection ScalaStyle
   override def receive: Receive = {
-    case ValidateUserCommand(email: String, deviceId: Int) =>
-      val res = swarmDAO.checkIfUserExists(email, deviceId).map {
+    case ValidateUserCommand(email: String, deviceId: Long) =>
+      val res = userDAO.checkIfUserExists(email, deviceId).map {
         case 1 =>
           ValidationResponse(true)
         case 0 =>
@@ -25,8 +25,8 @@ class AdminActor(swarmDAO: SwarmDAO)(
       }
       res.pipeTo(sender())
 
-    case GetUserCommand(deviceId: Int) =>
-      val res = swarmDAO.getUserDetails(deviceId).map {
+    case GetUserCommand(deviceId: Long) =>
+      val res = userDAO.getUserDetails(deviceId).map {
         case None =>
           NoDataFound()
         case Some(details) =>
@@ -35,7 +35,7 @@ class AdminActor(swarmDAO: SwarmDAO)(
       res.pipeTo(sender())
 
     case CreateUserCommand(user: User) =>
-      val res = swarmDAO.insertUserDetails(user).map {
+      val res = userDAO.insertUserDetails(user).map {
         case 0 =>
           Updated(false)
         case 1 =>
@@ -44,7 +44,7 @@ class AdminActor(swarmDAO: SwarmDAO)(
       res.pipeTo(sender())
 
     case UpdateUserCommand(user: User) =>
-      val res = swarmDAO.updateUserDetails(user).map {
+      val res = userDAO.updateUserDetails(user).map {
         case 0 =>
           Updated(false)
         case 1 =>
@@ -53,7 +53,7 @@ class AdminActor(swarmDAO: SwarmDAO)(
       res.pipeTo(sender())
 
     case DisableUserCommand(request: DisableUserRequest) =>
-      val res = swarmDAO.disableUser(request).map {
+      val res = userDAO.disableUser(request).map {
         case 0 =>
           Updated(false)
         case 1 =>
@@ -62,7 +62,7 @@ class AdminActor(swarmDAO: SwarmDAO)(
       res.pipeTo(sender())
 
     case DeleteUserCommand(request: DeleteUserRequest) =>
-      val res = swarmDAO.deleteUser(request).map {
+      val res = userDAO.deleteUser(request).map {
         case 0 =>
           Updated(false)
         case 1 =>
@@ -100,10 +100,10 @@ class AdminActor(swarmDAO: SwarmDAO)(
 }
 
 object AdminActor {
-  def props(swarmDAO: SwarmDAO)(
+  def props(swarmDAO: AdminDAO, userDAO: UserDAO)(
     implicit futureAwaitDuration: FiniteDuration): Props =
     Props(
-      new AdminActor(swarmDAO))
+      new AdminActor(swarmDAO, userDAO))
 
   // commands
   sealed trait Command
@@ -118,9 +118,9 @@ object AdminActor {
 
   final case class GetUserDetailsResponse(details: User) extends Response
 
-  final case class ValidateUserCommand(email: String, deviceId: Int) extends Command
+  final case class ValidateUserCommand(email: String, deviceId: Long) extends Command
 
-  final case class GetUserCommand(deviceId: Int) extends Command
+  final case class GetUserCommand(deviceId: Long) extends Command
 
   final case class CreateUserCommand(user: User) extends Command
 

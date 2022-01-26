@@ -5,12 +5,13 @@ import akka.http.scaladsl.Http
 import ca.pigscanfly.configs.ClientConstants.{dbConfig, serverHost, serverPort}
 import ca.pigscanfly.configs.Constants.{AccountSID, AuthToken}
 import ca.pigscanfly.controllers.SwarmController
-import ca.pigscanfly.dao.SwarmDAO
+import ca.pigscanfly.dao.UserDAO
 import ca.pigscanfly.httpClient.HttpClient
+import ca.pigscanfly.models.DBConfig
 import ca.pigscanfly.service.{SwarmService, TwilioService}
 import com.twilio.Twilio
 import org.slf4j.{Logger, LoggerFactory}
-import ca.pigscanfly.db.DatabaseApi.api._
+import slick.jdbc.MySQLProfile.api._
 
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
@@ -27,6 +28,16 @@ object Application extends App {
     override implicit def executionContext: ExecutionContext = actorSystem.dispatcher
   }
 
+  val dbConfig = DBConfig(profile = dbProfile,
+    driver = dbDriver,
+    url = dbUrl,
+    user = dbUser,
+    password = dbPassword,
+    adminSchema = dbSchema,
+    threadsPoolCount = dbThreadsPoolCount,
+    queueSize = dbQueueSize,
+    searchLimit = dbSearchLimit)
+
   implicit val db: Database = Database.forURL(
     url = dbConfig.url,
     user = dbConfig.user,
@@ -36,14 +47,14 @@ object Application extends App {
       numThreads = dbConfig.threadsPoolCount,
       queueSize = dbConfig.queueSize)
   )
+  implicit val schema: String = dbConfig.adminSchema
 
-  implicit val schema: String = dbConfig.schema
+  implicit val searchLimit: Int = dbConfig.searchLimit
 
-  val swarmDAO = new SwarmDAO()
-
+  val userDAO=new UserDAO()
   val twilio: Unit = Twilio.init(AccountSID, AuthToken)
   val twilioService = new TwilioService()
-  val swarmService = new SwarmService(twilioService)(system)
+  val swarmService = new SwarmService(twilioService)(system,userDAO)
   val notificationController = new SwarmController(swarmService)
   val routerHandler = notificationController.routes
   val bindingFuture = Http().newServerAt(serverHost, serverPort).bind(routerHandler)

@@ -9,10 +9,11 @@ import ca.pigscanfly.actor.AdminActor
 import ca.pigscanfly.cache.RoleAuthorizationCache
 import ca.pigscanfly.configs.AdminConstants._
 import ca.pigscanfly.dao._
-import ca.pigscanfly.db.DatabaseApi.api._
 import ca.pigscanfly.flyway.FlywayService
+import ca.pigscanfly.models.DBConfig
 import org.fusesource.jansi.Ansi.Color._
 import org.fusesource.jansi.Ansi._
+import slick.jdbc.MySQLProfile.api._
 
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
@@ -28,6 +29,16 @@ object AdminHTTPServer
 
   lazy val routes: Route = adminUserRoutes(adminServiceActor)
 
+  val dbConfig = DBConfig(profile = dbProfile,
+    driver = dbDriver,
+    url = dbUrl,
+    user = dbUser,
+    password = dbPassword,
+    adminSchema = dbSchema,
+    threadsPoolCount = dbThreadsPoolCount,
+    queueSize = dbQueueSize,
+    searchLimit = dbSearchLimit)
+
   implicit val db: Database = Database.forURL(
     url = dbConfig.url,
     user = dbConfig.user,
@@ -37,8 +48,7 @@ object AdminHTTPServer
       numThreads = dbConfig.threadsPoolCount,
       queueSize = dbConfig.queueSize)
   )
-
-  implicit val schema: String = dbConfig.schema
+  implicit val schema: String = dbConfig.adminSchema
 
   implicit val searchLimit: Int = dbConfig.searchLimit
 
@@ -50,12 +60,13 @@ object AdminHTTPServer
   val flyWayService = new FlywayService(dbConfig)
   flyWayService.migrateDatabaseSchema()
 
-  val swarmDAO = new SwarmDAO()
+  val adminDAO = new AdminDAO()
+  val userDAO = new UserDAO()
 
-  implicit val routeCache: RoleAuthorizationCache = new RoleAuthorizationCache(swarmDAO)
+  implicit val routeCache: RoleAuthorizationCache = new RoleAuthorizationCache(adminDAO)
   val adminServiceActor: ActorRef = system.actorOf(
     AdminActor
-      .props(swarmDAO)
+      .props(adminDAO, userDAO)
       .withRouter(RoundRobinPool(nrOfInstances = 10)),
     "admin-service"
   )

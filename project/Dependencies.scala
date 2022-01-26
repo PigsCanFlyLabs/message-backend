@@ -16,7 +16,7 @@ trait Versions {
   val jansiVersion ="2.4.0"
   val pureConfigVersion = "0.17.1"
   val slickVersion = "3.3.2"
-  val postgresVersion = "42.2.5"
+  val mySqlVersion = "8.0.27"
   val slickPgVersion = "0.18.0"
   val hikaricpVersion = "3.2.3"
   val slickCircePgVersion = "0.19.4"
@@ -53,13 +53,13 @@ object Dependencies extends Versions {
 
   //DB
   val slick           = "com.typesafe.slick" %% "slick" % slickVersion
-  val postgres        = "org.postgresql" % "postgresql" % postgresVersion
+  val mySql        = "mysql" % "mysql-connector-java" % mySqlVersion
   val slickPg         = "com.github.tminglei" %% "slick-pg" % slickPgVersion
   val hikaricp        = "com.typesafe.slick" %% "slick-hikaricp" % hikaricpVersion
   val slickCirce =  "com.github.tminglei" %% "slick-pg_circe-json" % slickCircePgVersion
   val flyway = "org.flywaydb" % "flyway-core" % flywayVersion
   val jwtCirce =  "com.github.jwt-scala" %% "jwt-circe" % jwtCirceVersion
-
+  val slickMySql="com.foerster-technologies" %% "slick-mysql" % "1.0.0"
   val commonDependencies = List(
     akkaHttpCirce,
     typeConf,
@@ -78,6 +78,6 @@ object Dependencies extends Versions {
     jwtCirce
   )
 
-  val dbDependencies = Seq(slick, slickPg, postgres, hikaricp, slickCirce)
+  val dbDependencies = Seq(slick, slickPg, mySql, hikaricp, slickCirce, slickMySql)
 
 }

@@ -1,28 +1,30 @@
 
-CREATE SCHEMA IF NOT EXISTS admin;
+CREATE SCHEMA IF NOT EXISTS spacebeaver_admin;
 
-CREATE TABLE admin.resource_permission (
-	resource varchar NULL,
-	"permission" _text NULL
+CREATE TABLE spacebeaver_admin.resource_permission (
+	resource varchar(100),
+	permission varchar(500)
 );
 
-CREATE TABLE admin.roles_resource_access (
-    id VARCHAR NOT NULL,
-	user_type varchar NULL,
-	resource _text NULL
+CREATE TABLE spacebeaver_admin.roles_resource_access (
+    id VARCHAR(100) PRIMARY KEY,
+	user_type varchar(100) NULL,
+	resource VARCHAR(500) NULL
 );
 
 
-CREATE TABLE IF NOT EXISTS admin.admin_login (
-	email VARCHAR NOT NULL PRIMARY KEY,
-	password VARCHAR NOT NULL,
-	role VARCHAR NOT NULL
+CREATE TABLE IF NOT EXISTS spacebeaver_admin.admin_login (
+	email VARCHAR(50) NOT NULL PRIMARY KEY,
+	password VARCHAR(50) NOT NULL,
+	role VARCHAR(50) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS admin.users_mapping (
-	email VARCHAR NOT NULL,
-	device_id INT NOT NULL,
-	name VARCHAR NOT NULL,
-	is_disabled BOOLEAN default false,
-	primary key (device_id)
+
+CREATE SCHEMA IF NOT EXISTS spacebeaver;
+
+CREATE TABLE IF NOT EXISTS spacebeaver.users_mapping (
+	email VARCHAR(50) NOT NULL UNIQUE,
+	device_id BIGINT PRIMARY KEY,
+	phone_number VARCHAR(50) NOT NULL UNIQUE,
+	is_disabled BOOLEAN DEFAULT FALSE NOT NULL
 );

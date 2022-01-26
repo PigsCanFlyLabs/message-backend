@@ -30,14 +30,14 @@ trait AdminService
   def adminUserRoutes(actor: ActorRef): Route =
     pathPrefix("admin") {
       path("get-user-details") {
-        parameters( 'deviceId.as[Int]) {
-          (deviceId: Int) =>
+        parameters('deviceId) {
+          (deviceId: String) =>
             authenticateOAuth2("Bearer Authentication", roleAuthenticator) { auth =>
               val isAccessible =
                 routeCache.findRoleAndRouteAccess(auth.role, "get-user-details")
               if (isAccessible) {
                 val response =
-                  getUserDetails(actor, deviceId)
+                  getUserDetails(actor, deviceId.toLong)
                 complete(response)
               } else {
                 complete(unauthorizedRouteResponse)

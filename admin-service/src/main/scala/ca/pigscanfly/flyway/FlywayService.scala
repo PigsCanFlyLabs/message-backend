@@ -14,7 +14,7 @@ class FlywayService(DBConfig: DBConfig) {
   private[this] val flyway = new Flyway()
   flyway.setDataSource(DBConfig.url, DBConfig.user, DBConfig.password)
   flyway.setBaselineOnMigrate(true)
-  flyway.setSchemas(DBConfig.schema)
+  flyway.setSchemas(DBConfig.adminSchema)
 
   def migrateDatabaseSchema(): Int = Try(flyway.migrate()).getOrElse {
     flyway.repair()
