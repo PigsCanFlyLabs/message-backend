@@ -5,8 +5,9 @@ import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.HttpHeader
 import akka.pattern.pipe
 import ca.pigscanfly.Application.{executionContext, swarmMessageClient}
-import ca.pigscanfly.actors.GetMessageActor.{GetMessage, MessageAck}
+import ca.pigscanfly.actors.GetMessageActor.{GetMessage, SwarmLogin, MessageAck}
 import ca.pigscanfly.httpClient.HttpClient
+import ca.pigscanfly.models.LoginCredentials
 
 
 object GetMessageActor {
@@ -17,7 +18,10 @@ object GetMessageActor {
 
   case class GetMessage(url: String, headers: List[HttpHeader]) extends Command
 
+  case class SwarmLogin(url: String, loginCredentials: LoginCredentials) extends Command
+
   case class MessageAck(url: String, packageId: Int, headers: List[HttpHeader]) extends Command
+
 }
 
 class GetMessageActor extends Actor with HttpClient with SprayJsonSupport {
@@ -29,6 +33,9 @@ class GetMessageActor extends Actor with HttpClient with SprayJsonSupport {
     case messageAck: MessageAck =>
       //      println("Ack Successful")
       swarmMessageClient.ackMessage(messageAck.url, messageAck.packageId, messageAck.headers)
+
+    case getCookies: SwarmLogin =>
+      swarmMessageClient.login(getCookies.url, getCookies.loginCredentials).pipeTo(sender())
     case _ =>
       println("Unhandled request") //TODO REPLACE IT WITH LOGGER
   }

@@ -6,19 +6,17 @@ import akka.testkit.TestKit
 import akka.util.ByteString
 import ca.pigscanfly.configs.Constants.SwarmBaseUrl
 import ca.pigscanfly.httpClient.HttpClient
-import ca.pigscanfly.models.{GetMessage, MessageDelivery, MessagePost, MessageRetrieval}
+import ca.pigscanfly.models.{LoginCredentials, GetMessage, MessageDelivery, MessagePost, MessageRetrieval}
 import io.circe.syntax.EncoderOps
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{BeforeAndAfterAll, MustMatchers, WordSpecLike}
+import org.scalatest.{AsyncWordSpec, BeforeAndAfterAll, MustMatchers}
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
 
-class SwarmStartTest extends TestKit(ActorSystem("test"))
+class SwarmStartTest extends TestKit(ActorSystem("test")) with AsyncWordSpec
   with MustMatchers
-  with WordSpecLike
   with ScalaFutures
   with MockFactory
   with BeforeAndAfterAll {
@@ -96,9 +94,21 @@ class SwarmStartTest extends TestKit(ActorSystem("test"))
         .expects(s"$SwarmBaseUrl/hive/api/v1/messages", List(cookieHeader), requestBody.copy(data = "CgxTb21lIE1lc3NhZ2U=").asJson.toString(), HttpMethods.POST)
         .returning(Future.successful(HttpResponse(entity = HttpEntity(ByteString(ackResponseMock)))))
 
-      val response = swarmMessageClient.sendMessage(s"$SwarmBaseUrl/hive/api/v1/messages", requestBody, List(cookieHeader)).map{ resp =>
+      swarmMessageClient.sendMessage(s"$SwarmBaseUrl/hive/api/v1/messages", requestBody, List(cookieHeader)).map{ resp =>
         assert(resp === MessageDelivery(0, "OK"))
       }
+    }
+
+    "LoginSuccess" in {
+      val requestBody = LoginCredentials("username","password")
+      swarmMessageClient.mock
+        .expects(s"$SwarmBaseUrl/login", List(cookieHeader), requestBody.asJson.toString(), HttpMethods.GET)
+        .returning(Future.successful(HttpResponse(headers = List(cookieHeader))))
+
+      val response = swarmMessageClient.login(s"$SwarmBaseUrl/login", requestBody)
+      Thread.sleep(5000)
+
+      assert(response === MessageDelivery(0, "OK"))
     }
   }
 }
