@@ -37,7 +37,7 @@ object AdminHTTPServer
       numThreads = dbConfig.threadsPoolCount,
       queueSize = dbConfig.queueSize)
   )
-  implicit val schema: String = dbConfig.adminSchema
+  implicit val schema: String = dbConfig.schema
 
   implicit val searchLimit: Int = dbConfig.searchLimit
 

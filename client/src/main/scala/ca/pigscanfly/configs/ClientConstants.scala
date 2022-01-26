@@ -34,7 +34,7 @@ object ClientConstants {
     url = dbUrl,
     user = dbUser,
     password = dbPassword,
-    adminSchema = dbSchema,
+    schema = dbSchema,
     threadsPoolCount = dbThreadsPoolCount,
     queueSize = dbQueueSize,
     searchLimit = dbSearchLimit)
