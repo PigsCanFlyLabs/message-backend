@@ -34,7 +34,7 @@ object AdminHTTPServer
     url = dbUrl,
     user = dbUser,
     password = dbPassword,
-    schema = dbSchema,
+    adminSchema = dbSchema,
     threadsPoolCount = dbThreadsPoolCount,
     queueSize = dbQueueSize,
     searchLimit = dbSearchLimit)
@@ -48,7 +48,7 @@ object AdminHTTPServer
       numThreads = dbConfig.threadsPoolCount,
       queueSize = dbConfig.queueSize)
   )
-  implicit val schema: String = dbConfig.schema
+  implicit val schema: String = dbConfig.adminSchema
 
   implicit val searchLimit: Int = dbConfig.searchLimit
 
@@ -60,12 +60,13 @@ object AdminHTTPServer
   val flyWayService = new FlywayService(dbConfig)
   flyWayService.migrateDatabaseSchema()
 
-  val swarmDAO = new SwarmDAO()
+  val adminDAO = new AdminDAO()
+  val userDAO = new UserDAO()
 
-  implicit val routeCache: RoleAuthorizationCache = new RoleAuthorizationCache(swarmDAO)
+  implicit val routeCache: RoleAuthorizationCache = new RoleAuthorizationCache(adminDAO)
   val adminServiceActor: ActorRef = system.actorOf(
     AdminActor
-      .props(swarmDAO)
+      .props(adminDAO, userDAO)
       .withRouter(RoundRobinPool(nrOfInstances = 10)),
     "admin-service"
   )

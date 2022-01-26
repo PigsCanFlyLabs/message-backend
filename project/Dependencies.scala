@@ -59,7 +59,7 @@ object Dependencies extends Versions {
   val slickCirce =  "com.github.tminglei" %% "slick-pg_circe-json" % slickCircePgVersion
   val flyway = "org.flywaydb" % "flyway-core" % flywayVersion
   val jwtCirce =  "com.github.jwt-scala" %% "jwt-circe" % jwtCirceVersion
-
+  val slickMySql="com.foerster-technologies" %% "slick-mysql" % "1.0.0"
   val commonDependencies = List(
     akkaHttpCirce,
     typeConf,
@@ -78,6 +78,6 @@ object Dependencies extends Versions {
     jwtCirce
   )
 
-  val dbDependencies = Seq(slick, slickPg, mySql, hikaricp, slickCirce)
+  val dbDependencies = Seq(slick, slickPg, mySql, hikaricp, slickCirce, slickMySql)
 
 }
