@@ -6,7 +6,7 @@ import akka.testkit.TestKit
 import akka.util.ByteString
 import ca.pigscanfly.configs.Constants.SwarmBaseUrl
 import ca.pigscanfly.httpClient.HttpClient
-import ca.pigscanfly.models.{Message, MessageDelivery, MessagePost, MessageRetrieval}
+import ca.pigscanfly.models.{GetMessage, MessageDelivery, MessagePost, MessageRetrieval}
 import io.circe.syntax.EncoderOps
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
@@ -76,7 +76,7 @@ class SwarmStartTest extends TestKit(ActorSystem("test"))
         .expects(s"$SwarmBaseUrl/hive/api/v1/messages", List(cookieHeader, contentTypeHeader), "", HttpMethods.GET)
         .returning(Future.successful(HttpResponse(status = StatusCodes.OK, headers = List(contentTypeHeader), entity = HttpEntity(ContentTypes.`application/json`, json))))
       swarmMessageClient.getMessages(s"$SwarmBaseUrl/hive/api/v1/messages", List(cookieHeader, contentTypeHeader)).map { response =>
-        assert(response.toString === Future.successful(MessageRetrieval(List(Message(0, 0, 0, "string", 0, 0, 0, "This is a message", 0, 0, "2021-12-26T07:44:26.374Z")))).toString)
+        assert(response.toString === Future.successful(MessageRetrieval(List(GetMessage(0, 0, 0, "string", 0, 0, 0, "This is a message", 0, 0, "2021-12-26T07:44:26.374Z")))).toString)
       }
     }
 

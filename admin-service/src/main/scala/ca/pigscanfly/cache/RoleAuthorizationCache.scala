@@ -1,7 +1,7 @@
 package ca.pigscanfly.cache
 
 import ca.pigscanfly.components.{ResourcePermissions, ResourcePermissionsDB, RolesResourceAccess, RolesResourceAccessDB}
-import ca.pigscanfly.dao.SwarmDAO
+import ca.pigscanfly.dao.AdminDAO
 
 import scala.concurrent.duration.{FiniteDuration, _}
 import scala.concurrent.{Await, Future}
@@ -9,7 +9,7 @@ import scala.language.postfixOps
 
 case class Permissions(permission: List[String])
 
-class RoleAuthorizationCache(accountsDAO: SwarmDAO)
+class RoleAuthorizationCache(accountsDAO: AdminDAO)
   extends CacheWithFallbackToStaleData[String, Map[String, Permissions]] {
 
   /**
@@ -26,7 +26,7 @@ class RoleAuthorizationCache(accountsDAO: SwarmDAO)
   override def refresh(key: String): Map[String, Permissions] = {
     val f: Future[(Seq[RolesResourceAccessDB], Seq[ResourcePermissionsDB])] =
       accountsDAO
-        .getResourcePermissions()
+        .getResourcePermissions
     val resp = Await.result(f, 5 second)
     val roles = resp._1.map(roleAccess =>
       RolesResourceAccess(roleAccess.userType,

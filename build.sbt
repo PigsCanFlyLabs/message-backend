@@ -62,7 +62,7 @@ lazy val client = (project in file("client"))
       scalaTest,
       akkaTestKit
     )
-  ).dependsOn(common)
+  ).dependsOn(common, persistence)
 
 lazy val commonSettings = Seq(
   organization := "ca.pigscanfly.ca.satellite.backend",
