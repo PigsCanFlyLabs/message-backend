@@ -2,8 +2,7 @@ package ca.pigscanfly.schedular
 
 import akka.actor.{Actor, Scheduler}
 import akka.http.scaladsl.model.HttpHeader
-import akka.http.scaladsl.model.headers.Cookie
-import ca.pigscanfly.Application.swarmDAO
+import ca.pigscanfly.Application.userDAO
 import ca.pigscanfly.configs.ClientConstants.{swarmPassword, swarmUserName}
 import ca.pigscanfly.models.LoginCredentials
 import ca.pigscanfly.schedular.GetMessages._
@@ -49,7 +48,7 @@ class GetMessages(swarmService: SwarmService) extends Actor with SendGridEmailer
     loginCookie.map { cookie: Seq[HttpHeader] =>
       swarmService.getMessages(cookie) onComplete {
         case Success(messageRetrieval) => messageRetrieval.messageResponse.map { message =>
-          swarmDAO.getUserDetails(message.deviceId) onComplete {
+          userDAO.getUserDetails(message.deviceId) onComplete {
             case Success(user) =>
               user.fold(throw new Exception(s"Didn't found user details of Device ID ::: ${message.deviceId}")) { usr =>
                 sendMail(usr.email, message.data)

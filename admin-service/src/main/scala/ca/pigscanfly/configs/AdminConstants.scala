@@ -32,7 +32,7 @@ object AdminConstants {
     url = dbUrl,
     user = dbUser,
     password = dbPassword,
-    schema = dbSchema,
+    adminSchema = dbSchema,
     threadsPoolCount = dbThreadsPoolCount,
     queueSize = dbQueueSize,
     searchLimit = dbSearchLimit)

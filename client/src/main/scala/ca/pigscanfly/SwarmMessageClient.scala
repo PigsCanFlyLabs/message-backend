@@ -3,7 +3,6 @@ package ca.pigscanfly
 import akka.actor.ActorSystem
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model._
-import akka.http.scaladsl.model.headers.Cookie
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import ca.pigscanfly.configs.Constants
 import ca.pigscanfly.httpClient.HttpClient
@@ -12,7 +11,6 @@ import ca.pigscanfly.models.{Login, LoginCredentials, GetMessage, MessageDeliver
 import ca.pigscanfly.util.ProtoUtils
 import io.circe.syntax._
 
-import scala.collection.immutable
 import scala.concurrent.{ExecutionContext, Future}
 
 
@@ -38,7 +36,7 @@ trait SwarmMessageClient extends SprayJsonSupport with HttpClient with ProtoUtil
   }
 
   def sendMessage(url: String, msg: MessagePost, headers: List[HttpHeader]): Future[MessageDelivery] = {
-    sendRequest(url, headers, msg.copy(data = encodeMessage(msg.data)).asJson.toString(), HttpMethods.POST).flatMap { response =>
+    sendRequest(url, headers, msg.copy(data = msg.data).asJson.toString(), HttpMethods.POST).flatMap { response =>
       Unmarshal(response.entity).to[MessageDelivery]
     }
   }
