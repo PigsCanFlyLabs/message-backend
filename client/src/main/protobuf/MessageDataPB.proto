@@ -10,7 +10,7 @@ message MessageDataPB {
 
 message Message {
   required string text = 1;
-  required string from_or_to = 3;
+  required string from_or_to = 3; //TODO change from_or_to to `to`
 
   required Protocol protocol = 5;
 }
