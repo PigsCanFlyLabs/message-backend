@@ -7,10 +7,9 @@ import akka.routing.RoundRobinPool
 import akka.stream.ActorMaterializer
 import ca.pigscanfly.actor.AdminActor
 import ca.pigscanfly.cache.RoleAuthorizationCache
-import ca.pigscanfly.configs.Constants._
+import ca.pigscanfly.configs.AdminConstants._
 import ca.pigscanfly.dao._
 import ca.pigscanfly.flyway.FlywayService
-import ca.pigscanfly.models.DBConfig
 import org.fusesource.jansi.Ansi.Color._
 import org.fusesource.jansi.Ansi._
 import slick.jdbc.MySQLProfile.api._
@@ -29,16 +28,6 @@ object AdminHTTPServer
 
   lazy val routes: Route = adminUserRoutes(adminServiceActor)
 
-  val dbConfig = DBConfig(profile = dbProfile,
-    driver = dbDriver,
-    url = dbUrl,
-    user = dbUser,
-    password = dbPassword,
-    adminSchema = dbSchema,
-    threadsPoolCount = dbThreadsPoolCount,
-    queueSize = dbQueueSize,
-    searchLimit = dbSearchLimit)
-
   implicit val db: Database = Database.forURL(
     url = dbConfig.url,
     user = dbConfig.user,
@@ -48,7 +37,7 @@ object AdminHTTPServer
       numThreads = dbConfig.threadsPoolCount,
       queueSize = dbConfig.queueSize)
   )
-  implicit val schema: String = dbConfig.adminSchema
+  implicit val schema: String = dbConfig.schema
 
   implicit val searchLimit: Int = dbConfig.searchLimit
 
