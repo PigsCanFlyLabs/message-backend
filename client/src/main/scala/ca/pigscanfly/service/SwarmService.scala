@@ -7,13 +7,14 @@ import akka.http.scaladsl.model.headers.{Cookie, HttpCookiePair}
 import akka.pattern.ask
 import akka.util.Timeout
 import ca.pigscanfly.Application.executionContext
-import ca.pigscanfly.actors.GetMessageActor.{GetMessage, SwarmLogin, MessageAck}
+import ca.pigscanfly.actors.GetMessageActor.{GetEmailOrPhoneFromDeviceId, GetMessage, GetPhoneOrEmailSuccess, MessageAck, SwarmLogin}
 import ca.pigscanfly.actors.SendMessageActor.{GetDeviceIdFromEmailOrPhone, GetDeviceIdSuccess, PostMessageCommand}
 import ca.pigscanfly.actors.{GetMessageActor, SendMessageActor}
 import ca.pigscanfly.configs.Constants
 import ca.pigscanfly.configs.Constants.SwarmBaseUrl
 import ca.pigscanfly.dao.UserDAO
-import ca.pigscanfly.models.{LoginCredentials,MessageDelivery, MessagePost, MessageRetrieval}
+import ca.pigscanfly.models
+import ca.pigscanfly.models.{LoginCredentials, MessageDelivery, MessagePost, MessageRetrieval}
 import ca.pigscanfly.util.{ProtoUtils, Validations}
 import ca.pigscanfly.proto.MessageDataPB.{Message, MessageDataPB, Protocol}
 
@@ -25,7 +26,7 @@ class SwarmService(twilioService: TwilioService)(actorSystem: ActorSystem,userDA
   with Validations
   with ProtoUtils {
 
-  val getMessageActor: ActorRef = actorSystem.actorOf(GetMessageActor.props)
+  val getMessageActor: ActorRef = actorSystem.actorOf(GetMessageActor.props(userDAO))
   val sendMessageActor: ActorRef = actorSystem.actorOf(SendMessageActor.props(userDAO))
 
   implicit val timeout: Timeout = Timeout(3.seconds)
@@ -38,13 +39,15 @@ class SwarmService(twilioService: TwilioService)(actorSystem: ActorSystem,userDA
     val messagesFut = (getMessageActor ? GetMessage(s"$SwarmBaseUrl/hive/api/v1/messages", cookies.toList)).mapTo[MessageRetrieval]
 
     messagesFut.map { messages =>
-      messages.messageResponse.foreach { message =>
+      messages.messageResponse.foreach { message: models.GetMessage =>
         getMessageActor ! MessageAck(s"$SwarmBaseUrl/hive/api/v1/messages/rxack", message.ackPacketId, cookies.toList)
-        //TODO: Check DB to see if valid
-        twilioService.sendToTwilio(Constants.EmptyString, Constants.EmptyString, message.data)
       }
     }
     messagesFut
+  }
+
+  def getPhoneOrEmailFromDeviceId(deviceId:Long): Future[GetPhoneOrEmailSuccess] ={
+    (getMessageActor ? GetEmailOrPhoneFromDeviceId(deviceId)).mapTo[GetPhoneOrEmailSuccess]
   }
 
   def postMessages(from: String, to: String, data: String, req: HttpRequest): Future[MessageDelivery] = {
@@ -53,6 +56,8 @@ class SwarmService(twilioService: TwilioService)(actorSystem: ActorSystem,userDA
       ask(sendMessageActor, GetDeviceIdFromEmailOrPhone(from)).flatMap {
         case response: GetDeviceIdSuccess =>
           response.deviceId.fold(throw new Exception(s"Device is not present for phone number $from")) { deviceId =>
+            // TODO SHOULD CHECK PROTOCOL OF FROM AND REFACTOR VALUE ACCORDINGLY
+            // TODO CHECK ISDISABLED COLUMN FROM DB
             val msg = Message(data, to, Protocol.values(2))
             //TODO Gather msg in time window
             val messageDataPB: MessageDataPB = MessageDataPB(1, Seq(msg), false)

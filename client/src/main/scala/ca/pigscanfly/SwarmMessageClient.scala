@@ -7,7 +7,7 @@ import akka.http.scaladsl.unmarshalling.Unmarshal
 import ca.pigscanfly.configs.Constants
 import ca.pigscanfly.httpClient.HttpClient
 import ca.pigscanfly.models.MessageRetrieval._
-import ca.pigscanfly.models.{Login, LoginCredentials, GetMessage, MessageDelivery, MessagePost, MessageRetrieval}
+import ca.pigscanfly.models._
 import ca.pigscanfly.util.ProtoUtils
 import io.circe.syntax._
 
@@ -29,7 +29,7 @@ trait SwarmMessageClient extends SprayJsonSupport with HttpClient with ProtoUtil
   def getMessages(url: String, headers: List[HttpHeader]): Future[MessageRetrieval] = {
     sendRequest(url, headers, Constants.EmptyString, HttpMethods.GET).flatMap { response =>
       Unmarshal(response.entity).to[List[GetMessage]].map { messages =>
-        val updatedMessages = messages.map { message => message/*.copy(data = decodeMessage(message.data).data)*/ }
+        val updatedMessages = messages.map { message => message /*.copy(data = decodeMessage(message.data).data)*/}
         MessageRetrieval(updatedMessages)
       }
     }
