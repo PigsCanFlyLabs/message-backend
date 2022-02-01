@@ -37,6 +37,7 @@ object Dependencies extends Versions {
   val circeParser = "io.circe" %% "circe-parser" % circeVersion
   val circeGeneric = "io.circe" %% "circe-generic" % circeVersion
   val twilio = "com.twilio.sdk" % "twilio" % twilioVersion
+  val akkaSmtp = "com.github.ajozwik" %% "akka-smtp-server" % "0.2.1.1"
   val sendGrid = "com.sendgrid" % "sendgrid-java" % sendGridVersion
   val macwire = "com.softwaremill.macwire" %% "macros" % macwireVersion % "provided"
   val macwireAkka = "com.softwaremill.macwire" %% "macrosakka" % macwireAkkaVersion % "provided"
@@ -75,7 +76,8 @@ object Dependencies extends Versions {
     jansi,
     pureConfig,
     flyway,
-    jwtCirce
+    jwtCirce,
+    akkaSmtp
   )
 
   val dbDependencies = Seq(slick, slickPg, mySql, hikaricp, slickCirce, slickMySql)
