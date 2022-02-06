@@ -78,7 +78,8 @@ object Dependencies extends Versions {
     pureConfig,
     flyway,
     jwtCirce,
-    akkaSmtp
+    akkaSmtp,
+    "com.sun.mail" % "smtp" % "1.4.7"
   )
 
   val dbDependencies = Seq(slick, slickPg, mySql, hikaricp, slickCirce, slickMySql)
