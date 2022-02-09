@@ -15,4 +15,10 @@ object Constants {
   val jwtKey = config.getString("jwt.scala.circe.key")
   val jwtExpiryDuration: Int = config.getInt("jwt.scala.circe.expire-duration-sec")
 
+  val SmtpAddress = config.getString("smtp-config.server")
+  val SmtpPort = config.getInt("smtp-config.port")
+//  val SmtpFromEmail = config.getString("smtp-config.fromEmail")
+//  val SmtpEmailUsername = config.getString("smtp-config.username")
+//  val SmtpEmailPassword = config.getString("smtp-config.password")
+
 }
