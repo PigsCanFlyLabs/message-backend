@@ -34,7 +34,7 @@ lazy val common = (project in file("common"))
 
 lazy val persistence = (project in file("persistence"))
   .settings(
-    libraryDependencies ++= commonDependencies ++ dbDependencies,
+    libraryDependencies ++= commonDependencies ++ dbDependencies ++ Seq(Dependencies.scalaTest, Dependencies.h2db),
     commonSettings
   ) dependsOn common
 
