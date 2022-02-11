@@ -26,8 +26,8 @@ class AdminDAOSpec extends AsyncWordSpecLike with ScalaFutures with Matchers wit
       }
     }
 
-    "not be able to check if admin exists" in {
-      whenReady(adminDao.checkIfAdminExists("email", "role")) { res =>
+    "be able to check if admin exists" in {
+      whenReady(adminDao.checkIfAdminExists(adminLoginRequest.email, adminLoginRequest.role)) { res =>
         res shouldBe 0
       }
     }
@@ -40,6 +40,12 @@ class AdminDAOSpec extends AsyncWordSpecLike with ScalaFutures with Matchers wit
 
     "be able to validate admin login" in {
       whenReady(adminDao.validateAdminLogin(adminLoginRequest)) { res =>
+        res shouldBe 1
+      }
+    }
+
+    "not be able to check if admin exists" in {
+      whenReady(adminDao.checkIfAdminExists(adminLoginRequest.email, adminLoginRequest.role)) { res =>
         res shouldBe 1
       }
     }
