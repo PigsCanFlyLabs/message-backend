@@ -14,12 +14,14 @@ class AdminDAOSpec extends AsyncWordSpecLike with ScalaFutures with Matchers wit
 
   val adminDao = new AdminDAO()
 
-  val adminLoginRequest = AdminLogin("email", "password", "role")
+  val adminLoginRequest: AdminLogin = AdminLogin("email", "password", "role")
 
   "AccountsDAOSpec service" should {
 
     "be able to get resource permissions" in {
-      whenReady(adminDao.getResourcePermissions) { res =>
+      for {
+        res <- adminDao.getResourcePermissions
+      } yield {
         res shouldBe(Seq(), Seq())
       }
     }

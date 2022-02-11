@@ -1,12 +1,12 @@
 
 CREATE SCHEMA IF NOT EXISTS spacebeaver_admin;
 
-CREATE TABLE spacebeaver_admin.resource_permission (
+CREATE TABLE IF NOT EXISTS spacebeaver_admin.resource_permission (
 	resource varchar(100),
 	permission varchar(500)
 );
 
-CREATE TABLE spacebeaver_admin.roles_resource_access (
+CREATE TABLE IF NOT EXISTS spacebeaver_admin.roles_resource_access (
     id VARCHAR(100) PRIMARY KEY,
 	user_type varchar(100) NULL,
 	resource VARCHAR(500) NULL
