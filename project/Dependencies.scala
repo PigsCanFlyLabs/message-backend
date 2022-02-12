@@ -62,6 +62,7 @@ object Dependencies extends Versions {
   val flyway = "org.flywaydb" % "flyway-core" % flywayVersion
   val jwtCirce = "com.github.jwt-scala" %% "jwt-circe" % jwtCirceVersion
   val slickMySql = "com.foerster-technologies" %% "slick-mysql" % "1.0.0"
+  val h2db = "com.h2database" % "h2" % "1.4.200" % Test
   val commonDependencies = List(
     akkaHttpCirce,
     typeConf,
