@@ -32,6 +32,7 @@ object Dependencies extends Versions {
 
   val actor = "com.typesafe.akka" %% "akka-actor" % AkkaVersion
   val akkaStream = "com.typesafe.akka" %% "akka-stream" % AkkaVersion
+  val akkaSlf4J = "com.typesafe.akka" %% "akka-slf4j" % AkkaVersion
   val akkaHttp = "com.typesafe.akka" %% "akka-http" % AkkaHttpVersion
   val akkaHttpCirce = "de.heikoseeberger" %% "akka-http-circe" % akkaHttpCirceVersion
   val circeCore = "io.circe" %% "circe-core" % circeVersion
@@ -48,8 +49,10 @@ object Dependencies extends Versions {
   //Testing
   val scalaMock = "org.scalamock" %% "scalamock" % "4.4.0"
   val scalaTest = "org.scalatest" %% "scalatest" % "3.0.8"
-  val akkaTestKit = "com.typesafe.akka" %% "akka-testkit" % "2.6.8"
-
+  val akkaTestKit = "com.typesafe.akka" %% "akka-testkit" % AkkaVersion
+  val akkaHttpTestKit = "com.typesafe.akka" %% "akka-http-testkit" % "10.1.11"
+  val mockito = "org.mockito" %% "mockito-scala-scalatest" % "1.5.11"
+  val mock = "org.mockito" % "mockito-core" % "1.9.5"
   val sprayJson = "com.typesafe.akka" %% "akka-http-spray-json" % "10.2.7"
 
 
@@ -84,5 +87,7 @@ object Dependencies extends Versions {
   )
 
   val dbDependencies = Seq(slick, slickPg, mySql, hikaricp, slickCirce, slickMySql)
+
+  val testDependencies = Seq(mockito, mock, akkaHttpTestKit)
 
 }
