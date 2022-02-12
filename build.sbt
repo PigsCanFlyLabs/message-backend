@@ -9,7 +9,7 @@ dockerBaseImage := "jdk11u-debian-nightly"
 
 import com.typesafe.sbt.packager.docker._
 
-dockerCommands ++= Seq(  Cmd("USER", "root"),  ExecCmd("RUN", "apt-get", "install", "-y", "bash"))
+dockerCommands ++= Seq(Cmd("USER", "root"), ExecCmd("RUN", "apt-get", "install", "-y", "bash"))
 
 packageName in Docker := "holdenk/dockerised-akka-http-messaging-app"
 
@@ -47,8 +47,9 @@ lazy val adminService = (project in file("admin-service"))
       akkaHttp,
       scalaMock,
       scalaTest,
-      akkaTestKit
-    )
+      akkaTestKit,
+      akkaSlf4J
+    ) ++ testDependencies
   ).dependsOn(common, persistence)
 
 lazy val client = (project in file("client"))
