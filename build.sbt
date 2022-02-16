@@ -48,7 +48,8 @@ lazy val adminService = (project in file("admin-service"))
       scalaMock,
       scalaTest,
       akkaTestKit,
-      akkaSlf4J
+      akkaSlf4J,
+      akkaStreamTestKit
     ) ++ testDependencies
   ).dependsOn(common, persistence)
 
