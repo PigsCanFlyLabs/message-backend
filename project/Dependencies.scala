@@ -50,7 +50,8 @@ object Dependencies extends Versions {
   val scalaMock = "org.scalamock" %% "scalamock" % "4.4.0"
   val scalaTest = "org.scalatest" %% "scalatest" % "3.0.8"
   val akkaTestKit = "com.typesafe.akka" %% "akka-testkit" % AkkaVersion
-  val akkaHttpTestKit = "com.typesafe.akka" %% "akka-http-testkit" % "10.1.11"
+  val akkaHttpTestKit = "com.typesafe.akka" %% "akka-http-testkit" % AkkaHttpVersion
+  val akkaStreamTestKit="com.typesafe.akka" %% "akka-stream-testkit" % AkkaVersion
   val mockito = "org.mockito" %% "mockito-scala-scalatest" % "1.5.11"
   val mock = "org.mockito" % "mockito-core" % "1.9.5"
   val sprayJson = "com.typesafe.akka" %% "akka-http-spray-json" % "10.2.7"
