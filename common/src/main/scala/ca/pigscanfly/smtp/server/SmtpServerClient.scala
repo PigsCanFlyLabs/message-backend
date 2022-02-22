@@ -10,6 +10,7 @@ import pl.jozwik.smtp.util.{ConsumedResult, Mail, _}
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
+import scala.language.postfixOps
 
 abstract class SmtpServerClient(implicit val system: ActorSystem) {
 

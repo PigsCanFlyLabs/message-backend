@@ -15,17 +15,6 @@ packageName in Docker := "holdenk/dockerised-akka-http-messaging-app"
 
 // Normal build
 
-lazy val sparkMiscUtils = (project in file("spark-misc-utils"))
-  .settings(
-    name := "spark-misc-utils",
-    commonSettings,
-    publishSettings,
-    libraryDependencies ++= Seq(
-      scalaPbCompiler,
-      scalaPbRuntime
-    )
-  ).dependsOn(common)
-
 lazy val common = (project in file("common"))
   .settings(
     libraryDependencies ++= commonDependencies,
@@ -70,7 +59,8 @@ lazy val commonSettings = Seq(
   organization := "ca.pigscanfly.ca.satellite.backend",
   publishMavenStyle := true,
   version := "0.0.1",
-  scalacOptions ++= Seq("-deprecation", "-unchecked", "-Yrangepos", "-Ywarn-unused-import"),
+  scalaVersion := "2.13.7",
+  scalacOptions ++= Seq("-deprecation", "-unchecked", "-Yrangepos"),
   javacOptions ++= {
     Seq("-source", "1.11", "-target", "1.11")
   },
@@ -135,6 +125,6 @@ lazy val publishSettings = Seq(
 lazy val noPublishSettings =
   skip in publish := true
 lazy val root = (project in file("."))
-  .aggregate(common, client, sparkMiscUtils, adminService, persistence)
+  .aggregate(common, client, adminService, persistence)
 
 envFileName in ThisBuild := ".env-swarmservice"
