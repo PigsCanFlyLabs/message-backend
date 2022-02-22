@@ -22,7 +22,7 @@ trait Versions {
   val slickCircePgVersion = "0.19.4"
   val flywayVersion = "3.2.1"
   val jwtCirceVersion = "7.1.2"
-  val akkaSmtpVersion = "0.2.2"
+  val akkaSmtpVersion = "0.3.0"
 }
 
 object Dependencies extends Versions {
