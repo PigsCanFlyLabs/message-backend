@@ -10,12 +10,11 @@ import ca.pigscanfly.models.{LoginCredentials, GetMessage, MessageDelivery, Mess
 import io.circe.syntax.EncoderOps
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{AsyncWordSpec, BeforeAndAfterAll, MustMatchers}
+import org.scalatest.{AsyncWordSpecLike, BeforeAndAfterAll, MustMatchers}
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.language.postfixOps
 
-class SwarmStartTest extends TestKit(ActorSystem("test")) with AsyncWordSpec
+class SwarmStartTest extends TestKit(ActorSystem("test")) with AsyncWordSpecLike
   with MustMatchers
   with ScalaFutures
   with MockFactory
