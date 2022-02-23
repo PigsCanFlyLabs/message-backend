@@ -4,6 +4,7 @@ trait Versions {
   val typeConfVersion = "1.4.1"
   val AkkaVersion = "2.6.18"
   val AkkaHttpVersion = "10.2.7"
+  val AkkaManagementVersion = "1.1.3"
   val akkaHttpCirceVersion = "1.39.2"
   val ScalaTestVersion = "3.3.0-SNAP3"
   val ScalaMockVersion = "5.1.0"
@@ -56,6 +57,10 @@ object Dependencies extends Versions {
   val mock = "org.mockito" % "mockito-core" % "1.9.5"
   val sprayJson = "com.typesafe.akka" %% "akka-http-spray-json" % "10.2.7"
 
+  // Akka on Kube
+  val akkaClusterHTTP = "com.lightbend.akka.management" %% "akka-management-cluster-http" % AkkaManagementVersion
+  val akkaClusterBootstrap = "com.lightbend.akka.management" %% "akka-management-cluster-bootstrap" % AkkaManagementVersion
+  val akkaDiscovery = "com.lightbend.akka.discovery" %% "akka-discovery-kubernetes-api" % AkkaManagementVersion
 
   //DB
   val slick = "com.typesafe.slick" %% "slick" % slickVersion
@@ -85,6 +90,9 @@ object Dependencies extends Versions {
     jwtCirce,
     akkaSmtp,
     akkaSlf4J,
+    akkaClusterHTTP,
+    akkaClusterBootstrap,
+    akkaDiscovery,
     "com.sun.mail" % "smtp" % "1.4.7"
   )
 
