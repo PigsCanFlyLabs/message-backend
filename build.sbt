@@ -2,16 +2,30 @@ import Dependencies._
 
 scalaVersion := "2.13.7"
 
+// Docker
+lazy val dockerBuildWithBuildx = taskKey[Unit]("Build docker images using buildx")
+
+lazy val dockerBuildxSettings = Seq(
+  dockerExecCommand := Seq("docker", "buildx"),
+  dockerBuildCommand := dockerExecCommand.value ++ Seq("build") ++ dockerBuildOptions.value ++ Seq(".", "--push", "--platform=linux/amd64,linux/arm64"),
+  publish in Docker := Def.sequential(
+    publishLocal in Docker,
+    dockerBuildWithBuildx
+  ).value
+)
+
 // Docker packaging
 enablePlugins(JavaAppPackaging)
 
-dockerBaseImage := "jdk11u-debian-nightly"
+dockerBaseImage := "adoptopenjdk/openjdk11:jdk11u-debian-nightly"
 
 import com.typesafe.sbt.packager.docker._
 
 dockerCommands ++= Seq(Cmd("USER", "root"), ExecCmd("RUN", "apt-get", "install", "-y", "bash"))
 
 packageName in Docker := "holdenk/dockerised-akka-http-messaging-app"
+
+ThisBuild / dynverSeparator := "-"
 
 // Normal build
 
@@ -122,9 +136,11 @@ lazy val publishSettings = Seq(
   useGpg := true,
 )
 
+lazy val combined = Project("combined", file(".")).dependsOn(common, client, adminService, persistence).settings(dockerBuildxSettings)
+
 lazy val noPublishSettings =
   skip in publish := true
 lazy val root = (project in file("."))
-  .aggregate(common, client, adminService, persistence)
+  .aggregate(common, client, adminService, persistence, combined)
 
 envFileName in ThisBuild := ".env-swarmservice"
