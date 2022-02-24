@@ -136,11 +136,11 @@ lazy val publishSettings = Seq(
   useGpg := true,
 )
 
-lazy val combined = Project("combined", file(".")).dependsOn(common, client, adminService, persistence).settings(dockerBuildxSettings)
+lazy val container = Project("container", file(".")).dependsOn(common, client, adminService, persistence).settings(dockerBuildxSettings)
 
 lazy val noPublishSettings =
   skip in publish := true
 lazy val root = (project in file("."))
-  .aggregate(common, client, adminService, persistence, combined)
+  .aggregate(common, client, adminService, persistence, container)
 
 envFileName in ThisBuild := ".env-swarmservice"
