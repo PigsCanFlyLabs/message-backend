@@ -74,7 +74,6 @@ object Dependencies extends Versions {
   val akkaClusterSharding = "com.typesafe.akka" %% "akka-cluster-sharding" % AkkaVersion
   val akkaClusterTools = "com.typesafe.akka" %% "akka-cluster-tools" % AkkaVersion
 
-
   //DB
   val slick = "com.typesafe.slick" %% "slick" % slickVersion
   val mySql = "mysql" % "mysql-connector-java" % mySqlVersion
