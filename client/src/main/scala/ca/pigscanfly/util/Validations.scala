@@ -1,26 +1,26 @@
 package ca.pigscanfly.util
 
+import ca.pigscanfly.util.Constants.{EMAIl, SMS, UNKOWN}
+
 trait Validations {
 
-  val NUMBER="number"
-  val EMAIl="email"
   private val emailRegex =
     """^[a-zA-Z0-9\.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$""".r
 
 
-  def validEmailPhone(string: String): Boolean ={
-    if(validPhone(string)) true
+  def validateEmailPhone(string: String): Boolean = {
+    if(validatePhone(string)) true
     else if(isValidEmail(string)) true
     else false
   }
 
-  def validateEmailPhone(string: String): String ={
-    if(validPhone(string)) "SMS"
-    else if(isValidEmail(string)) "EMAIL"
-    else ""
+  def detectSource(string: String): String ={
+    if(validatePhone(string)) SMS
+    else if(isValidEmail(string)) EMAIl
+    else UNKOWN
   }
 
-  def validPhone(string: String): Boolean ={
+  def validatePhone(string: String): Boolean ={
     if(string forall Character.isDigit) true
     else false
   }

@@ -20,28 +20,27 @@ object SendMessageActor {
   sealed trait Command
   sealed trait Response
 
+  case class CheckSubscription(deviceId: Long) extends Command
+  case class GetDeviceIdFromEmailOrPhone(from:String) extends Command
   case class PostMessageCommand(url: String, message: MessagePost, headers: List[HttpHeader]) extends Command
 
-  case class GetDeviceIdFromEmailOrPhone(from:String) extends Command
-  case class GetDeviceIdSuccess(deviceId:Option[Long]) extends Response
+  case class GetDeviceId(deviceId:Option[Long]) extends Response
+  case class CheckDeviceSubscription(isDisabled:Option[Boolean]) extends Response
+
 }
 
 class SendMessageActor(userDAO:UserDAO) extends Actor with HttpClient with SprayJsonSupport {
   override def receive: Receive = {
     case GetDeviceIdFromEmailOrPhone(from: String) =>
-      val res: Future[Response] = getDeviceIdFromEmailOrPhone(from)
+      val res: Future[Response] = userDAO.getDeviceIdFromEmailOrPhone(from).map(GetDeviceId)
       res.pipeTo(sender())
     case postMessage: PostMessageCommand =>
       swarmMessageClient.sendMessage(postMessage.url, postMessage.message, postMessage.headers).pipeTo(sender())
+    case CheckSubscription(deviceId) =>
+      val res: Future[Response] = userDAO.checkUserSubscription(deviceId).map(CheckDeviceSubscription)
+      res.pipeTo(sender())
+
     case _ =>
       println("Unhandled request") //TODO REPLACE IT WITH LOGGER
-  }
-
-
-  def getDeviceIdFromEmailOrPhone(from:String): Future[Response] ={
-    userDAO.getDeviceIdFromEmailOrPhone(from).map{
-      case Some(deviceId)=>GetDeviceIdSuccess(Some(deviceId))
-      case None=>GetDeviceIdSuccess(None)
-    }
   }
 }

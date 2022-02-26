@@ -13,7 +13,7 @@ class UserDAO(implicit val db: Database,
 
   val userQuery = TableQuery[UsersMapping]
 
-  def checkIfUserExists(email: String, deviceId: Long): Future[Int] = {
+  def checkIfUserExists(email: Option[String], deviceId: Long): Future[Int] = {
     val query = userQuery
       .filter(col => col.email === email &&
         col.deviceId === deviceId)
@@ -37,7 +37,7 @@ class UserDAO(implicit val db: Database,
       .filter(col => col.email === user.email &&
         col.deviceId === user.deviceId)
       .map(col => (col.phone, col.isDisabled))
-      .update((Some(user.phone), user.isDisabled))
+      .update((user.phone, user.isDisabled))
     db.run(query)
   }
 
@@ -47,6 +47,15 @@ class UserDAO(implicit val db: Database,
         col.deviceId === request.deviceId)
       .map(_.isDisabled)
       .update(request.isDisabled)
+    db.run(query)
+  }
+
+  def checkUserSubscription(deviceId: Long): Future[Option[Boolean]] = {
+    val query = userQuery
+      .filter(col => col.deviceId === deviceId)
+      .map(_.isDisabled)
+      .result
+      .headOption
     db.run(query)
   }
 

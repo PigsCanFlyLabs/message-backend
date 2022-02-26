@@ -16,7 +16,7 @@ class AdminActor(swarmDAO: AdminDAO, userDAO: UserDAO)(
 
   //noinspection ScalaStyle
   override def receive: Receive = {
-    case ValidateUserCommand(email: String, deviceId: Long) =>
+    case ValidateUserCommand(email: Option[String], deviceId: Long) =>
       val res = userDAO.checkIfUserExists(email, deviceId).map {
         case 1 =>
           ValidationResponse(true)
@@ -118,7 +118,7 @@ object AdminActor {
 
   final case class GetUserDetailsResponse(details: User) extends Response
 
-  final case class ValidateUserCommand(email: String, deviceId: Long) extends Command
+  final case class ValidateUserCommand(email: Option[String], deviceId: Long) extends Command
 
   final case class GetUserCommand(deviceId: Long) extends Command
 
