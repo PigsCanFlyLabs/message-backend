@@ -41,8 +41,14 @@ class SwarmController(swarmService: SwarmService) {
     } ~ path("email/messages") {
       post {
         extractRequest { request =>
-          complete(OK)
+          formFields("From", "To", "Body") { (from, to, body) =>
+            val result = swarmService.postMessages(from, to, body, request).map(_.asJson)
+            onComplete(result) {
+              case Success(response) => complete(HttpEntity(ContentTypes.`application/json`, response.toString))
+              case Failure(ex) => complete(InternalServerError, s"An error occurred: ${ex.getMessage}")
+            }
           }
+        }
         }
       }
     }

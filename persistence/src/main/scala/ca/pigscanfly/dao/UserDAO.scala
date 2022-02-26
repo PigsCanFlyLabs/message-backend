@@ -37,7 +37,7 @@ class UserDAO(implicit val db: Database,
       .filter(col => col.email === user.email &&
         col.deviceId === user.deviceId)
       .map(col => (col.phone, col.isDisabled))
-      .update((user.phone, user.isDisabled))
+      .update((Some(user.phone), user.isDisabled))
     db.run(query)
   }
 
@@ -67,21 +67,13 @@ class UserDAO(implicit val db: Database,
     db.run(query)
   }
 
-  def getEmailOrPhoneFromDeviceId(deviceId: Long): Future[(Option[String], Option[String])] = {
-    val phoneQuery = userQuery
+  def getEmailOrPhoneFromDeviceId(deviceId: Long): Future[Option[(Option[String], Option[String])]] = {
+    val query = userQuery
       .filter(col => col.deviceId === deviceId)
-      .map(_.phone)
+      .map(col => (col.phone, col.email))
       .result
       .headOption
-
-    val emailQuery = userQuery
-      .filter(col => col.deviceId === deviceId)
-      .map(_.email)
-      .result
-      .headOption
-    db.run(phoneQuery).flatMap { phone =>
-      db.run(emailQuery).map((phone, _))
-    }
+    db.run(query)
   }
 
 }

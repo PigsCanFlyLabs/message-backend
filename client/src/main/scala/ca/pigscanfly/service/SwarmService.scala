@@ -1,30 +1,29 @@
 package ca.pigscanfly.service
-
+import scala.collection.immutable.Set
 import akka.actor.{ActorRef, ActorSystem}
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import akka.http.scaladsl.model.{HttpHeader, HttpRequest}
 import akka.http.scaladsl.model.headers.{Cookie, HttpCookiePair}
+import akka.http.scaladsl.model.{HttpHeader, HttpRequest}
 import akka.pattern.ask
 import akka.util.Timeout
 import ca.pigscanfly.Application.executionContext
-import ca.pigscanfly.actors.GetMessageActor.{GetEmailOrPhoneFromDeviceId, GetMessage, GetPhoneOrEmailSuccess, MessageAck, SwarmLogin}
+import ca.pigscanfly.actors.GetMessageActor._
 import ca.pigscanfly.actors.SendMessageActor.{GetDeviceIdFromEmailOrPhone, GetDeviceIdSuccess, PostMessageCommand}
 import ca.pigscanfly.actors.{GetMessageActor, SendMessageActor}
-import ca.pigscanfly.configs.Constants
 import ca.pigscanfly.configs.Constants.SwarmBaseUrl
 import ca.pigscanfly.dao.UserDAO
 import ca.pigscanfly.models
 import ca.pigscanfly.models.{LoginCredentials, MessageDelivery, MessagePost, MessageRetrieval}
-import ca.pigscanfly.util.{ProtoUtils, Validations}
 import ca.pigscanfly.proto.MessageDataPB.{Message, MessageDataPB, Protocol}
+import ca.pigscanfly.util.{ProtoUtils, Validations}
 
 import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
 
-class SwarmService(twilioService: TwilioService)(actorSystem: ActorSystem,userDAO:UserDAO)
+class SwarmService(twilioService: TwilioService)(actorSystem: ActorSystem, userDAO: UserDAO)
   extends SprayJsonSupport
-  with Validations
-  with ProtoUtils {
+    with Validations
+    with ProtoUtils {
 
   val getMessageActor: ActorRef = actorSystem.actorOf(GetMessageActor.props(userDAO))
   val sendMessageActor: ActorRef = actorSystem.actorOf(SendMessageActor.props(userDAO))
@@ -58,7 +57,12 @@ class SwarmService(twilioService: TwilioService)(actorSystem: ActorSystem,userDA
           response.deviceId.fold(throw new Exception(s"Device is not present for phone number $from")) { deviceId =>
             // TODO SHOULD CHECK PROTOCOL OF FROM AND REFACTOR VALUE ACCORDINGLY
             // TODO CHECK ISDISABLED COLUMN FROM DB
-            val msg = Message(data, to, Protocol.values(2))
+            val msg = validateEmailPhone(to) match {
+              case "EMAIL" =>
+                Message(data, to, Protocol.values(1))
+              case "SMS"=>
+                Message(data, to, Protocol.values(2))
+            }
             //TODO Gather msg in time window
             val messageDataPB: MessageDataPB = MessageDataPB(1, Seq(msg), false)
             val messagePost = MessagePost(1, deviceId, 1, encodePostMessage(messageDataPB))

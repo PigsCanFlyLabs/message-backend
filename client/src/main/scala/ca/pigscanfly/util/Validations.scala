@@ -9,8 +9,19 @@ trait Validations {
 
 
   def validEmailPhone(string: String): Boolean ={
-    if(string forall Character.isDigit) true
+    if(validPhone(string)) true
     else if(isValidEmail(string)) true
+    else false
+  }
+
+  def validateEmailPhone(string: String): String ={
+    if(validPhone(string)) "SMS"
+    else if(isValidEmail(string)) "EMAIL"
+    else ""
+  }
+
+  def validPhone(string: String): Boolean ={
+    if(string forall Character.isDigit) true
     else false
   }
 
