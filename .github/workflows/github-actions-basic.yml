@@ -14,13 +14,12 @@ jobs:
     strategy:
       fail-fast: false
     steps:
-    - name: Checkout spark-testing-base
+    - name: Checkout code
       uses: actions/checkout@v2
       # In order to fetch changed files
       with:
         fetch-depth: 0
         repository: PigsCanFlyLabs/message-backend
-        ref: main
     - name: Sync the current branch with the latest in spark-testing-base
       if: github.repository != 'PigsCanFlyLabs/message-backend'
       id: sync-branch
