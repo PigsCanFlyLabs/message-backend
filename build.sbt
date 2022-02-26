@@ -7,7 +7,7 @@ lazy val dockerBuildWithBuildx = taskKey[Unit]("Build docker images using buildx
 
 lazy val dockerBuildxSettings = Seq(
   dockerExecCommand := Seq("docker", "buildx"),
-  dockerBuildCommand := dockerExecCommand.value ++ Seq("build") ++ dockerBuildOptions.value ++ Seq(".", "--push", "--platform=linux/amd64,linux/arm64"),
+  dockerBuildCommand := dockerExecCommand.value ++ Seq("build") ++ Seq("[dockerBuildOptions]") ++ Seq(".", "--push", "--platform=linux/amd64,linux/arm64"),
   publish in Docker := Def.sequential(
     publishLocal in Docker,
     dockerBuildWithBuildx
@@ -136,7 +136,7 @@ lazy val publishSettings = Seq(
   useGpg := true,
 )
 
-lazy val container = Project("container", file(".")).dependsOn(common, client, adminService, persistence).settings(dockerBuildxSettings)
+lazy val container = (project in file("container")).dependsOn(common, client, adminService, persistence).settings(commonSettings, dockerBuildxSettings)
 
 lazy val noPublishSettings =
   skip in publish := true
