@@ -30,8 +30,7 @@ trait SwarmMessageClient extends SprayJsonSupport with HttpClient with ProtoUtil
   def getMessages(url: String, headers: List[HttpHeader]): Future[MessageRetrieval] = {
     sendRequest(url, headers, Constants.EmptyString, HttpMethods.GET).flatMap { response =>
       Unmarshal(response.entity).to[List[GetMessage]].map { messages =>
-        val updatedMessages = messages.map { message => message /*.copy(data = decodeMessage(message.data).data)*/}
-        MessageRetrieval(updatedMessages)
+        MessageRetrieval(messages)
       }
     }
   }

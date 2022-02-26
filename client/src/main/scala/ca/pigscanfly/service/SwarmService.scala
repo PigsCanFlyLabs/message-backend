@@ -59,7 +59,7 @@ class SwarmService(twilioService: TwilioService)(actorSystem: ActorSystem, userD
                 case response: CheckDeviceSubscription =>
                   response.isDisabled.fold(throw new Exception(s"Couldn't found subscription details of device ID $deviceId")) { isDeviceDisabled =>
                     if (!isDeviceDisabled) {
-                      val msg = detectSource(to) match {
+                      val msg = detectSourceDestination(to) match {
                         case EMAIl =>
                           Message(data, to, Protocol.values(1))
                         case SMS =>

@@ -14,7 +14,7 @@ trait Validations {
     else false
   }
 
-  def detectSource(string: String): String ={
+  def detectSourceDestination(string: String): String ={
     if(validatePhone(string)) SMS
     else if(isValidEmail(string)) EMAIl
     else UNKOWN
