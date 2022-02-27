@@ -14,14 +14,14 @@ class UserDAOSpec extends AsyncWordSpecLike with ScalaFutures with Matchers with
 
   val userDao = new UserDAO()
 
-  val user = User(deviceId = 1L, phone = "9876543210", email = "email@domain.com", isDisabled = false)
-  val disableUserRequest = DisableUserRequest(deviceId = user.deviceId, email = user.email, isDisabled = true)
-  val deleteUserRequest = DeleteUserRequest(deviceId = user.deviceId, email = user.email)
+  val user = User(deviceId = 1L, phone = Some("9876543210"), email = Some("email@domain.com"), isDisabled = false)
+  val disableUserRequest = DisableUserRequest(deviceId = user.deviceId, email = user.email.getOrElse(""), isDisabled = true)
+  val deleteUserRequest = DeleteUserRequest(deviceId = user.deviceId, email = user.email.getOrElse(""))
 
   "UserDAOSpec service" should {
 
     "not be able to check If User Exists" in {
-      whenReady(userDao.checkIfUserExists("email", 0L)) { res =>
+      whenReady(userDao.checkIfUserExists(Some("email"), 0L)) { res =>
         res shouldBe 0
       }
     }
@@ -42,7 +42,7 @@ class UserDAOSpec extends AsyncWordSpecLike with ScalaFutures with Matchers with
       for {
         res <- userDao.getEmailOrPhoneFromDeviceId(0L)
       } yield {
-        res shouldBe(None, None)
+        res shouldBe None
       }
     }
 
@@ -80,12 +80,12 @@ class UserDAOSpec extends AsyncWordSpecLike with ScalaFutures with Matchers with
       for {
         res <- userDao.getEmailOrPhoneFromDeviceId(user.deviceId)
       } yield {
-        res shouldBe(Some(user.phone), Some(user.email))
+        res shouldBe Some(user.phone, user.email)
       }
     }
 
     "be able to updateUserDetails" in {
-      whenReady(userDao.updateUserDetails(user.copy(phone = "0000000000"))) { res =>
+      whenReady(userDao.updateUserDetails(user.copy(phone = Some("0000000000")))) { res =>
         res shouldBe 1
       }
     }
@@ -97,7 +97,7 @@ class UserDAOSpec extends AsyncWordSpecLike with ScalaFutures with Matchers with
     }
 
     "be able to get Device Id From Email Or Phone" in {
-      whenReady(userDao.getDeviceIdFromEmailOrPhone(user.email)) { res =>
+      whenReady(userDao.getDeviceIdFromEmailOrPhone(user.email.getOrElse(""))) { res =>
         res shouldBe Some(user.deviceId)
       }
     }
