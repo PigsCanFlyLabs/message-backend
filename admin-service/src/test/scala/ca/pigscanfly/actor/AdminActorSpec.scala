@@ -25,13 +25,13 @@ class AdminActorSpec(_system: ActorSystem) extends TestKit(_system) with Implici
   implicit val schema: String = ""
   val adminDAO = mock[AdminDAO]
   val userDAO = mock[UserDAO]
-  val user = User(deviceId = 1L, phone = "9876543210", email = "email@domain.com", isDisabled = false)
+  val user = User(deviceId = 1L, phone = Some("9876543210"), email = Some("email@domain.com"), isDisabled = false)
 
 
   implicit val futureAwaitDuration: FiniteDuration =
     FiniteDuration(futureAwaitTime.length, futureAwaitTime.unit)
-  val disableUserRequest = DisableUserRequest(deviceId = user.deviceId, email = user.email, isDisabled = true)
-  val deleteUserRequest = DeleteUserRequest(deviceId = user.deviceId, email = user.email)
+  val disableUserRequest = DisableUserRequest(deviceId = user.deviceId, email = user.email.getOrElse(""), isDisabled = true)
+  val deleteUserRequest = DeleteUserRequest(deviceId = user.deviceId, email = user.email.getOrElse(""))
   val adminLoginRequest: AdminLogin = AdminLogin("email", "password", "role")
 
   def this() = this(ActorSystem("AdminActorSystem"))
@@ -40,17 +40,17 @@ class AdminActorSpec(_system: ActorSystem) extends TestKit(_system) with Implici
 
     "be able to check If User Exists" in {
       val actorRef = system.actorOf(Props(new AdminActor(adminDAO, userDAO) {
-        when(userDAO.checkIfUserExists("email", 0L)) thenReturn Future(1)
+        when(userDAO.checkIfUserExists(Some("email"), 0L)) thenReturn Future(1)
       }))
-      actorRef ! ValidateUserCommand("email", 0L)
+      actorRef ! ValidateUserCommand(Some("email"), 0L)
       expectMsgType[ValidationResponse](5 seconds)
     }
 
     "not be able to check If User Exists" in {
       val actorRef = system.actorOf(Props(new AdminActor(adminDAO, userDAO) {
-        when(userDAO.checkIfUserExists("email", 0L)) thenReturn Future(0)
+        when(userDAO.checkIfUserExists(Some("email"), 0L)) thenReturn Future(0)
       }))
-      actorRef ! ValidateUserCommand("email", 0L)
+      actorRef ! ValidateUserCommand(Some("email"), 0L)
       expectMsgType[ValidationResponse](5 seconds)
     }
 

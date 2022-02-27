@@ -22,9 +22,9 @@ class AdminHandlerSpec extends WordSpec with AdminHandler with MockitoSugar {
   implicit val system: ActorSystem = ActorSystem()
   implicit val materializer: ActorMaterializer = ActorMaterializer()
 
-  val user = User(deviceId = 1L, phone = "9876543210", email = "email@domain.com", isDisabled = false)
-  val disableUserRequest = DisableUserRequest(deviceId = user.deviceId, email = user.email, isDisabled = true)
-  val deleteUserRequest = DeleteUserRequest(deviceId = user.deviceId, email = user.email)
+  val user = User(deviceId = 1L, phone = Some("9876543210"), email = Some("email@domain.com"), isDisabled = false)
+  val disableUserRequest = DisableUserRequest(deviceId = user.deviceId, email = user.email.getOrElse(""), isDisabled = true)
+  val deleteUserRequest = DeleteUserRequest(deviceId = user.deviceId, email = user.email.getOrElse(""))
   val adminLoginRequest: AdminLogin = AdminLogin("email", "password", "role")
 
 
