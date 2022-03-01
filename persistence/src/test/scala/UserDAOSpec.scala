@@ -1,4 +1,4 @@
-import ca.pigscanfly.components.{DeleteUserRequest, DisableUserRequest, User}
+import ca.pigscanfly.components.{DeleteUserRequest, DisableUserRequest, UpdateUserRequest, User}
 import ca.pigscanfly.dao.UserDAO
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Millis, Seconds, Span}
@@ -14,9 +14,10 @@ class UserDAOSpec extends AsyncWordSpecLike with ScalaFutures with Matchers with
 
   val userDao = new UserDAO()
 
-  val user = User(deviceId = 1L, phone = Some("9876543210"), email = Some("email@domain.com"), isDisabled = false)
-  val disableUserRequest = DisableUserRequest(deviceId = user.deviceId, email = user.email.getOrElse(""), isDisabled = true)
-  val deleteUserRequest = DeleteUserRequest(deviceId = user.deviceId, email = user.email.getOrElse(""))
+  val user: User = User(deviceId = 1L, phone = Some("9876543210"), email = Some("email@domain.com"), isDisabled = false)
+  val updateUser: UpdateUserRequest = UpdateUserRequest(deviceId = 1L, phone = Some("9876543210"), email = Some("email@domain.com"))
+  val disableUserRequest: DisableUserRequest = DisableUserRequest(deviceId = user.deviceId, isDisabled = true)
+  val deleteUserRequest: DeleteUserRequest = DeleteUserRequest(deviceId = user.deviceId)
 
   "UserDAOSpec service" should {
 
@@ -85,7 +86,7 @@ class UserDAOSpec extends AsyncWordSpecLike with ScalaFutures with Matchers with
     }
 
     "be able to updateUserDetails" in {
-      whenReady(userDao.updateUserDetails(user.copy(phone = Some("0000000000")))) { res =>
+      whenReady(userDao.updateUserDetails(updateUser.copy(phone = Some("0000000000")))) { res =>
         res shouldBe 1
       }
     }

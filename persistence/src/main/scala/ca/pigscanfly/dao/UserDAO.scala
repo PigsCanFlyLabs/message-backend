@@ -32,19 +32,17 @@ class UserDAO(implicit val db: Database,
 
   def insertUserDetails(user: User): Future[Int] = db.run(userQuery += user)
 
-  def updateUserDetails(user: User): Future[Int] = {
+  def updateUserDetails(user: UpdateUserRequest): Future[Int] = {
     val query = userQuery
-      .filter(col => col.email === user.email &&
-        col.deviceId === user.deviceId)
-      .map(col => (col.phone, col.isDisabled))
-      .update((user.phone, user.isDisabled))
+      .filter(_.deviceId === user.deviceId)
+      .map(col => (col.phone, col.email))
+      .update((user.phone, user.email))
     db.run(query)
   }
 
   def disableUser(request: DisableUserRequest): Future[Int] = {
     val query = userQuery
-      .filter(col => col.email === request.email &&
-        col.deviceId === request.deviceId)
+      .filter(_.deviceId === request.deviceId)
       .map(_.isDisabled)
       .update(request.isDisabled)
     db.run(query)
@@ -61,8 +59,7 @@ class UserDAO(implicit val db: Database,
 
   def deleteUser(request: DeleteUserRequest): Future[Int] = {
     val query = userQuery
-      .filter(col => col.email === request.email &&
-        col.deviceId === request.deviceId)
+      .filter(_.deviceId === request.deviceId)
       .delete
     db.run(query)
   }

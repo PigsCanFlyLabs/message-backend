@@ -43,7 +43,7 @@ class AdminActor(swarmDAO: AdminDAO, userDAO: UserDAO)(
       }
       res.pipeTo(sender())
 
-    case UpdateUserCommand(user: User) =>
+    case UpdateUserCommand(user: UpdateUserRequest) =>
       val res = userDAO.updateUserDetails(user).map {
         case 0 =>
           Updated(false)
@@ -124,7 +124,7 @@ object AdminActor {
 
   final case class CreateUserCommand(user: User) extends Command
 
-  final case class UpdateUserCommand(user: User) extends Command
+  final case class UpdateUserCommand(user: UpdateUserRequest) extends Command
 
   final case class DisableUserCommand(request: DisableUserRequest) extends Command
 
