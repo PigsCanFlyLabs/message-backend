@@ -52,7 +52,7 @@ lazy val client = (project in file("client"))
       scalaMock,
       scalaTest,
       akkaTestKit
-    )
+    ) ++ testDependencies
   ).dependsOn(common, persistence)
 
 lazy val commonSettings = Seq(
