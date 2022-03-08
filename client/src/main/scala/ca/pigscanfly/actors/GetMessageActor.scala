@@ -51,7 +51,6 @@ class GetMessageActor(userDAO: UserDAO) extends Actor with HttpClient with Spray
   }
 
   def getEmailOrPhoneFromDeviceId(deviceId: Long): Future[Response] = {
-    println(s"\n\ndevice id\n${deviceId}\n${userDAO}\n")
     userDAO.getEmailOrPhoneFromDeviceId(deviceId).map {
       case Some((phone, email)) => GetPhoneOrEmailSuccess(phone, email)
       case None => GetPhoneOrEmailSuccess(None, None)

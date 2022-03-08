@@ -10,11 +10,11 @@ import ca.pigscanfly.models.{LoginCredentials, GetMessage, MessageDelivery, Mess
 import io.circe.syntax.EncoderOps
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{AsyncWordSpecLike, BeforeAndAfterAll, MustMatchers, WordSpecLike}
-import scala.concurrent.ExecutionContext.Implicits.global
+import org.scalatest.{AsyncWordSpecLike, BeforeAndAfterAll, MustMatchers}
+
 import scala.concurrent.{ExecutionContext, Future}
 
-class SwarmStartTest extends TestKit(ActorSystem("test")) with WordSpecLike
+class SwarmStartTest extends TestKit(ActorSystem("test")) with AsyncWordSpecLike
   with MustMatchers
   with ScalaFutures
   with MockFactory
@@ -87,29 +87,28 @@ class SwarmStartTest extends TestKit(ActorSystem("test")) with WordSpecLike
       }
     }
 
-//    "PostSuccess" in {
-//      val requestBody = MessagePost(deviceType = 1, deviceId = 1, userApplicationId = 1234, data = "Some Message")
-//      swarmMessageClient.mock
-//        .expects(s"$SwarmBaseUrl/hive/api/v1/messages", List(cookieHeader), requestBody.copy(data = "CgxTb21lIE1lc3NhZ2U=").asJson.toString(), HttpMethods.POST)
-//        .returning(Future.successful(HttpResponse(entity = HttpEntity(ByteString(ackResponseMock)))))
-//
-//      swarmMessageClient.sendMessage(s"$SwarmBaseUrl/hive/api/v1/messages", requestBody, List(cookieHeader)).map{ resp =>
-//        println(s"\n\nresp\n${resp}\n\n\n")
-//        assert(resp === MessageDelivery(0, "OK"))
-//      }
-//    }
+    "PostSuccess" in {
+      val requestBody = MessagePost(deviceType = 1, deviceId = 1, userApplicationId = 1234, data = "Some Message")
+      swarmMessageClient.mock
+        .expects(s"$SwarmBaseUrl/hive/api/v1/messages", List(cookieHeader), requestBody.copy(data = "CgxTb21lIE1lc3NhZ2U=").asJson.toString(), HttpMethods.POST)
+        .returning(Future.successful(HttpResponse(entity = HttpEntity(ByteString(ackResponseMock)))))
 
-//    "LoginSuccess" in {
-//      val requestBody = LoginCredentials("username","password")
-//      swarmMessageClient.mock
-//        .expects(s"$SwarmBaseUrl/login", List(cookieHeader), requestBody.asJson.toString(), HttpMethods.GET)
-//        .returning(Future.successful(HttpResponse(headers = List(cookieHeader))))
-//
-//      val response = swarmMessageClient.login(s"$SwarmBaseUrl/login", requestBody)
-//      Thread.sleep(5000)
-//
-//      assert(response === MessageDelivery(0, "OK"))
-//    }
+      swarmMessageClient.sendMessage(s"$SwarmBaseUrl/hive/api/v1/messages", requestBody, List(cookieHeader)).map{ resp =>
+        assert(resp === MessageDelivery(0, "OK"))
+      }
+    }
+
+    "LoginSuccess" in {
+      val requestBody = LoginCredentials("username","password")
+      swarmMessageClient.mock
+        .expects(s"$SwarmBaseUrl/login", List(cookieHeader), requestBody.asJson.toString(), HttpMethods.GET)
+        .returning(Future.successful(HttpResponse(headers = List(cookieHeader))))
+
+      val response = swarmMessageClient.login(s"$SwarmBaseUrl/login", requestBody)
+      Thread.sleep(5000)
+
+      assert(response === MessageDelivery(0, "OK"))
+    }
   }
 }
 
