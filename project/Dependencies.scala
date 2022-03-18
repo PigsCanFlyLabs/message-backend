@@ -24,6 +24,7 @@ trait Versions {
   val flywayVersion = "3.2.1"
   val jwtCirceVersion = "7.1.2"
   val akkaSmtpVersion = "0.3.0"
+  val logbackVersion = "1.2.3"
 }
 
 object Dependencies extends Versions {
@@ -46,13 +47,15 @@ object Dependencies extends Versions {
   val macwireAkka = "com.softwaremill.macwire" %% "macrosakka" % macwireAkkaVersion % "provided"
   val jansi = "org.fusesource.jansi" % "jansi" % jansiVersion
   val pureConfig = "com.github.pureconfig" %% "pureconfig" % pureConfigVersion
+  val smtpMail = "com.sun.mail" % "smtp" % "1.4.7"
+  val logback = "ch.qos.logback" % "logback-classic" % logbackVersion
 
   //Testing
   val scalaMock = "org.scalamock" %% "scalamock" % "4.4.0"
   val scalaTest = "org.scalatest" %% "scalatest" % "3.0.8"
   val akkaTestKit = "com.typesafe.akka" %% "akka-testkit" % AkkaVersion
   val akkaHttpTestKit = "com.typesafe.akka" %% "akka-http-testkit" % AkkaHttpVersion
-  val akkaStreamTestKit="com.typesafe.akka" %% "akka-stream-testkit" % AkkaVersion
+  val akkaStreamTestKit = "com.typesafe.akka" %% "akka-stream-testkit" % AkkaVersion
   val mockito = "org.mockito" %% "mockito-scala-scalatest" % "1.5.11"
   val mock = "org.mockito" % "mockito-core" % "1.9.5"
   val sprayJson = "com.typesafe.akka" %% "akka-http-spray-json" % "10.2.7"
@@ -60,7 +63,17 @@ object Dependencies extends Versions {
   // Akka on Kube
   val akkaClusterHTTP = "com.lightbend.akka.management" %% "akka-management-cluster-http" % AkkaManagementVersion
   val akkaClusterBootstrap = "com.lightbend.akka.management" %% "akka-management-cluster-bootstrap" % AkkaManagementVersion
-  val akkaDiscovery = "com.lightbend.akka.discovery" %% "akka-discovery-kubernetes-api" % AkkaManagementVersion
+  val akkaDiscoveryKubernetes = "com.lightbend.akka.discovery" %% "akka-discovery-kubernetes-api" % AkkaManagementVersion
+
+  //added latest dbDependencies explicitly
+  val akkaCluster = "com.typesafe.akka" %% "akka-cluster" % AkkaVersion
+  val akkaRemote = "com.typesafe.akka" %% "akka-remote" % AkkaVersion
+  val akkaDiscovery = "com.typesafe.akka" %% "akka-discovery" % AkkaVersion
+  val akkaDistributedData = "com.typesafe.akka" %% "akka-distributed-data" % AkkaVersion
+  val akkaPersistence = "com.typesafe.akka" %% "akka-persistence" % AkkaVersion
+  val akkaClusterSharding = "com.typesafe.akka" %% "akka-cluster-sharding" % AkkaVersion
+  val akkaClusterTools = "com.typesafe.akka" %% "akka-cluster-tools" % AkkaVersion
+
 
   //DB
   val slick = "com.typesafe.slick" %% "slick" % slickVersion
@@ -83,7 +96,7 @@ object Dependencies extends Versions {
     sprayJson,
     scalaPbCompiler,
     scalaPbRuntime,
-    "ch.qos.logback" % "logback-classic" % "1.2.3",
+    logback,
     jansi,
     pureConfig,
     flyway,
@@ -92,8 +105,15 @@ object Dependencies extends Versions {
     akkaSlf4J,
     akkaClusterHTTP,
     akkaClusterBootstrap,
+    akkaDiscoveryKubernetes,
+    smtpMail,
+    akkaCluster,
+    akkaRemote,
     akkaDiscovery,
-    "com.sun.mail" % "smtp" % "1.4.7"
+    akkaDistributedData,
+    akkaPersistence,
+    akkaClusterSharding,
+    akkaClusterTools
   )
 
   val dbDependencies = Seq(slick, slickPg, mySql, hikaricp, slickCirce, slickMySql)

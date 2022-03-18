@@ -12,12 +12,12 @@ final case class UsersMapping(tag: Tag)
       phone,
       email,
       isDisabled).shaped <> (User.tupled, User.unapply)
-
-  def phone: Rep[String] = column[String]("phone_number")
+//TODO phone and email should be optional
+  def phone: Rep[Option[String]] = column[Option[String]]("phone_number")
 
   def isDisabled: Rep[Boolean] = column[Boolean]("is_disabled")
 
   def deviceId: Rep[Long] = column[Long]("device_id")
 
-  def email: Rep[String] = column[String]("email", O.PrimaryKey)
+  def email: Rep[Option[String]] = column[Option[String]]("email", O.PrimaryKey)
 }

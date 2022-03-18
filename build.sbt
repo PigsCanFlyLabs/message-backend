@@ -56,7 +56,7 @@ lazy val client = (project in file("client"))
   ).dependsOn(common, persistence)
 
 lazy val commonSettings = Seq(
-  organization := "ca.pigscanfly.ca.satellite.backend",
+  organization := "ca.pigscanfly",
   publishMavenStyle := true,
   version := "0.0.1",
   scalaVersion := "2.13.7",

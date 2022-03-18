@@ -7,6 +7,9 @@ object ClientConstants {
 
   val config: Config = ConfigFactory.load
 
+  val schedulerInitalDelay = config.getInt("scheduler.initial.delay")
+  val schedulerInterval = config.getInt("scheduler.interval")
+
   val serverHost: String = config.getString("server.host")
   val serverPort: Int = config.getInt("server.port")
 

@@ -15,21 +15,25 @@ import scala.concurrent.Future
 
 object GetMessageActor {
 
-  def props(userDAO:UserDAO): Props = Props(new GetMessageActor(userDAO))
+  def props(userDAO: UserDAO): Props = Props(new GetMessageActor(userDAO))
 
   sealed trait Command
+
   sealed trait Response
 
-  case class GetEmailOrPhoneFromDeviceId(deviceId:Long) extends Command
+  case class GetEmailOrPhoneFromDeviceId(deviceId: Long) extends Command
+
   case class GetMessage(url: String, headers: List[HttpHeader]) extends Command
+
   case class SwarmLogin(url: String, loginCredentials: LoginCredentials) extends Command
+
   case class MessageAck(url: String, packageId: Int, headers: List[HttpHeader]) extends Command
 
-  case class GetPhoneOrEmailSuccess(phone:Option[String], email:Option[String]) extends Response
+  case class GetPhoneOrEmailSuccess(phone: Option[String], email: Option[String]) extends Response
 
 }
 
-class GetMessageActor(userDAO:UserDAO) extends Actor with HttpClient with SprayJsonSupport {
+class GetMessageActor(userDAO: UserDAO) extends Actor with HttpClient with SprayJsonSupport {
   override def receive: Receive = {
     case getMessageCommand: GetMessage =>
       //            Future(MessageRetrieval(List(Message(1,1,1,"sdfasf",1,1,1,"sfdasdfa",1,1,"strkngr")))).pipeTo(sender())
@@ -46,9 +50,10 @@ class GetMessageActor(userDAO:UserDAO) extends Actor with HttpClient with SprayJ
       println("Unhandled request") //TODO REPLACE IT WITH LOGGER
   }
 
-  def getEmailOrPhoneFromDeviceId(deviceId: Long):Future[Response]= {
-    userDAO.getEmailOrPhoneFromDeviceId(deviceId).map{
-      case (phone, email) => GetPhoneOrEmailSuccess(phone, email)
+  def getEmailOrPhoneFromDeviceId(deviceId: Long): Future[Response] = {
+    userDAO.getEmailOrPhoneFromDeviceId(deviceId).map {
+      case Some((phone, email)) => GetPhoneOrEmailSuccess(phone, email)
+      case None => GetPhoneOrEmailSuccess(None, None)
     }
   }
 }

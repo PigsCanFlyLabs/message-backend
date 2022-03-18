@@ -83,7 +83,7 @@ trait AdminService
             val isAccessible =
               routeCache.findRoleAndRouteAccess(auth.role, "update-user")
             if (isAccessible) {
-              (post & entity(as[User])) { request =>
+              (post & entity(as[UpdateUserRequest])) { request =>
                 val response =
                   updateUser(actor, request)
                 complete(response)

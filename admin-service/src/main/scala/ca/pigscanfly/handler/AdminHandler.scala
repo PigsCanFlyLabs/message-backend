@@ -47,7 +47,7 @@ trait AdminHandler extends JWTTokenHelper {
 
   //update user name
   def updateUser(command: ActorRef,
-                 user: User): Future[HttpResponse] = {
+                 user: UpdateUserRequest): Future[HttpResponse] = {
     ask(command, ValidateUserCommand(user.email, user.deviceId)).flatMap {
       case ValidationResponse(true) =>
         ask(command, UpdateUserCommand(user)).map {

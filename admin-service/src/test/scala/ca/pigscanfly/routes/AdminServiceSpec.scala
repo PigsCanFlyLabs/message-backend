@@ -3,8 +3,8 @@ package ca.pigscanfly.routes
 import akka.actor.ActorRef
 import akka.http.scaladsl.model.HttpMethods.{DELETE, POST}
 import akka.http.scaladsl.model.HttpProtocols.`HTTP/1.0`
-import akka.http.scaladsl.model.headers.{Authorization, OAuth2BearerToken}
 import akka.http.scaladsl.model._
+import akka.http.scaladsl.model.headers.{Authorization, OAuth2BearerToken}
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import akka.stream.ActorMaterializer
@@ -68,7 +68,7 @@ class AdminServiceSpec extends WordSpec with Matchers with ScalatestRouteTest
                           user: User): Future[HttpResponse] = Future.successful(HttpResponse.apply())
 
   override def updateUser(command: ActorRef,
-                          user: User): Future[HttpResponse] = Future.successful(HttpResponse.apply())
+                          user: UpdateUserRequest): Future[HttpResponse] = Future.successful(HttpResponse.apply())
 
   override def disableUser(command: ActorRef,
                            request: DisableUserRequest): Future[HttpResponse] = Future.successful(HttpResponse.apply())
@@ -140,7 +140,6 @@ class AdminServiceSpec extends WordSpec with Matchers with ScalatestRouteTest
         ContentTypes.`application/json`,
         """{
           |    "deviceId": "10036",
-          |    "email": "email",
           |    "isDisabled":true
           |}""".stripMargin),
       headers = List(superAdminAuth),
@@ -154,8 +153,7 @@ class AdminServiceSpec extends WordSpec with Matchers with ScalatestRouteTest
       entity = HttpEntity(
         ContentTypes.`application/json`,
         """{
-          |    "deviceId": "10036",
-          |    "email": "email"
+          |    "deviceId": "10036"
           |}""".stripMargin),
       headers = List(superAdminAuth),
       protocol = `HTTP/1.0`) ~> route ~> check {
@@ -212,8 +210,7 @@ class AdminServiceSpec extends WordSpec with Matchers with ScalatestRouteTest
         """{
           |    "deviceId": "10003",
           |    "phone": "9684356",
-          |    "email": "email",
-          |    "isDisabled":false
+          |    "email": "email"
           |}""".stripMargin),
       headers = List(adminAuth),
       protocol = `HTTP/1.0`) ~> route ~> check {
@@ -227,7 +224,6 @@ class AdminServiceSpec extends WordSpec with Matchers with ScalatestRouteTest
         ContentTypes.`application/json`,
         """{
           |    "deviceId": "10036",
-          |    "email": "email",
           |    "isDisabled":true
           |}""".stripMargin),
       headers = List(adminAuth),

@@ -3,7 +3,7 @@ package ca.pigscanfly.actor
 import akka.actor.{ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit}
 import ca.pigscanfly.actor.AdminActor._
-import ca.pigscanfly.components.{AdminLogin, DeleteUserRequest, DisableUserRequest, User}
+import ca.pigscanfly.components._
 import ca.pigscanfly.dao.{AdminDAO, UserDAO}
 import org.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterAll, MustMatchers, WordSpecLike}
@@ -23,15 +23,15 @@ class AdminActorSpec(_system: ActorSystem) extends TestKit(_system) with Implici
 
   implicit val db: driver.api.Database = mock[Database]
   implicit val schema: String = ""
-  val adminDAO = mock[AdminDAO]
-  val userDAO = mock[UserDAO]
-  val user = User(deviceId = 1L, phone = "9876543210", email = "email@domain.com", isDisabled = false)
-
+  val adminDAO: AdminDAO = mock[AdminDAO]
+  val userDAO: UserDAO = mock[UserDAO]
+  val user: User = User(deviceId = 1L, phone = Some("9876543210"), email = Some("email@domain.com"), isDisabled = false)
+  val updateUser: UpdateUserRequest = UpdateUserRequest(deviceId = 1L, phone = Some("9876543210"), email = Some("email@domain.com"))
 
   implicit val futureAwaitDuration: FiniteDuration =
     FiniteDuration(futureAwaitTime.length, futureAwaitTime.unit)
-  val disableUserRequest = DisableUserRequest(deviceId = user.deviceId, email = user.email, isDisabled = true)
-  val deleteUserRequest = DeleteUserRequest(deviceId = user.deviceId, email = user.email)
+  val disableUserRequest = DisableUserRequest(deviceId = user.deviceId, isDisabled = true)
+  val deleteUserRequest: DeleteUserRequest = DeleteUserRequest(deviceId = user.deviceId)
   val adminLoginRequest: AdminLogin = AdminLogin("email", "password", "role")
 
   def this() = this(ActorSystem("AdminActorSystem"))
@@ -40,17 +40,17 @@ class AdminActorSpec(_system: ActorSystem) extends TestKit(_system) with Implici
 
     "be able to check If User Exists" in {
       val actorRef = system.actorOf(Props(new AdminActor(adminDAO, userDAO) {
-        when(userDAO.checkIfUserExists("email", 0L)) thenReturn Future(1)
+        when(userDAO.checkIfUserExists(Some("email"), 0L)) thenReturn Future(1)
       }))
-      actorRef ! ValidateUserCommand("email", 0L)
+      actorRef ! ValidateUserCommand(Some("email"), 0L)
       expectMsgType[ValidationResponse](5 seconds)
     }
 
     "not be able to check If User Exists" in {
       val actorRef = system.actorOf(Props(new AdminActor(adminDAO, userDAO) {
-        when(userDAO.checkIfUserExists("email", 0L)) thenReturn Future(0)
+        when(userDAO.checkIfUserExists(Some("email"), 0L)) thenReturn Future(0)
       }))
-      actorRef ! ValidateUserCommand("email", 0L)
+      actorRef ! ValidateUserCommand(Some("email"), 0L)
       expectMsgType[ValidationResponse](5 seconds)
     }
 
@@ -88,17 +88,17 @@ class AdminActorSpec(_system: ActorSystem) extends TestKit(_system) with Implici
 
     "be able to update User Details" in {
       val actorRef = system.actorOf(Props(new AdminActor(adminDAO, userDAO) {
-        when(userDAO.updateUserDetails(user)) thenReturn Future(1)
+        when(userDAO.updateUserDetails(updateUser)) thenReturn Future(1)
       }))
-      actorRef ! UpdateUserCommand(user)
+      actorRef ! UpdateUserCommand(updateUser)
       expectMsgType[Updated](5 seconds)
     }
 
     "not be able to update User Details" in {
       val actorRef = system.actorOf(Props(new AdminActor(adminDAO, userDAO) {
-        when(userDAO.updateUserDetails(user)) thenReturn Future(0)
+        when(userDAO.updateUserDetails(updateUser)) thenReturn Future(0)
       }))
-      actorRef ! UpdateUserCommand(user)
+      actorRef ! UpdateUserCommand(updateUser)
       expectMsgType[Updated](5 seconds)
     }
 

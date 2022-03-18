@@ -13,7 +13,7 @@ class UserDAO(implicit val db: Database,
 
   val userQuery = TableQuery[UsersMapping]
 
-  def checkIfUserExists(email: String, deviceId: Long): Future[Int] = {
+  def checkIfUserExists(email: Option[String], deviceId: Long): Future[Int] = {
     val query = userQuery
       .filter(col => col.email === email &&
         col.deviceId === deviceId)
@@ -32,28 +32,34 @@ class UserDAO(implicit val db: Database,
 
   def insertUserDetails(user: User): Future[Int] = db.run(userQuery += user)
 
-  def updateUserDetails(user: User): Future[Int] = {
+  def updateUserDetails(user: UpdateUserRequest): Future[Int] = {
     val query = userQuery
-      .filter(col => col.email === user.email &&
-        col.deviceId === user.deviceId)
-      .map(col => (col.phone, col.isDisabled))
-      .update((user.phone, user.isDisabled))
+      .filter(_.deviceId === user.deviceId)
+      .map(col => (col.phone, col.email))
+      .update((user.phone, user.email))
     db.run(query)
   }
 
   def disableUser(request: DisableUserRequest): Future[Int] = {
     val query = userQuery
-      .filter(col => col.email === request.email &&
-        col.deviceId === request.deviceId)
+      .filter(_.deviceId === request.deviceId)
       .map(_.isDisabled)
       .update(request.isDisabled)
     db.run(query)
   }
 
+  def checkUserSubscription(deviceId: Long): Future[Option[Boolean]] = {
+    val query = userQuery
+      .filter(col => col.deviceId === deviceId)
+      .map(_.isDisabled)
+      .result
+      .headOption
+    db.run(query)
+  }
+
   def deleteUser(request: DeleteUserRequest): Future[Int] = {
     val query = userQuery
-      .filter(col => col.email === request.email &&
-        col.deviceId === request.deviceId)
+      .filter(_.deviceId === request.deviceId)
       .delete
     db.run(query)
   }
@@ -67,21 +73,13 @@ class UserDAO(implicit val db: Database,
     db.run(query)
   }
 
-  def getEmailOrPhoneFromDeviceId(deviceId: Long): Future[(Option[String], Option[String])] = {
-    val phoneQuery = userQuery
+  def getEmailOrPhoneFromDeviceId(deviceId: Long): Future[Option[(Option[String], Option[String])]] = {
+    val query = userQuery
       .filter(col => col.deviceId === deviceId)
-      .map(_.phone)
+      .map(col => (col.phone, col.email))
       .result
       .headOption
-
-    val emailQuery = userQuery
-      .filter(col => col.deviceId === deviceId)
-      .map(_.email)
-      .result
-      .headOption
-    db.run(phoneQuery).flatMap { phone =>
-      db.run(emailQuery).map((phone, _))
-    }
+    db.run(query)
   }
 
 }
