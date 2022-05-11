@@ -21,7 +21,7 @@ trait Validations {
   }
 
   def validatePhone(string: String): Boolean ={
-    if(string forall Character.isDigit) true
+    if(string.drop(1) forall Character.isDigit) true
     else false
   }
 

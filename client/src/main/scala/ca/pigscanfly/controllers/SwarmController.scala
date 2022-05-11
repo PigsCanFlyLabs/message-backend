@@ -16,19 +16,19 @@ class SwarmController(swarmService: SwarmService) {
 
   def routes: Route = path("messages") {
     get {
-        val result = swarmService.getMessages()
-        onComplete(result) {
-          case Success(messages) => complete(HttpEntity(ContentTypes.`application/json`, messages.asJson.toString))
-          case Failure(ex) => complete(InternalServerError, s"An error occurred: ${ex.getMessage}")
+      val result = swarmService.getMessages()
+      onComplete(result) {
+        case Success(messages) => complete(HttpEntity(ContentTypes.`application/json`, messages.asJson.toString))
+        case Failure(ex) => complete(InternalServerError, s"An error occurred: ${ex.getMessage}")
       }
-    } ~ path("messages") {
-      post {
-        formFields("From", "To", "Body") { (from, to, body) =>
-          val result = swarmService.postMessages(from, to, body).map(_.asJson)
-          onComplete(result) {
-            case Success(response) => complete(HttpEntity(ContentTypes.`application/json`, response.toString))
-            case Failure(ex) => complete(InternalServerError, s"An error occurred: ${ex.getMessage}")
-          }
+    }
+  } ~ path("messages") {
+    post {
+      formFields("From", "To", "Body") { (from, to, body) =>
+        val result = swarmService.postMessages(from, to, body).map(_.asJson)
+        onComplete(result) {
+          case Success(response) => complete(HttpEntity(ContentTypes.`application/json`, response.toString))
+          case Failure(ex) => complete(InternalServerError, s"An error occurred: ${ex.getMessage}")
         }
       }
     }

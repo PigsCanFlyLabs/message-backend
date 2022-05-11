@@ -7,6 +7,7 @@ import ca.pigscanfly.configs.Constants.{AccountSID, AuthToken}
 import ca.pigscanfly.controllers.SwarmController
 import ca.pigscanfly.dao.UserDAO
 import ca.pigscanfly.httpClient.HttpClient
+import ca.pigscanfly.schedular.GetMessagesScheduler
 import ca.pigscanfly.service.{SwarmService, TwilioService}
 import com.twilio.Twilio
 import org.slf4j.{Logger, LoggerFactory}
@@ -47,6 +48,7 @@ object Application extends App {
   val notificationController = new SwarmController(swarmService)
   val routerHandler = notificationController.routes
   val bindingFuture = Http().newServerAt(serverHost, serverPort).bind(routerHandler)
+  system.actorOf(GetMessagesScheduler.props(swarmService,twilioService))
 
   bindingFuture.onComplete {
     case Success(binding) ⇒

@@ -1,6 +1,6 @@
 package ca.pigscanfly.util
 
-import ca.pigscanfly.proto.MessageDataPB.MessageDataPB
+import ca.pigscanfly.proto.MessageDataPB.{Message, MessageDataPB, Protocol}
 
 import java.util.Base64
 
