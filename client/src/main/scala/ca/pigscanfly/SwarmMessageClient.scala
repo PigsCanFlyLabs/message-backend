@@ -21,12 +21,24 @@ trait SwarmMessageClient extends SprayJsonSupport with HttpClient with ProtoUtil
 
   implicit def executionContext: ExecutionContext
 
+  /**
+   *
+   * @param url
+   * @param loginCredentials
+   * @return
+   */
   def login(url: String, loginCredentials: LoginCredentials): Future[Seq[HttpHeader]] = {
     sendRequest(url, List.empty, loginCredentials.asJson.toString(), HttpMethods.GET).map { response =>
       response.headers
     }
   }
 
+  /**
+   *
+   * @param url
+   * @param headers
+   * @return
+   */
   def getMessages(url: String, headers: List[HttpHeader]): Future[MessageRetrieval] = {
     sendRequest(url, headers, Constants.EmptyString, HttpMethods.GET).flatMap { response =>
       Unmarshal(response.entity).to[List[GetMessage]].map { messages =>
@@ -35,12 +47,26 @@ trait SwarmMessageClient extends SprayJsonSupport with HttpClient with ProtoUtil
     }
   }
 
+  /**
+   *
+   * @param url
+   * @param msg
+   * @param headers
+   * @return
+   */
   def sendMessage(url: String, msg: MessagePost, headers: List[HttpHeader]): Future[MessageDelivery] = {
     sendRequest(url, headers, msg.copy(data = msg.data).asJson.toString(), HttpMethods.POST).flatMap { response =>
       Unmarshal(response.entity).to[MessageDelivery]
     }
   }
 
+  /**
+   *
+   * @param url
+   * @param packetId
+   * @param headers
+   * @return
+   */
   def ackMessage(url: String, packetId: Int, headers: List[HttpHeader]): Future[MessageDelivery] = {
     val completeUrl = url + "/" + packetId
     sendRequest(completeUrl, headers, Constants.EmptyString, HttpMethods.POST).flatMap { response =>

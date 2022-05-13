@@ -28,7 +28,7 @@ object GetMessagesScheduler {
 }
 
 class GetMessagesScheduler(swarmService: SwarmService, twilioService: TwilioService) extends Actor with SendGridEmailer
-  with Validations with ProtoUtils  with ActorLogging{
+  with Validations with ProtoUtils  with ActorLogging {
 
   override def preStart(): Unit = {
     self ! ScheduleGetMessage(schedulerInitalDelay.minute, schedulerInterval.minutes)
@@ -59,8 +59,11 @@ class GetMessagesScheduler(swarmService: SwarmService, twilioService: TwilioServ
             messageDataPB.message.map { messageData =>
               log.info(s"GetMessagesScheduler: Detecting source destination: ${messageData.to}")
               detectSourceDestination(messageData.to) match {
-                case EMAIl => sendMail(messageData.to, message.data)
+                case EMAIl =>
+                  log.info(s"GetMessagesScheduler: Detected source destination as EMAIL for TO: ${messageData.to}")
+                  sendMail(messageData.to, message.data)
                 case SMS =>
+                  log.info(s"GetMessagesScheduler: Detected source destination as SMS for TO: ${messageData.to}")
                   fromInfo.phone.fold(throw new Exception(s"Didn't found sender phone details of Device ID ::: ${message.deviceId}")) { fromPhone =>
                     twilioService.sendToTwilio(messageData.to, fromPhone, messageData.text)
                   }

@@ -6,6 +6,13 @@ import com.typesafe.scalalogging.LazyLogging
 
 
 class TwilioService extends LazyLogging {
+
+  /**
+   * Sends message using Twillio service
+   * @param to
+   * @param from
+   * @param data
+   */
   def sendToTwilio(to: String, from: String, data: String): Unit = {
     try {
       Message.creator(new PhoneNumber(to), new PhoneNumber(from), data).create()

@@ -8,19 +8,26 @@ import akka.util.Timeout
 import ca.pigscanfly.actor.AdminActor._
 import ca.pigscanfly.components._
 import ca.pigscanfly.models.JWTTokenHelper
+import com.typesafe.scalalogging.LazyLogging
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-trait AdminHandler extends JWTTokenHelper {
+trait AdminHandler extends JWTTokenHelper with LazyLogging {
 
   implicit val system: ActorSystem
 
   implicit val materializer: ActorMaterializer
   implicit val timeOut: Timeout = Timeout(40 seconds)
 
+  /**
+   * This method creates new user
+   * @param command
+   * @param user
+   * @return Future[HttpResponse]
+   */
   def createUser(command: ActorRef,
                  user: User): Future[HttpResponse] = {
     ask(command, ValidateUserCommand(user.email, user.deviceId)).flatMap {
@@ -46,6 +53,13 @@ trait AdminHandler extends JWTTokenHelper {
   }
 
   //update user name
+
+  /**
+   * Update user details
+   * @param command
+   * @param user
+   * @return Future[HttpResponse]
+   */
   def updateUser(command: ActorRef,
                  user: UpdateUserRequest): Future[HttpResponse] = {
     ask(command, ValidateUserCommand(user.email, user.deviceId)).flatMap {
@@ -70,6 +84,12 @@ trait AdminHandler extends JWTTokenHelper {
     }
   }
 
+  /**
+   * Retrieves user details
+   * @param command
+   * @param deviceId
+   * @return Future[HttpResponse]
+   */
   def getUserDetails(command: ActorRef,
                      deviceId: Long): Future[HttpResponse] = {
     ask(command, GetUserCommand(deviceId)).map {
@@ -86,6 +106,12 @@ trait AdminHandler extends JWTTokenHelper {
     }
   }
 
+  /**
+   * Disable user subscription
+   * @param command
+   * @param request
+   * @return Future[HttpResponse]
+   */
   def disableUser(command: ActorRef,
                   request: DisableUserRequest): Future[HttpResponse] = {
     ask(command, DisableUserCommand(request)).map {
@@ -100,6 +126,12 @@ trait AdminHandler extends JWTTokenHelper {
     }
   }
 
+  /**
+   * Delete user from system
+   * @param command
+   * @param request
+   * @return Future[HttpResponse]
+   */
   def deleteUser(command: ActorRef,
                  request: DeleteUserRequest): Future[HttpResponse] = {
     ask(command, DeleteUserCommand(request)).map {
@@ -114,6 +146,12 @@ trait AdminHandler extends JWTTokenHelper {
     }
   }
 
+  /**
+   * Create admin user
+   * @param command
+   * @param admin
+   * @return Future[HttpResponse]
+   */
   def createAdmin(command: ActorRef,
                   admin: AdminLogin): Future[HttpResponse] = {
     ask(command, ValidateAdminCommand(admin.email, admin.role)).flatMap {
@@ -138,6 +176,12 @@ trait AdminHandler extends JWTTokenHelper {
     }
   }
 
+  /**
+   * This method is to logg in admin
+   * @param command
+   * @param adminLogin
+   * @return Future[HttpResponse]
+   */
   def adminLogin(command: ActorRef,
                  adminLogin: AdminLogin): Future[HttpResponse] = {
     ask(command, AdminLoginCommand(adminLogin)).map {

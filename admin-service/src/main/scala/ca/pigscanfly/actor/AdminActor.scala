@@ -17,6 +17,7 @@ class AdminActor(swarmDAO: AdminDAO, userDAO: UserDAO)(
   //noinspection ScalaStyle
   override def receive: Receive = {
     case ValidateUserCommand(email: Option[String], deviceId: Long) =>
+      log.info(s"AdminActor: Validating User email: $email, deviceId: $deviceId")
       val res = userDAO.checkIfUserExists(email, deviceId).map {
         case 1 =>
           ValidationResponse(true)
@@ -26,6 +27,7 @@ class AdminActor(swarmDAO: AdminDAO, userDAO: UserDAO)(
       res.pipeTo(sender())
 
     case GetUserCommand(deviceId: Long) =>
+      log.info(s"AdminActor: Retrieving User details deviceId: $deviceId")
       val res = userDAO.getUserDetails(deviceId).map {
         case None =>
           NoDataFound()
@@ -35,6 +37,7 @@ class AdminActor(swarmDAO: AdminDAO, userDAO: UserDAO)(
       res.pipeTo(sender())
 
     case CreateUserCommand(user: User) =>
+      log.info(s"AdminActor: Creating new User details $user")
       val res = userDAO.insertUserDetails(user).map {
         case 0 =>
           Updated(false)
@@ -44,6 +47,7 @@ class AdminActor(swarmDAO: AdminDAO, userDAO: UserDAO)(
       res.pipeTo(sender())
 
     case UpdateUserCommand(user: UpdateUserRequest) =>
+      log.info(s"AdminActor: Updating User details $user")
       val res = userDAO.updateUserDetails(user).map {
         case 0 =>
           Updated(false)
@@ -53,6 +57,7 @@ class AdminActor(swarmDAO: AdminDAO, userDAO: UserDAO)(
       res.pipeTo(sender())
 
     case DisableUserCommand(request: DisableUserRequest) =>
+      log.info(s"AdminActor: Disabling User details $request")
       val res = userDAO.disableUser(request).map {
         case 0 =>
           Updated(false)
@@ -62,6 +67,7 @@ class AdminActor(swarmDAO: AdminDAO, userDAO: UserDAO)(
       res.pipeTo(sender())
 
     case DeleteUserCommand(request: DeleteUserRequest) =>
+      log.info(s"AdminActor: Deleting User details $request")
       val res = userDAO.deleteUser(request).map {
         case 0 =>
           Updated(false)
@@ -71,6 +77,7 @@ class AdminActor(swarmDAO: AdminDAO, userDAO: UserDAO)(
       res.pipeTo(sender())
 
     case ValidateAdminCommand(email: String, role: String) =>
+      log.info(s"AdminActor: Validating Admin email for login email: $email, role: $role")
       val res = swarmDAO.checkIfAdminExists(email, role).map {
         case 1 =>
           ValidationResponse(true)
@@ -80,6 +87,7 @@ class AdminActor(swarmDAO: AdminDAO, userDAO: UserDAO)(
       res.pipeTo(sender())
 
     case AdminLoginCommand(adminLogin: AdminLogin) =>
+      log.info(s"AdminActor: Validating admin login $adminLogin")
       val res = swarmDAO.validateAdminLogin(adminLogin).map {
         case 0 =>
           ValidationResponse(false)
@@ -89,6 +97,7 @@ class AdminActor(swarmDAO: AdminDAO, userDAO: UserDAO)(
       res.pipeTo(sender())
 
     case CreateAdminCommand(admin: AdminLogin) =>
+      log.info(s"AdminActor: Creating new admin User details $admin")
       val res = swarmDAO.createAdminUser(admin).map {
         case 0 =>
           Updated(false)

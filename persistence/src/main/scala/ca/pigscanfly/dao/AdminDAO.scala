@@ -16,19 +16,28 @@ class AdminDAO(implicit val db: Database,
   val resourcePermissionsQuery = TableQuery[ResourcePermissionsTable]
   val adminLoginQuery = TableQuery[AdminLoginMapping]
 
+  /**
+   * Get roles and permissions
+   * @return Future[(Seq[RolesResourceAccessDB], Seq[ResourcePermissionsDB])]
+   */
   def getResourcePermissions
   : Future[(Seq[RolesResourceAccessDB], Seq[ResourcePermissionsDB])] = {
     val roles = rolesResourcesQuery.result
     val resources = resourcePermissionsQuery.result
-    val result = db.run(
+    db.run(
       for {
         role <- roles
         resource <- resources
       } yield (role, resource)
     )
-    result
   }
 
+  /**
+   * Method to validate admin user
+   * @param email
+   * @param role
+   * @return Future[Int]
+   */
   def checkIfAdminExists(email: String, role: String): Future[Int] = {
     val query = adminLoginQuery
       .filter(col => col.email === email &&
@@ -38,6 +47,11 @@ class AdminDAO(implicit val db: Database,
     db.run(query)
   }
 
+  /**
+   * Validate admin login
+   * @param adminLogin
+   * @return Future[Int]
+   */
   def validateAdminLogin(adminLogin: AdminLogin): Future[Int] = {
     val query = adminLoginQuery
       .filter(col => col.email === adminLogin.email &&
@@ -48,6 +62,11 @@ class AdminDAO(implicit val db: Database,
     db.run(query)
   }
 
+  /**
+   * Create admin user
+   * @param details
+   * @return Future[Int]
+   */
   def createAdminUser(details: AdminLogin): Future[Int] = db.run(adminLoginQuery += details)
 
 }

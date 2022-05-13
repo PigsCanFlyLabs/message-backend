@@ -45,8 +45,8 @@ object Application extends App {
   val twilio: Unit = Twilio.init(AccountSID, AuthToken)
   val twilioService = new TwilioService()
   val swarmService = new SwarmService(twilioService)(system,userDAO)
-  val notificationController = new SwarmController(swarmService)
-  val routerHandler = notificationController.routes
+  val swarmController = new SwarmController(swarmService)
+  val routerHandler = swarmController.routes
   val bindingFuture = Http().newServerAt(serverHost, serverPort).bind(routerHandler)
   system.actorOf(GetMessagesScheduler.props(swarmService,twilioService))
 

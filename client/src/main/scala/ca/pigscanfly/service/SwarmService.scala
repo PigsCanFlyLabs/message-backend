@@ -32,6 +32,10 @@ class SwarmService(twilioService: TwilioService)(actorSystem: ActorSystem, userD
 
   implicit val timeout: Timeout = Timeout(3.seconds)
 
+  /**
+   * This method retrieves messages from Swarm satellite
+   * @return Future[MessageRetrieval]
+   */
   def getMessages(): Future[MessageRetrieval] = {
     swarmLogin(LoginCredentials(swarmUserName, swarmPassword)).flatMap { cookies: Seq[HttpHeader] =>
       val messagesFut = (getMessageActor ? GetMessage(s"$SwarmBaseUrl/hive/api/v1/messages", cookies.toList)).mapTo[MessageRetrieval]
@@ -45,10 +49,22 @@ class SwarmService(twilioService: TwilioService)(actorSystem: ActorSystem, userD
     }
   }
 
+  /**
+   * This method retrieves phone or email w.r.t deviceId
+   * @param deviceId
+   * @return Future[GetPhoneOrEmailSuccess]
+   */
   def getPhoneOrEmailFromDeviceId(deviceId: Long): Future[GetPhoneOrEmailSuccess] = {
     (getMessageActor ? GetEmailOrPhoneFromDeviceId(deviceId)).mapTo[GetPhoneOrEmailSuccess]
   }
 
+  /**
+   * This method sends messages to Swarm Satellite
+   * @param from
+   * @param to
+   * @param data
+   * @return Future[MessageDelivery]
+   */
   def postMessages(from: String, to: String, data: String): Future[MessageDelivery] = {
     swarmLogin(LoginCredentials(swarmUserName, swarmPassword)).flatMap { cookies: Seq[HttpHeader] =>
       if (validateEmailPhone(from)) {
@@ -86,10 +102,20 @@ class SwarmService(twilioService: TwilioService)(actorSystem: ActorSystem, userD
     }
   }
 
+  /**
+   * This method is to logged in the Swarm Satellite
+   * @param loginCredentials
+   * @return Future[Seq[HttpHeader]]
+   */
   def swarmLogin(loginCredentials: LoginCredentials): Future[Seq[HttpHeader]] = {
     (getMessageActor ? SwarmLogin(s"$SwarmBaseUrl/login", loginCredentials)).mapTo[Seq[HttpHeader]]
   }
 
+  /**
+   * This methos is to extract cookies
+   * @param cookies
+   * @return Seq[Cookie]
+   */
   def extractCookies(cookies: Seq[HttpCookiePair]): Seq[Cookie] = {
     cookies.map { cookie =>
       Cookie(cookie.name, cookie.value)
