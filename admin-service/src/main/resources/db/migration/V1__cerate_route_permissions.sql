@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS spacebeaver_admin.admin_login (
 CREATE SCHEMA IF NOT EXISTS spacebeaver;
 
 CREATE TABLE IF NOT EXISTS spacebeaver.users_mapping (
-    customer_id VARCHAR
+    customer_id VARCHAR,
 	email VARCHAR(50) NOT NULL UNIQUE,
 	device_id BIGINT PRIMARY KEY,
 	phone_number VARCHAR(50) NOT NULL UNIQUE,
