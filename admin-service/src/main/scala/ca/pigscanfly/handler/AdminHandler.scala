@@ -24,6 +24,7 @@ trait AdminHandler extends JWTTokenHelper with LazyLogging {
 
   /**
    * This method creates new user
+   *
    * @param command
    * @param user
    * @return Future[HttpResponse]
@@ -56,6 +57,7 @@ trait AdminHandler extends JWTTokenHelper with LazyLogging {
 
   /**
    * Update user details
+   *
    * @param command
    * @param user
    * @return Future[HttpResponse]
@@ -86,6 +88,7 @@ trait AdminHandler extends JWTTokenHelper with LazyLogging {
 
   /**
    * Retrieves user details
+   *
    * @param command
    * @param deviceId
    * @return Future[HttpResponse]
@@ -108,6 +111,7 @@ trait AdminHandler extends JWTTokenHelper with LazyLogging {
 
   /**
    * Disable user subscription
+   *
    * @param command
    * @param request
    * @return Future[HttpResponse]
@@ -128,6 +132,7 @@ trait AdminHandler extends JWTTokenHelper with LazyLogging {
 
   /**
    * Delete user from system
+   *
    * @param command
    * @param request
    * @return Future[HttpResponse]
@@ -148,6 +153,7 @@ trait AdminHandler extends JWTTokenHelper with LazyLogging {
 
   /**
    * Create admin user
+   *
    * @param command
    * @param admin
    * @return Future[HttpResponse]
@@ -178,6 +184,7 @@ trait AdminHandler extends JWTTokenHelper with LazyLogging {
 
   /**
    * This method is to logg in admin
+   *
    * @param command
    * @param adminLogin
    * @return Future[HttpResponse]

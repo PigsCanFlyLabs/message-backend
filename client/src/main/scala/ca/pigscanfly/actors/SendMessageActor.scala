@@ -15,21 +15,25 @@ import scala.concurrent.Future
 
 object SendMessageActor {
 
-  def props(userDAO:UserDAO): Props = Props(new SendMessageActor(userDAO))
+  def props(userDAO: UserDAO): Props = Props(new SendMessageActor(userDAO))
 
   sealed trait Command
+
   sealed trait Response
 
   case class CheckSubscription(deviceId: Long) extends Command
-  case class GetDeviceIdFromEmailOrPhone(from:String) extends Command
+
+  case class GetDeviceIdFromEmailOrPhone(from: String) extends Command
+
   case class PostMessageCommand(url: String, message: MessagePost, headers: List[HttpHeader]) extends Command
 
-  case class GetDeviceId(deviceId:Option[Long]) extends Response
-  case class CheckDeviceSubscription(isDisabled:Option[Boolean]) extends Response
+  case class GetDeviceId(deviceId: Option[Long]) extends Response
+
+  case class CheckDeviceSubscription(isDisabled: Option[Boolean]) extends Response
 
 }
 
-class SendMessageActor(userDAO:UserDAO) extends Actor with HttpClient with SprayJsonSupport with ActorLogging {
+class SendMessageActor(userDAO: UserDAO) extends Actor with HttpClient with SprayJsonSupport with ActorLogging {
   override def receive: Receive = {
     case GetDeviceIdFromEmailOrPhone(from: String) =>
       log.info(s"SendMessageActor: Fetching device from: $from")

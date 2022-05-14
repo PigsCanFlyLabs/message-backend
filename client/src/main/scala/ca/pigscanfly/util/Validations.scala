@@ -9,26 +9,26 @@ trait Validations {
 
 
   def validateEmailPhone(string: String): Boolean = {
-    if(validatePhone(string)) true
-    else if(isValidEmail(string)) true
+    if (validatePhone(string)) true
+    else if (isValidEmail(string)) true
     else false
   }
 
-  def detectSourceDestination(string: String): String ={
-    if(validatePhone(string)) SMS
-    else if(isValidEmail(string)) EMAIl
-    else UNKOWN
-  }
-
-  def validatePhone(string: String): Boolean ={
-    if(string.drop(1) forall Character.isDigit) true
+  def validatePhone(string: String): Boolean = {
+    if (string.drop(1) forall Character.isDigit) true
     else false
   }
 
   def isValidEmail(e: String): Boolean = e match {
-    case e if e.trim.isEmpty                           => false
+    case e if e.trim.isEmpty => false
     case e if emailRegex.findFirstMatchIn(e).isDefined => true
-    case _                                             => false
+    case _ => false
+  }
+
+  def detectSourceDestination(string: String): String = {
+    if (validatePhone(string)) SMS
+    else if (isValidEmail(string)) EMAIl
+    else UNKOWN
   }
 
 }

@@ -34,6 +34,7 @@ class SwarmService(twilioService: TwilioService)(actorSystem: ActorSystem, userD
 
   /**
    * This method retrieves messages from Swarm satellite
+   *
    * @return Future[MessageRetrieval]
    */
   def getMessages(): Future[MessageRetrieval] = {
@@ -50,7 +51,18 @@ class SwarmService(twilioService: TwilioService)(actorSystem: ActorSystem, userD
   }
 
   /**
+   * This method is to logged in the Swarm Satellite
+   *
+   * @param loginCredentials
+   * @return Future[Seq[HttpHeader]]
+   */
+  def swarmLogin(loginCredentials: LoginCredentials): Future[Seq[HttpHeader]] = {
+    (getMessageActor ? SwarmLogin(s"$SwarmBaseUrl/login", loginCredentials)).mapTo[Seq[HttpHeader]]
+  }
+
+  /**
    * This method retrieves phone or email w.r.t deviceId
+   *
    * @param deviceId
    * @return Future[GetPhoneOrEmailSuccess]
    */
@@ -60,6 +72,7 @@ class SwarmService(twilioService: TwilioService)(actorSystem: ActorSystem, userD
 
   /**
    * This method sends messages to Swarm Satellite
+   *
    * @param from
    * @param to
    * @param data
@@ -103,16 +116,8 @@ class SwarmService(twilioService: TwilioService)(actorSystem: ActorSystem, userD
   }
 
   /**
-   * This method is to logged in the Swarm Satellite
-   * @param loginCredentials
-   * @return Future[Seq[HttpHeader]]
-   */
-  def swarmLogin(loginCredentials: LoginCredentials): Future[Seq[HttpHeader]] = {
-    (getMessageActor ? SwarmLogin(s"$SwarmBaseUrl/login", loginCredentials)).mapTo[Seq[HttpHeader]]
-  }
-
-  /**
    * This methos is to extract cookies
+   *
    * @param cookies
    * @return Seq[Cookie]
    */

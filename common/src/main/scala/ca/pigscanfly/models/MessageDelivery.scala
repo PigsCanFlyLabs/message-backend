@@ -1,8 +1,7 @@
 package ca.pigscanfly.models
 
-import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto._
-import io.circe.parser._
+import io.circe.{Decoder, Encoder}
 import spray.json.{DefaultJsonProtocol, RootJsonFormat}
 
 
@@ -15,8 +14,4 @@ object MessageDelivery extends DefaultJsonProtocol {
 
 }
 
-//{
-//  "packetId": 1111111,
-//  "status": "OK"
-//}
 

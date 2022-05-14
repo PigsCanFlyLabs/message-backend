@@ -5,7 +5,7 @@ import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.HttpHeader
 import akka.pattern.pipe
 import ca.pigscanfly.Application.{executionContext, swarmMessageClient}
-import ca.pigscanfly.actors.GetMessageActor.{GetEmailOrPhoneFromDeviceId, GetMessage, GetPhoneOrEmailSuccess, MessageAck, Response, SwarmLogin}
+import ca.pigscanfly.actors.GetMessageActor._
 import ca.pigscanfly.dao.UserDAO
 import ca.pigscanfly.httpClient.HttpClient
 import ca.pigscanfly.models.LoginCredentials
@@ -54,6 +54,7 @@ class GetMessageActor(userDAO: UserDAO) extends Actor with HttpClient with Spray
 
   /**
    * This method retrieves emailId or phoneNumber from deviceId
+   *
    * @param deviceId
    * @return Future[Response]
    */

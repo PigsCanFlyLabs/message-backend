@@ -1,7 +1,7 @@
 package ca.pigscanfly.models
 
-import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
+import io.circe.{Decoder, Encoder}
 import spray.json.{DefaultJsonProtocol, RootJsonFormat}
 
 case class Login(cookies: Map[String, String])

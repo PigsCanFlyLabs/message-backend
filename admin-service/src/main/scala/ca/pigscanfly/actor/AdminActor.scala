@@ -144,4 +144,5 @@ object AdminActor {
   final case class AdminLoginCommand(adminLogin: AdminLogin) extends Command
 
   final case class CreateAdminCommand(adminLogin: AdminLogin) extends Command
+
 }

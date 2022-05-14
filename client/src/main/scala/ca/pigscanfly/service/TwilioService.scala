@@ -9,6 +9,7 @@ class TwilioService extends LazyLogging {
 
   /**
    * Sends message using Twillio service
+   *
    * @param to
    * @param from
    * @param data
@@ -17,8 +18,8 @@ class TwilioService extends LazyLogging {
     try {
       Message.creator(new PhoneNumber(to), new PhoneNumber(from), data).create()
       logger.info(s"TwilioService: successfully sent message: |$data| from: $from to: $to via Twillio.")
-    }catch{
-      case exception: Exception=>
+    } catch {
+      case exception: Exception =>
         logger.info(s"TwilioService: Failed to send message via Twillio. Excption occured: $exception.")
     }
   }

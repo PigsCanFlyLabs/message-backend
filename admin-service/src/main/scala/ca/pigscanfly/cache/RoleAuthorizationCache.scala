@@ -10,8 +10,7 @@ import scala.language.postfixOps
 
 case class Permissions(permission: List[String])
 
-class RoleAuthorizationCache(accountsDAO: AdminDAO)
-  extends CacheWithFallbackToStaleData[String, Map[String, Permissions]] with LazyLogging{
+class RoleAuthorizationCache(accountsDAO: AdminDAO) extends CacheWithFallbackToStaleData[String, Map[String, Permissions]] with LazyLogging {
 
   /**
    * Indicates how to fetch the value for a given key.

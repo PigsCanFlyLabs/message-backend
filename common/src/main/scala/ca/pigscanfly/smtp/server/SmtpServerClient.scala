@@ -15,9 +15,9 @@ import scala.language.postfixOps
 abstract class SmtpServerClient(implicit val system: ActorSystem) {
 
   implicit val materializer = ActorMaterializer()
+  protected final lazy val clientStream: StreamClient = new StreamClient(SmtpAddress, SmtpPort)
   protected final val configuration = Configuration(SmtpPort, maxSize, readTimeout)
   protected final val server: StreamServer = StreamServer(consumer, configuration, addressHandler)
-  protected final lazy val clientStream: StreamClient = new StreamClient(SmtpAddress, SmtpPort)
   protected lazy val address: SocketAddress = SocketAddress(SmtpAddress, SmtpPort)
   private val defaultMaxSize = 1024
 

@@ -18,6 +18,7 @@ class AdminDAO(implicit val db: Database,
 
   /**
    * Get roles and permissions
+   *
    * @return Future[(Seq[RolesResourceAccessDB], Seq[ResourcePermissionsDB])]
    */
   def getResourcePermissions
@@ -34,6 +35,7 @@ class AdminDAO(implicit val db: Database,
 
   /**
    * Method to validate admin user
+   *
    * @param email
    * @param role
    * @return Future[Int]
@@ -49,6 +51,7 @@ class AdminDAO(implicit val db: Database,
 
   /**
    * Validate admin login
+   *
    * @param adminLogin
    * @return Future[Int]
    */
@@ -64,6 +67,7 @@ class AdminDAO(implicit val db: Database,
 
   /**
    * Create admin user
+   *
    * @param details
    * @return Future[Int]
    */

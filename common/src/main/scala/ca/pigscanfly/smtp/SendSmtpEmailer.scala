@@ -16,7 +16,6 @@ class SendSmtpEmailer(implicit val actorSystem: ActorSystem) extends SmtpServerC
     val toAddress = MailAddress(to, "@outlook.com")
     val mail = Mail(fromAddress, Seq(toAddress), EmailWithContent.txtOnly(Seq.empty, Seq.empty, "New Message from Swarm!", text))
 
-
     clientStream.sendMail(mail).recover { case e =>
       FailedResult(e.getMessage)
     }

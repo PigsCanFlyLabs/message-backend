@@ -7,13 +7,12 @@ import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.Materializer.matFromSystem
 import ca.pigscanfly.configs.Constants
 import ca.pigscanfly.httpClient.HttpClient
-import ca.pigscanfly.models.MessageRetrieval._
+import ca.pigscanfly.models.GetMessage._
 import ca.pigscanfly.models._
 import ca.pigscanfly.util.ProtoUtils
 import io.circe.syntax._
 
 import scala.concurrent.{ExecutionContext, Future}
-import ca.pigscanfly.models.GetMessage._
 
 trait SwarmMessageClient extends SprayJsonSupport with HttpClient with ProtoUtils {
 

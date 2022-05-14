@@ -15,6 +15,7 @@ class UserDAO(implicit val db: Database,
 
   /**
    * Check if user exists
+   *
    * @param email
    * @param deviceId
    * @return Future[Int]
@@ -30,6 +31,7 @@ class UserDAO(implicit val db: Database,
 
   /**
    * Retrieves user details on the basis of deviceId
+   *
    * @param deviceId
    * @return Future[Option[User]]
    */
@@ -43,14 +45,16 @@ class UserDAO(implicit val db: Database,
 
   /**
    * Create user
-   * @param user: User
+   *
+   * @param user : User
    * @return Future[Int]
    */
   def insertUserDetails(user: User): Future[Int] = db.run(userQuery += user)
 
   /**
    * Update user details
-   * @param user: UpdateUserRequest
+   *
+   * @param user : UpdateUserRequest
    * @return Future[Int]
    */
   def updateUserDetails(user: UpdateUserRequest): Future[Int] = {
@@ -63,7 +67,8 @@ class UserDAO(implicit val db: Database,
 
   /**
    * Disable user
-   * @param request: DisableUserRequest
+   *
+   * @param request : DisableUserRequest
    * @return Future[Int]
    */
   def disableUser(request: DisableUserRequest): Future[Int] = {
@@ -76,6 +81,7 @@ class UserDAO(implicit val db: Database,
 
   /**
    * Check if user is subscribed
+   *
    * @param deviceId
    * @return Future[Option[Boolean]]
    */
@@ -90,7 +96,8 @@ class UserDAO(implicit val db: Database,
 
   /**
    * Delete user
-   * @param request: DeleteUserRequest
+   *
+   * @param request : DeleteUserRequest
    * @return Future[Int]
    */
   def deleteUser(request: DeleteUserRequest): Future[Int] = {
@@ -102,6 +109,7 @@ class UserDAO(implicit val db: Database,
 
   /**
    * Retrieves device Id from email or phone
+   *
    * @param from
    * @return Future[Option[Long]]
    */
@@ -116,6 +124,7 @@ class UserDAO(implicit val db: Database,
 
   /**
    * Retrieves email or phone on the basis of device id
+   *
    * @param deviceId
    * @return Future[Option[(Option[String], Option[String])]]
    */
