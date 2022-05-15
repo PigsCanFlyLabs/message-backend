@@ -10,6 +10,7 @@ import ca.pigscanfly.components._
 import ca.pigscanfly.models.JWTTokenHelper
 import com.typesafe.scalalogging.LazyLogging
 
+import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -33,7 +34,7 @@ trait AdminHandler extends JWTTokenHelper with LazyLogging {
                  user: User): Future[HttpResponse] = {
     ask(command, ValidateUserCommand(user.email, user.deviceId)).flatMap {
       case ValidationResponse(false) =>
-        ask(command, CreateUserCommand(user)).map {
+        ask(command, CreateUserCommand(user.copy(customerId = Some(UUID.randomUUID().toString)))).map {
           case Updated(true) =>
             HttpResponse(status = StatusCodes.OK,
               headers = Nil,

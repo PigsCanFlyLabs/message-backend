@@ -4,6 +4,7 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.{AsyncWordSpecLike, Matchers}
 
+import java.util.UUID
 import scala.language.postfixOps
 
 class UserDAOSpec extends AsyncWordSpecLike with ScalaFutures with Matchers with ConfigLoader {
@@ -14,7 +15,7 @@ class UserDAOSpec extends AsyncWordSpecLike with ScalaFutures with Matchers with
 
   val userDao = new UserDAO()
 
-  val user: User = User(deviceId = 1L, phone = Some("9876543210"), email = Some("email@domain.com"), isDisabled = false)
+  val user: User = User(customerId=Some(UUID.randomUUID().toString),deviceId = 1L, phone = Some("9876543210"), email = Some("email@domain.com"), isDisabled = false)
   val updateUser: UpdateUserRequest = UpdateUserRequest(deviceId = 1L, phone = Some("9876543210"), email = Some("email@domain.com"))
   val disableUserRequest: DisableUserRequest = DisableUserRequest(deviceId = user.deviceId, isDisabled = true)
   val deleteUserRequest: DeleteUserRequest = DeleteUserRequest(deviceId = user.deviceId)

@@ -10,6 +10,7 @@ import ca.pigscanfly.dao.{AdminDAO, UserDAO}
 import org.mockito.MockitoSugar
 import org.scalatest.WordSpec
 
+import java.util.UUID
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.language.postfixOps
@@ -24,7 +25,7 @@ class AdminHandlerSpec extends WordSpec with AdminHandler with MockitoSugar {
 
   val updateUser: UpdateUserRequest = UpdateUserRequest(deviceId = 1L, phone = Some("9876543210"),
     email = Some("email@domain.com"))
-  val user: User = User(deviceId = 1L, phone = Some("9876543210"), email = Some("email@domain.com"),
+  val user: User = User(customerId = Some(UUID.randomUUID().toString), deviceId = 1L, phone = Some("9876543210"), email = Some("email@domain.com"),
     isDisabled = false)
   val disableUserRequest: DisableUserRequest = DisableUserRequest(deviceId = user.deviceId,
     isDisabled = true)
