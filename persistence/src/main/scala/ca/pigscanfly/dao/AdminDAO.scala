@@ -21,7 +21,7 @@ class AdminDAO(implicit val db: Database,
   /**
    * Get roles and permissions to generate cache for roles w.r.t to route
    *
-   * @return Future((Seq(RolesResourceAccessDB(userType: String,resource: String,id: Int)), Seq(ResourcePermissionsDB(resource: String, permission: String))))
+   * @return Future[[Seq[RolesResourceAccessDB[userType: String,resource: String,id: Int]], Seq[ResourcePermissionsDB[resource: String, permission: String]]]]
    */
   def getResourcePermissions
   : Future[(Seq[RolesResourceAccessDB], Seq[ResourcePermissionsDB])] = {
