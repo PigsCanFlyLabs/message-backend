@@ -49,6 +49,6 @@ class SendMessageActor(userDAO: UserDAO) extends Actor with HttpClient with Spra
       res.pipeTo(sender())
 
     case _ =>
-      log.info("SendMessageActor: Unhandled request")
+      log.info("SendMessageActor: Received request that has not been handled!")
   }
 }

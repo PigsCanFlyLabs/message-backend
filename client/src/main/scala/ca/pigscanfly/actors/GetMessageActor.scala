@@ -49,14 +49,15 @@ class GetMessageActor(userDAO: UserDAO) extends Actor with HttpClient with Spray
       val res: Future[Response] = getEmailOrPhoneFromDeviceId(deviceId)
       res.pipeTo(sender())
     case _ =>
-      log.info("SendMessageActor: Unhandled request")
+      log.error("SendMessageActor: Received request that has not been handled!")
   }
 
   /**
    * This method retrieves emailId or phoneNumber from deviceId
    *
-   * @param deviceId
-   * @return Future[Response]
+   * @param deviceId : user's device_id
+   * @return Future[GetPhoneOrEmailSuccess]:
+   *         GetPhoneOrEmailSuccess contains user's email and phone_number
    */
   def getEmailOrPhoneFromDeviceId(deviceId: Long): Future[Response] = {
     userDAO.getEmailOrPhoneFromDeviceId(deviceId).map {

@@ -21,7 +21,9 @@ class AdminDAO(implicit val db: Database,
   /**
    * Get roles and permissions to generate cache for roles w.r.t to route
    *
-   * @return Future[[Seq[RolesResourceAccessDB[userType: String,resource: String,id: Int]], Seq[ResourcePermissionsDB[resource: String, permission: String]]]]
+   * @return It return two sequences:
+   *         one contains permissions with respect to  list of routes
+   *         another sequence contains role with respect to list of permission
    */
   def getResourcePermissions
   : Future[(Seq[RolesResourceAccessDB], Seq[ResourcePermissionsDB])] = {
@@ -58,7 +60,7 @@ class AdminDAO(implicit val db: Database,
    * Validate admin login using email, password and role to get him logged in the system
    * Returns Future(0) for failure and Future(1) for successful response
    *
-   * @param adminLogin : AdminLogin(email: String, password: String, role: String)
+   * @param adminLogin : contains email, password and role
    * @return Future[Int]
    */
   def validateAdminLogin(adminLogin: AdminLogin): Future[Int] = {
@@ -76,7 +78,7 @@ class AdminDAO(implicit val db: Database,
    * Create admin user with email, password and roles
    * Returns Future(0) for failure and Future(1) for successful insertion
    *
-   * @param details : AdminLogin(email: String, password: String, role: String)
+   * @param details : contains (email, password, role)
    * @return Future[Int]
    */
   def createAdminUser(details: AdminLogin): Future[Int] = {

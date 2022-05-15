@@ -19,12 +19,12 @@ class UserDAO(implicit val db: Database,
    * Check if user exists for new user creation
    * Returns Future(0) if user doesn't exist and Future(1) if user exists
    *
-   * @param email    : user email
-   * @param deviceId : user's device Id
+   * @param email    : user's email
+   * @param deviceId : user's device_id
    * @return Future[Int]
    */
   def checkIfUserExists(email: Option[String], deviceId: Long): Future[Int] = {
-    logger.info(s"UserDAO: Checking if details exists for email: ${email.getOrElse("")} and deviceId: $deviceId exists in spacebeaver.users_mapping table.")
+    logger.info(s"UserDAO: Checking if details exists for email: ${email.getOrElse("")} and device_id: $deviceId exists in spacebeaver.users_mapping table.")
     val query = userQuery
       .filter(col => col.email === email &&
         col.deviceId === deviceId)
@@ -35,9 +35,9 @@ class UserDAO(implicit val db: Database,
 
   /**
    * Retrieves user details on the basis of deviceId
-   * Returns Future(None) if user doesn't exist and Future(Some(User(customerId: Option[String],deviceId: Long,phone: Option[String],email: Option[String],isDisabled: Boolean))) if user details are found
+   * Returns Future(None) if user doesn't exist and returns Future(Some(customer_id, device_id, phone_number, email, is_disabled)) if user details are found
    *
-   * @param deviceId : user device Id
+   * @param deviceId : user device_id
    * @return Future[Option[User]]
    */
   def getUserDetails(deviceId: Long): Future[Option[User]] = {
@@ -53,23 +53,23 @@ class UserDAO(implicit val db: Database,
    * Create new user
    * Returns Future(0) for failure and Future(1) for successful insertion
    *
-   * @param user : User(customerId: Option[String],deviceId: Long,phone: Option[String],email: Option[String],isDisabled: Boolean)
+   * @param user : contains (customer_id, device_id, phone_number, email, is_disabled)
    * @return Future[Int]
    */
   def insertUserDetails(user: User): Future[Int] = {
-    logger.info(s"UserDAO: Inserting user details i.e. customerId: ${user.customerId}, deviceId: ${user.deviceId},phone: ${user.phone},email: ${user.email},isDisabled: ${user.isDisabled} in spacebeaver.users_mapping table.")
+    logger.info(s"UserDAO: Inserting user details i.e. customer_id: ${user.customerId}, device_id: ${user.deviceId},phone_number: ${user.phone},email: ${user.email},is_disabled: ${user.isDisabled} in spacebeaver.users_mapping table.")
     db.run(userQuery += user)
   }
 
   /**
    * Update user details
-   * Returns Future(0) for failure and Future(1) for successful updation
+   * Returns Future(0) for failure and Future(1) if update is successful
    *
-   * @param user : UpdateUserRequest(deviceId: Long, phone: Option[String], email: Option[String])
+   * @param user : contains (device_id, phone_number, email)
    * @return Future[Int]
    */
   def updateUserDetails(user: UpdateUserRequest): Future[Int] = {
-    logger.info(s"UserDAO: Updating user details i.e. phone: ${user.phone} and email: ${user.email} for device_id:${user.deviceId} in spacebeaver.users_mapping table.")
+    logger.info(s"UserDAO: Updating user details i.e. phone_number: ${user.phone} and email: ${user.email} for device_id:${user.deviceId} in spacebeaver.users_mapping table.")
     val query = userQuery
       .filter(_.deviceId === user.deviceId)
       .map(col => (col.phone, col.email))
@@ -81,7 +81,7 @@ class UserDAO(implicit val db: Database,
    * Disable user
    * Returns Future(0) for failure and Future(1) if succeed to disable user
    *
-   * @param request : DisableUserRequest(deviceId: Long, isDisabled: Boolean)
+   * @param request : contains (device_id, is_disabled)
    * @return Future[Int]
    */
   def disableUser(request: DisableUserRequest): Future[Int] = {
@@ -98,7 +98,7 @@ class UserDAO(implicit val db: Database,
    * Returns Future(None) if user does not exists and if user exists it returns Future(Some(is_disabled))
    *
    * @param deviceId : users device Id
-   * @return Future[Option[Boolean]]
+   * @return is_disabled: identifier to check if user has subscription or not
    */
   def checkUserSubscription(deviceId: Long): Future[Option[Boolean]] = {
     logger.info(s"UserDAO: Fetching user's is_disabled for device_id:$deviceId from spacebeaver.users_mapping table.")
@@ -114,7 +114,7 @@ class UserDAO(implicit val db: Database,
    * Delete user from the system
    * Returns Future(0) if user doesn't exist and Future(1) if succeed to delete user
    *
-   * @param request : DeleteUserRequest(deviceId: Long)
+   * @param request : contains device_id
    * @return Future[Int]
    */
   def deleteUser(request: DeleteUserRequest): Future[Int] = {
@@ -129,8 +129,8 @@ class UserDAO(implicit val db: Database,
    * Retrieves device Id from email or phone
    * Returns Future(None) if user does not exists and if user exists it returns Future(Some(device_id))
    *
-   * @param from : user's email or phone number
-   * @return Future[Option[Long]]
+   * @param from : user's email or phone_number
+   * @return device_id
    */
   def getDeviceIdFromEmailOrPhone(from: String): Future[Option[Long]] = {
     logger.info(s"UserDAO: Fetching user's device_id for email/phone_number: $from from spacebeaver.users_mapping table.")
@@ -144,10 +144,10 @@ class UserDAO(implicit val db: Database,
 
   /**
    * Retrieves email or phone on the basis of device id
-   * Returns Future(None) if user does not exists and if user exists it returns Future(Some[(Option[phone_number], Option[email])))
+   * Returns Future(None) if user does not exists and if user exists it returns Future(Some(phone_number, email))
    *
-   * @param deviceId : user's device Id
-   * @return Future[Option[(Option[String], Option[String])]]
+   * @param deviceId : user's device_id
+   * @return phone_number and email
    */
   def getEmailOrPhoneFromDeviceId(deviceId: Long): Future[Option[(Option[String], Option[String])]] = {
     logger.info(s"UserDAO: Fetching user's email and phone_number for device_id: $deviceId from spacebeaver.users_mapping table.")
