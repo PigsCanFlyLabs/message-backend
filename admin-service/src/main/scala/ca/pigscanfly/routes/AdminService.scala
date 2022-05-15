@@ -31,10 +31,7 @@ trait AdminService
 
   def adminUserRoutes(actor: ActorRef): Route =
     pathPrefix("admin") {
-      /**
-       * Route that takes query parameter(user's device_id) in request to fetch user details
-       */
-      path("get-user-details") {
+      path("get-user-details") { // Route that takes query parameter(user's device_id) in request to fetch user details
         parameters('deviceId) {
           (deviceId: String) =>
             authenticateOAuth2("Bearer Authentication", roleAuthenticator) { auth =>
@@ -51,11 +48,7 @@ trait AdminService
             }
         }
       } ~
-
-        /**
-         * Route that takes raw json request to create admin or super admin with the requested email, role and password
-         */
-        path("create-admin-user") {
+        path("create-admin-user") { //Route that takes raw json request to create admin or super admin with the requested email, role and password
           pathEnd {
             authenticateOAuth2("Bearer Authentication", roleAuthenticator) { auth =>
               val isAccessible =
@@ -73,11 +66,7 @@ trait AdminService
             }
           }
         } ~
-
-        /**
-         * Route that takes raw json request to create user with the requested device_id, email, phone_number, is_disabled(identifier to check if user has subscription or not)
-         */
-        path("create-user") {
+        path("create-user") { //Route that takes raw json request to create user with the requested device_id, email, phone_number, is_disabled(identifier to check if user has subscription or not)
           pathEnd {
             authenticateOAuth2("Bearer Authentication", roleAuthenticator) { auth =>
               val isAccessible =
@@ -95,11 +84,7 @@ trait AdminService
             }
           }
         } ~
-
-        /**
-         * Route that takes raw json request to update user's email and phone_number on the basis of device_id
-         */
-        path("update-user") {
+        path("update-user") { //Route that takes raw json request to update user's email and phone_number on the basis of device_id
           pathEnd {
             authenticateOAuth2("Bearer Authentication", roleAuthenticator) { auth =>
               val isAccessible =
@@ -117,11 +102,7 @@ trait AdminService
             }
           }
         } ~
-
-        /**
-         * Route that takes raw json request to disable user on the basis of device_id
-         */
-        path("disable-user") {
+        path("disable-user") { //Route that takes raw json request to disable user on the basis of device_id
           pathEnd {
             authenticateOAuth2("Bearer Authentication", roleAuthenticator) { auth =>
               val isAccessible =
@@ -139,11 +120,7 @@ trait AdminService
             }
           }
         } ~
-
-        /**
-         * Route that takes raw json request to delete user on the basis of device_id
-         */
-        path("delete-user") {
+        path("delete-user") { //Route that takes raw json request to delete user on the basis of device_id
           pathEnd {
             authenticateOAuth2("Bearer Authentication", roleAuthenticator) { auth =>
               val isAccessible =
@@ -161,11 +138,7 @@ trait AdminService
             }
           }
         } ~
-
-        /**
-         * Route that takes raw json request to validate admin OR super admin for login with the requested email, password and role
-         */
-        path("login") {
+        path("login") { //Route that takes raw json request to validate admin OR super admin for login with the requested email, password and role
           (post & entity(as[AdminLogin])) { request =>
             logger.info(s"AdminService: Received request for login in the admin panel email: ${request.email}, role: ${request.role}")
             val response =

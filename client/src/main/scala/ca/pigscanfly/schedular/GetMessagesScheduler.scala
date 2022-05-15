@@ -29,6 +29,9 @@ object GetMessagesScheduler {
 class GetMessagesScheduler(swarmService: SwarmService, twilioService: TwilioService) extends Actor with SendGridEmailer
   with Validations with ProtoUtils with ActorLogging {
 
+  /**
+   * When the application will start Actor scheduler will start fetching messages from the Swarm Satellite with the delay of 2 minutes
+   */
   override def preStart(): Unit = {
     self ! ScheduleGetMessage(schedulerInitalDelay.minute, schedulerInterval.minutes)
 
@@ -49,6 +52,13 @@ class GetMessagesScheduler(swarmService: SwarmService, twilioService: TwilioServ
 
   def scheduler: Scheduler = context.system.scheduler
 
+  /**
+   * This method is responsible for retrieving messages from Swarm Satellite. It perform listed operations:
+   * Fetch messages from Swarm Satellite
+   * Get Email or Phone from the device_id of retrieved message
+   * Decode retrieved message to find message to be send and receiver of the message
+   * Detect source destination from the decoded receiver information and send email or SMS accordingly
+   */
   def getMessages: Unit = {
     swarmService.getMessages() onComplete {
       case Success(messageRetrieval) => messageRetrieval.messageResponse.map { message: GetMessage =>
