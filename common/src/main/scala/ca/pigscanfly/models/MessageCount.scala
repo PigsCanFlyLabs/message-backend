@@ -1,8 +1,7 @@
 package ca.pigscanfly.models
 
-import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto._
-import io.circe.parser._
+import io.circe.{Decoder, Encoder}
 
 case class MessageCountsByDevice(messageCount: Int, fromDeviceMessageCount: Int, toDeviceMessageCount: Int, deviceType: Int, deviceId: Int)
 

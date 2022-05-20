@@ -24,9 +24,13 @@ sbt "project adminService" run
 ````
 
 More details about project libraraies (e.g. version etc..) can be found in files:
+
 **build.sbt**
+
 **Dependencies**
+
 **CommonSettings**
+
 **plugins.sbt**
 
 

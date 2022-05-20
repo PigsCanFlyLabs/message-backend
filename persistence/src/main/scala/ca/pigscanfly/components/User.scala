@@ -1,6 +1,7 @@
 package ca.pigscanfly.components
 
-final case class User(deviceId: Long,
+final case class User(customerId: Option[String],
+                      deviceId: Long,
                       phone: Option[String],
                       email: Option[String],
                       isDisabled: Boolean)

@@ -9,6 +9,7 @@ import org.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterAll, MustMatchers, WordSpecLike}
 import slick.jdbc.H2Profile
 
+import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -25,7 +26,7 @@ class AdminActorSpec(_system: ActorSystem) extends TestKit(_system) with Implici
   implicit val schema: String = ""
   val adminDAO: AdminDAO = mock[AdminDAO]
   val userDAO: UserDAO = mock[UserDAO]
-  val user: User = User(deviceId = 1L, phone = Some("9876543210"), email = Some("email@domain.com"), isDisabled = false)
+  val user: User = User(customerId = Some(UUID.randomUUID().toString), deviceId = 1L, phone = Some("9876543210"), email = Some("email@domain.com"), isDisabled = false)
   val updateUser: UpdateUserRequest = UpdateUserRequest(deviceId = 1L, phone = Some("9876543210"), email = Some("email@domain.com"))
 
   implicit val futureAwaitDuration: FiniteDuration =

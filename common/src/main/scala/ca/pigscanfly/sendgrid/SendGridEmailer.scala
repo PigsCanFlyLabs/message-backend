@@ -8,7 +8,7 @@ import com.sendgrid.helpers.mail.objects._
 
 trait SendGridEmailer {
 
-  def sendMail(toId:String, msg:String) {
+  def sendMail(toId: String, msg: String) {
     //TODO REPLACE IT WITH CONFIG
     val from = new Email("jashangoyal96@gmail.com")
     val to = new Email(toId)

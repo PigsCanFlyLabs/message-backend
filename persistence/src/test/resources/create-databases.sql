@@ -23,9 +23,10 @@ CREATE TABLE IF NOT EXISTS spacebeaver_admin.admin_login (
 CREATE SCHEMA IF NOT EXISTS spacebeaver;
 
 CREATE TABLE IF NOT EXISTS spacebeaver.users_mapping (
-	email VARCHAR(50) NOT NULL UNIQUE,
+    customer_id VARCHAR NOT NULL UNIQUE,
+	email VARCHAR(50) UNIQUE,
 	device_id BIGINT PRIMARY KEY,
-	phone_number VARCHAR(50) NOT NULL UNIQUE,
+	phone_number VARCHAR(50) UNIQUE,
 	is_disabled BOOLEAN DEFAULT FALSE NOT NULL
 );
 

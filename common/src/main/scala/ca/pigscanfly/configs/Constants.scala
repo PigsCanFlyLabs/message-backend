@@ -17,8 +17,8 @@ object Constants {
 
   val SmtpAddress = config.getString("smtp-config.server")
   val SmtpPort = config.getInt("smtp-config.port")
-//  val SmtpFromEmail = config.getString("smtp-config.fromEmail")
-//  val SmtpEmailUsername = config.getString("smtp-config.username")
-//  val SmtpEmailPassword = config.getString("smtp-config.password")
+  //  val SmtpFromEmail = config.getString("smtp-config.fromEmail")
+  //  val SmtpEmailUsername = config.getString("smtp-config.username")
+  //  val SmtpEmailPassword = config.getString("smtp-config.password")
 
 }
