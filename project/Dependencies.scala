@@ -35,6 +35,7 @@ object Dependencies extends Versions {
   val actor = "com.typesafe.akka" %% "akka-actor" % AkkaVersion
   val akkaStream = "com.typesafe.akka" %% "akka-stream" % AkkaVersion
   val akkaSlf4J = "com.typesafe.akka" %% "akka-slf4j" % AkkaVersion
+  val akkaClusterTyped = "com.typesafe.akka" %% "akka-cluster-typed" % AkkaVersion
   val akkaHttp = "com.typesafe.akka" %% "akka-http" % AkkaHttpVersion
   val akkaHttpCirce = "de.heikoseeberger" %% "akka-http-circe" % akkaHttpCirceVersion
   val circeCore = "io.circe" %% "circe-core" % circeVersion
@@ -112,7 +113,8 @@ object Dependencies extends Versions {
     akkaDistributedData,
     akkaPersistence,
     akkaClusterSharding,
-    akkaClusterTools
+    akkaClusterTools,
+    akkaClusterTyped
   )
 
   val dbDependencies = Seq(slick, slickPg, mySql, hikaricp, slickCirce, slickMySql)
