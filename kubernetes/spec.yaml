@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: container
-        image: holdenk/dockerised-akka-http-messaging-app:0.0.0-23-f0662070-20220223-2311
+        image: holdenk/dockerised-akka-http-messaging-app:0.0.1
         readinessProbe:
           httpGet:
             path: /ready

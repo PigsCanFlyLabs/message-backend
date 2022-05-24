@@ -20,3 +20,8 @@ There are two microservices:
 
 * Admin Service: https://github.com/PigsCanFlyLabs/message-backend/tree/main/admin-service
 * Client Service: https://github.com/PigsCanFlyLabs/message-backend/tree/main/client/src
+
+
+## Building and deploying
+
+To build the combined container run `container/docker:publish`. 
