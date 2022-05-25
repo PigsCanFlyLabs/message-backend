@@ -3,21 +3,21 @@ kind: Deployment
 metadata:
   labels:
     app: spacebeaver
-  name: messaging
+  name: messaging-apka
   namespace: spacebeaver
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
-      app: messaging
+      app: messaging-apka
   template:
     metadata:
       labels:
-        app: messaging
+        app: messaging-apka
     spec:
       containers:
       - name: container
-        image: holdenk/dockerised-akka-http-messaging-app:0.0.1
+        image: holdenk/dockerised-akka-http-messaging-app:0.0.1d
         readinessProbe:
           httpGet:
             path: /ready
@@ -41,10 +41,10 @@ spec:
           protocol: TCP
         resources:
           limits:
-            memory: 1024Mi
+            memory: 8024Mi
           requests:
             cpu: 2
-            memory: 1024Mi
+            memory: 8024Mi
         env:
         - name: NAMESPACE
           valueFrom:
@@ -70,7 +70,7 @@ metadata:
   namespace: spacebeaver
 subjects:
 - kind: User
-  name: system:serviceaccount:appka-1:default
+  name: system:serviceaccount:spacebeaver:default
 roleRef:
   kind: Role
   name: pod-reader

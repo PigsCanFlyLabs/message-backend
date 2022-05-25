@@ -22,7 +22,7 @@ object EntryPoint extends App {
     val cluster = Cluster(context.system)
     context.log.info("Started [" + context.system + "], cluster.selfAddress = " + cluster.selfMember.address + ")")
 
-    Http().newServerAt("0.0.0.0", 8080).bind(complete("Hello world"))
+    Http().newServerAt("0.0.0.0", 8080).bind(complete("Do you like butts?"))
 
     // Create an actor that handles cluster domain events
     val listener = context.spawn(Behaviors.receive[ClusterEvent.MemberEvent]((ctx, event) => {
@@ -35,6 +35,6 @@ object EntryPoint extends App {
     AkkaManagement.get(classicSystem).start()
     ClusterBootstrap.get(classicSystem).start()
     Behaviors.empty
-  }, "appka")
+  }, "messaging-apka")
 
 }
