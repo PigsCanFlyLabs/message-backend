@@ -12,6 +12,6 @@ trait ProtoUtils {
   def decodeGetMessage(data: String): MessageDataPB =
     MessageDataPB.parseFrom(Base64.getDecoder.decode(data))
 
-//  decodeGetMessage("123564").message.map(x=> x.fromOrTo)
+  //  decodeGetMessage("123564").message.map(x=> x.fromOrTo)
 
 }

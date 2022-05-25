@@ -7,6 +7,7 @@ import ca.pigscanfly.configs.Constants.{AccountSID, AuthToken}
 import ca.pigscanfly.controllers.SwarmController
 import ca.pigscanfly.dao.UserDAO
 import ca.pigscanfly.httpClient.HttpClient
+import ca.pigscanfly.schedular.GetMessagesScheduler
 import ca.pigscanfly.service.{SwarmService, TwilioService}
 import com.twilio.Twilio
 import org.slf4j.{Logger, LoggerFactory}
@@ -19,13 +20,12 @@ object Application extends App {
 
   implicit val system: ActorSystem = ActorSystem("Swarm-Start")
   implicit val executionContext: ExecutionContext = system.dispatcher
-
-  protected val logger: Logger = LoggerFactory.getLogger(this.getClass)
-
   val swarmMessageClient = new SwarmMessageClient() with HttpClient {
     override implicit def actorSystem: ActorSystem = system
+
     override implicit def executionContext: ExecutionContext = actorSystem.dispatcher
   }
+  val userDAO = new UserDAO()
 
   implicit val db: Database = Database.forURL(
     url = dbConfig.url,
@@ -39,14 +39,14 @@ object Application extends App {
   implicit val schema: String = dbConfig.schema
 
   implicit val searchLimit: Int = dbConfig.searchLimit
-
-  val userDAO=new UserDAO()
   val twilio: Unit = Twilio.init(AccountSID, AuthToken)
   val twilioService = new TwilioService()
-  val swarmService = new SwarmService(twilioService)(system,userDAO)
-  val notificationController = new SwarmController(swarmService)
-  val routerHandler = notificationController.routes
+  val swarmService = new SwarmService(twilioService)(system, userDAO)
+  val swarmController = new SwarmController(swarmService)
+  val routerHandler = swarmController.routes
   val bindingFuture = Http().newServerAt(serverHost, serverPort).bind(routerHandler)
+  protected val logger: Logger = LoggerFactory.getLogger(this.getClass)
+  system.actorOf(GetMessagesScheduler.props(swarmService, twilioService))
 
   bindingFuture.onComplete {
     case Success(binding) ⇒

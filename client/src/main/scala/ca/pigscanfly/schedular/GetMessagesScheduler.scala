@@ -1,6 +1,6 @@
 package ca.pigscanfly.schedular
 
-import akka.actor.{Actor, Scheduler}
+import akka.actor.{Actor, ActorLogging, Props, Scheduler}
 import ca.pigscanfly.configs.ClientConstants.{schedulerInitalDelay, schedulerInterval}
 import ca.pigscanfly.models.GetMessage
 import ca.pigscanfly.proto.MessageDataPB.MessageDataPB
@@ -16,14 +16,22 @@ import scala.util.{Failure, Success}
 
 object GetMessagesScheduler {
 
+  def props(swarmService: SwarmService, twilioService: TwilioService): Props = {
+    Props(new GetMessagesScheduler(swarmService, twilioService))
+  }
+
   case class ScheduleGetMessage(initialDelay: FiniteDuration, interval: FiniteDuration)
 
   case object StartGettingMessage
 
 }
 
-class GetMessagesScheduler(swarmService: SwarmService, twilioService: TwilioService) extends Actor with SendGridEmailer with Validations with ProtoUtils {
+class GetMessagesScheduler(swarmService: SwarmService, twilioService: TwilioService) extends Actor with SendGridEmailer
+  with Validations with ProtoUtils with ActorLogging {
 
+  /**
+   * When the application will start Actor scheduler will start fetching messages from the Swarm Satellite with the delay of 2 minutes
+   */
   override def preStart(): Unit = {
     self ! ScheduleGetMessage(schedulerInitalDelay.minute, schedulerInterval.minutes)
 
@@ -38,11 +46,19 @@ class GetMessagesScheduler(swarmService: SwarmService, twilioService: TwilioServ
         message = StartGettingMessage
       )(context.dispatcher)
     case StartGettingMessage =>
+      log.info("GetMessagesScheduler: Fetching messages from Swarm")
       getMessages
   }
 
   def scheduler: Scheduler = context.system.scheduler
 
+  /**
+   * This method is responsible for retrieving messages from Swarm Satellite. It perform listed operations:
+   * Fetch messages from Swarm Satellite
+   * Get Email or Phone from the device_id of retrieved message
+   * Decode retrieved message to find message to be send and receiver of the message
+   * Detect source destination from the decoded receiver information and send email or SMS accordingly
+   */
   def getMessages: Unit = {
     swarmService.getMessages() onComplete {
       case Success(messageRetrieval) => messageRetrieval.messageResponse.map { message: GetMessage =>
@@ -50,9 +66,13 @@ class GetMessagesScheduler(swarmService: SwarmService, twilioService: TwilioServ
           case Success(fromInfo) =>
             val messageDataPB: MessageDataPB = decodeGetMessage(message.data)
             messageDataPB.message.map { messageData =>
+              log.info(s"GetMessagesScheduler: Detecting source destination: ${messageData.to}")
               detectSourceDestination(messageData.to) match {
-                case EMAIl => sendMail(messageData.to, message.data)
+                case EMAIl =>
+                  log.info(s"GetMessagesScheduler: Detected source destination as EMAIL for TO: ${messageData.to}")
+                  sendMail(messageData.to, message.data)
                 case SMS =>
+                  log.info(s"GetMessagesScheduler: Detected source destination as SMS for TO: ${messageData.to}")
                   fromInfo.phone.fold(throw new Exception(s"Didn't found sender phone details of Device ID ::: ${message.deviceId}")) { fromPhone =>
                     twilioService.sendToTwilio(messageData.to, fromPhone, messageData.text)
                   }
