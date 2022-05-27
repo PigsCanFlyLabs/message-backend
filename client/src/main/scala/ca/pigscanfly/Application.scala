@@ -1,7 +1,8 @@
 package ca.pigscanfly
 
-import akka.actor.ActorSystem
+import akka.actor.{ActorRef, ActorSystem}
 import akka.http.scaladsl.Http
+import ca.pigscanfly.actors.{GetMessageActor, SendMessageActor}
 import ca.pigscanfly.configs.ClientConstants._
 import ca.pigscanfly.configs.Constants.{AccountSID, AuthToken}
 import ca.pigscanfly.controllers.SwarmController
@@ -38,15 +39,18 @@ object Application extends App {
   )
   implicit val schema: String = dbConfig.schema
 
+  val getMessageActor: ActorRef = system.actorOf(GetMessageActor.props(userDAO, swarmMessageClient))
+  val sendMessageActor: ActorRef = system.actorOf(SendMessageActor.props(userDAO, swarmMessageClient))
+
   implicit val searchLimit: Int = dbConfig.searchLimit
   val twilio: Unit = Twilio.init(AccountSID, AuthToken)
   val twilioService = new TwilioService()
-  val swarmService = new SwarmService(twilioService)(system, userDAO)
-  val swarmController = new SwarmController(swarmService)
+  val swarmService = new SwarmService(twilioService)(userDAO, swarmMessageClient)
+  val swarmController = new SwarmController(swarmService, sendMessageActor, getMessageActor)
   val routerHandler = swarmController.routes
   val bindingFuture = Http().newServerAt(serverHost, serverPort).bind(routerHandler)
   protected val logger: Logger = LoggerFactory.getLogger(this.getClass)
-  system.actorOf(GetMessagesScheduler.props(swarmService, twilioService))
+  system.actorOf(GetMessagesScheduler.props(swarmService, twilioService, getMessageActor))
 
   bindingFuture.onComplete {
     case Success(binding) ⇒

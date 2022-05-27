@@ -1,7 +1,7 @@
 package ca.pigscanfly.schedular
 
-import akka.actor.{Actor, ActorLogging, Props, Scheduler}
-import ca.pigscanfly.configs.ClientConstants.{schedulerInitalDelay, schedulerInterval}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props, Scheduler}
+import ca.pigscanfly.configs.ClientConstants.{schedulerInitialDelay, schedulerInterval}
 import ca.pigscanfly.models.GetMessage
 import ca.pigscanfly.proto.MessageDataPB.MessageDataPB
 import ca.pigscanfly.schedular.GetMessagesScheduler._
@@ -16,8 +16,8 @@ import scala.util.{Failure, Success}
 
 object GetMessagesScheduler {
 
-  def props(swarmService: SwarmService, twilioService: TwilioService): Props = {
-    Props(new GetMessagesScheduler(swarmService, twilioService))
+  def props(swarmService: SwarmService, twilioService: TwilioService, getMessageActor: ActorRef): Props = {
+    Props(new GetMessagesScheduler(swarmService, twilioService, getMessageActor))
   }
 
   case class ScheduleGetMessage(initialDelay: FiniteDuration, interval: FiniteDuration)
@@ -26,14 +26,14 @@ object GetMessagesScheduler {
 
 }
 
-class GetMessagesScheduler(swarmService: SwarmService, twilioService: TwilioService) extends Actor with SendGridEmailer
+class GetMessagesScheduler(swarmService: SwarmService, twilioService: TwilioService, getMessageActor: ActorRef) extends Actor with SendGridEmailer
   with Validations with ProtoUtils with ActorLogging {
 
   /**
    * When the application will start Actor scheduler will start fetching messages from the Swarm Satellite with the delay of 2 minutes
    */
   override def preStart(): Unit = {
-    self ! ScheduleGetMessage(schedulerInitalDelay.minute, schedulerInterval.minutes)
+    self ! ScheduleGetMessage(schedulerInitialDelay.minute, schedulerInterval.minutes)
 
   }
 
@@ -60,9 +60,9 @@ class GetMessagesScheduler(swarmService: SwarmService, twilioService: TwilioServ
    * Detect source destination from the decoded receiver information and send email or SMS accordingly
    */
   def getMessages: Unit = {
-    swarmService.getMessages() onComplete {
+    swarmService.getMessages(getMessageActor) onComplete {
       case Success(messageRetrieval) => messageRetrieval.messageResponse.map { message: GetMessage =>
-        swarmService.getPhoneOrEmailFromDeviceId(message.deviceId) onComplete {
+        swarmService.getPhoneOrEmailFromDeviceId(message.deviceId, getMessageActor) onComplete {
           case Success(fromInfo) =>
             val messageDataPB: MessageDataPB = decodeGetMessage(message.data)
             messageDataPB.message.map { messageData =>

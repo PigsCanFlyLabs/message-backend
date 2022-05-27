@@ -42,6 +42,7 @@ trait SwarmMessageClient extends SprayJsonSupport with HttpClient with ProtoUtil
    *         GetMessage contains (packetId, deviceType, deviceId, deviceName, dataType, userApplicationId, len, data, ackPacketId, status, hiveRxTime) of the  retrieved message
    */
   def getMessages(url: String, headers: List[HttpHeader]): Future[MessageRetrieval] = {
+    println("\n\ncalling et messages\n\n")
     sendRequest(url, headers, Constants.EmptyString, HttpMethods.GET).flatMap { response =>
       Unmarshal(response.entity).to[List[GetMessage]].map { messages =>
         MessageRetrieval(messages)
