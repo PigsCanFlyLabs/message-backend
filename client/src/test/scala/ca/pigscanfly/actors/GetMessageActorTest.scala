@@ -31,14 +31,11 @@ class GetMessageActorTest(_system: ActorSystem) extends TestKit(_system)
 
   implicit val db: driver.api.Database = mock[Database]
   val userDAO: UserDAO = mock[UserDAO]
-
-
   implicit val futureAwaitDuration: FiniteDuration =
     FiniteDuration(futureAwaitTime.length, futureAwaitTime.unit)
   val swarmMessageClient: SwarmMessageClient = mock[SwarmMessageClient]
 
   def this() = this(ActorSystem("AccountActorSystem"))
-
 
   "GetMessageActorTest" must {
     "be able to get Email Or Phone From Device Id" in {
@@ -89,7 +86,6 @@ class GetMessageActorTest(_system: ActorSystem) extends TestKit(_system)
       }
     }
 
-
     "be able to SwarmLogin" in {
       val loginCredentials: LoginCredentials = LoginCredentials("username", "password")
       val actorRef = system.actorOf(Props(new GetMessageActor(userDAO, swarmMessageClient) {
@@ -114,7 +110,6 @@ class GetMessageActorTest(_system: ActorSystem) extends TestKit(_system)
           response.toString shouldBe MessageDelivery(0, "pending").toString
       }
     }
-
   }
 
 }

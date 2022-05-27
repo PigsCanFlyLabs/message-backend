@@ -32,14 +32,11 @@ class SendMessageActorTest(_system: ActorSystem) extends TestKit(_system)
 
   implicit val db: driver.api.Database = mock[Database]
   val userDAO: UserDAO = mock[UserDAO]
-
-
   implicit val futureAwaitDuration: FiniteDuration =
     FiniteDuration(futureAwaitTime.length, futureAwaitTime.unit)
   val swarmMessageClient: SwarmMessageClient = mock[SwarmMessageClient]
 
   def this() = this(ActorSystem("AccountActorSystem"))
-
 
   "GetMessageActorTest" must {
     "be able to CheckSubscription" in {
@@ -78,8 +75,6 @@ class SendMessageActorTest(_system: ActorSystem) extends TestKit(_system)
           response shouldBe MessageDelivery(0, "pending")
       }
     }
-
-
   }
 
 }
