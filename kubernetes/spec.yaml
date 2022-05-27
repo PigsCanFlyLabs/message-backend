@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: spacebeaver
+  name: messaging-apka
+  namespace: spacebeaver
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: messaging-apka
+  template:
+    metadata:
+      labels:
+        app: messaging-apka
+    spec:
+      containers:
+      - name: container
+        image: holdenk/dockerised-akka-http-messaging-app:0.0.1d
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: management
+        livenessProbe:
+          httpGet:
+            path: /alive
+            port: management
+          periodSeconds: 10
+          failureThreshold: 5
+          initialDelaySeconds: 20
+        ports:
+        - name: management
+          containerPort: 8558
+          protocol: TCP
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        - name: smtp
+          containerPort: 25
+          protocol: TCP
+        resources:
+          limits:
+            memory: 8024Mi
+          requests:
+            cpu: 2
+            memory: 8024Mi
+        env:
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: REQUIRED_CONTACT_POINT_NR
+          value: "3"
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: pod-reader
+  namespace: spacebeaver
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "watch", "list"]
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: read-pods
+  namespace: spacebeaver
+subjects:
+- kind: User
+  name: system:serviceaccount:spacebeaver:default
+roleRef:
+  kind: Role
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io
