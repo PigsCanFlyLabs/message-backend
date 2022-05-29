@@ -8,6 +8,7 @@ import ca.pigscanfly.SwarmMessageClient
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import ca.pigscanfly.actors.GetMessageActor._
+import ca.pigscanfly.components.MessageHistory
 import ca.pigscanfly.dao.UserDAO
 import ca.pigscanfly.httpClient.HttpClient
 import ca.pigscanfly.models.LoginCredentials
@@ -27,11 +28,15 @@ object GetMessageActor {
 
   case class GetMessage(url: String, headers: List[HttpHeader]) extends Command
 
+  case class SaveMessageHistory(messageHistory: MessageHistory) extends Command
+
   case class SwarmLogin(url: String, loginCredentials: LoginCredentials) extends Command
 
   case class MessageAck(url: String, packageId: Int, headers: List[HttpHeader]) extends Command
 
   case class GetPhoneOrEmailSuccess(phone: Option[String], email: Option[String]) extends Response
+
+  case class Status(done: Boolean) extends Response
 
 }
 
@@ -40,6 +45,17 @@ class GetMessageActor(userDAO: UserDAO, swarmMessageClient: SwarmMessageClient) 
     case getMessageCommand: GetMessage =>
       log.info(s"SendMessageActor: Fetching messages from Swarm url: ${getMessageCommand.url}, headers: ${getMessageCommand.headers}")
       swarmMessageClient.getMessages(getMessageCommand.url, getMessageCommand.headers).pipeTo(sender())
+    case SaveMessageHistory(messageHistory: MessageHistory) =>
+      log.info(s"SendMessageActor: Saving message history: $messageHistory")
+      val res: Future[Status] = userDAO.insertMessageHistory(messageHistory).map {
+        case 0 =>
+          log.error(s"SwarmService: Failed to save message history ${messageHistory.packetId}")
+          Status(false)
+        case 1 =>
+          log.info(s"SwarmService: Message history saved for ${messageHistory.packetId}")
+          Status(true)
+      }
+      res.pipeTo(sender())
     case messageAck: MessageAck =>
       log.info(s"SendMessageActor: Sending acknowledgement for messages to Swarm. url: ${messageAck.url}, packetId:${messageAck.packageId}, headers: ${messageAck.headers}")
       swarmMessageClient.ackMessage(messageAck.url, messageAck.packageId, messageAck.headers).pipeTo(sender())

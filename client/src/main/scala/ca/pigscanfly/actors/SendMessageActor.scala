@@ -6,6 +6,7 @@ import akka.http.scaladsl.model.HttpHeader
 import akka.pattern.pipe
 import ca.pigscanfly.SwarmMessageClient
 import ca.pigscanfly.actors.SendMessageActor._
+import ca.pigscanfly.components.MessageHistory
 import ca.pigscanfly.dao.UserDAO
 import ca.pigscanfly.httpClient.HttpClient
 import ca.pigscanfly.models.MessagePost

@@ -14,6 +14,7 @@ class UserDAO(implicit val db: Database,
   extends LazyLogging {
 
   val userQuery = TableQuery[UsersMapping]
+  val messageHistoryQuery = TableQuery[MessageHistoryMapping]
 
   /**
    * Check if user exists for new user creation
@@ -157,6 +158,10 @@ class UserDAO(implicit val db: Database,
       .result
       .headOption
     db.run(query)
+  }
+
+  def insertMessageHistory(messageHistory: MessageHistory): Future[Int] = {
+    db.run(messageHistoryQuery += messageHistory)
   }
 
 }
