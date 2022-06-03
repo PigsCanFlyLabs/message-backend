@@ -10,6 +10,7 @@ import ca.pigscanfly.cache.RoleAuthorizationCache
 import ca.pigscanfly.configs.AdminConstants._
 import ca.pigscanfly.dao._
 import ca.pigscanfly.flyway.FlywayService
+import com.typesafe.scalalogging.LazyLogging
 import org.fusesource.jansi.Ansi.Color._
 import org.fusesource.jansi.Ansi._
 import slick.jdbc.MySQLProfile.api._
@@ -19,7 +20,8 @@ import scala.util.{Failure, Success}
 
 object AdminHTTPServer
   extends App
-    with AdminService {
+    with AdminService
+    with LazyLogging {
 
   implicit val system: ActorSystem = ActorSystem("admin-service")
   implicit val materializer: ActorMaterializer = ActorMaterializer()
@@ -80,11 +82,10 @@ object AdminHTTPServer
               |""".stripMargin)
           .reset())
       //scalastyle:on
-      //TODO: replace with logger
-      println(
+      logger.info(
         s"Server is listening on ${localAddress.getHostName}:${localAddress.getPort}")
     case Failure(e) ⇒
-      println(s"Binding failed with ${e.getMessage}")
+      logger.info(s"Binding failed with ${e.getMessage}")
       system.terminate()
   }
 }

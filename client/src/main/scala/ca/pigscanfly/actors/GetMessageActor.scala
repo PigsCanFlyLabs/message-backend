@@ -4,7 +4,9 @@ import akka.actor.{Actor, ActorLogging, Props}
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.HttpHeader
 import akka.pattern.pipe
-import ca.pigscanfly.Application.{executionContext, swarmMessageClient}
+import ca.pigscanfly.SwarmMessageClient
+
+import scala.concurrent.ExecutionContext.Implicits.global
 import ca.pigscanfly.actors.GetMessageActor._
 import ca.pigscanfly.dao.UserDAO
 import ca.pigscanfly.httpClient.HttpClient
@@ -15,7 +17,7 @@ import scala.concurrent.Future
 
 object GetMessageActor {
 
-  def props(userDAO: UserDAO): Props = Props(new GetMessageActor(userDAO))
+  def props(userDAO: UserDAO, swarmMessageClient: SwarmMessageClient): Props = Props(new GetMessageActor(userDAO, swarmMessageClient))
 
   sealed trait Command
 
@@ -33,14 +35,14 @@ object GetMessageActor {
 
 }
 
-class GetMessageActor(userDAO: UserDAO) extends Actor with HttpClient with SprayJsonSupport with ActorLogging {
+class GetMessageActor(userDAO: UserDAO, swarmMessageClient: SwarmMessageClient) extends Actor with HttpClient with SprayJsonSupport with ActorLogging {
   override def receive: Receive = {
     case getMessageCommand: GetMessage =>
       log.info(s"SendMessageActor: Fetching messages from Swarm url: ${getMessageCommand.url}, headers: ${getMessageCommand.headers}")
       swarmMessageClient.getMessages(getMessageCommand.url, getMessageCommand.headers).pipeTo(sender())
     case messageAck: MessageAck =>
       log.info(s"SendMessageActor: Sending acknowledgement for messages to Swarm. url: ${messageAck.url}, packetId:${messageAck.packageId}, headers: ${messageAck.headers}")
-      swarmMessageClient.ackMessage(messageAck.url, messageAck.packageId, messageAck.headers)
+      swarmMessageClient.ackMessage(messageAck.url, messageAck.packageId, messageAck.headers).pipeTo(sender())
     case getCookies: SwarmLogin =>
       log.info(s"SendMessageActor: Getting logged in Swarm. url: ${getCookies.url}")
       swarmMessageClient.login(getCookies.url, getCookies.loginCredentials).pipeTo(sender())
@@ -61,8 +63,10 @@ class GetMessageActor(userDAO: UserDAO) extends Actor with HttpClient with Spray
    */
   def getEmailOrPhoneFromDeviceId(deviceId: Long): Future[Response] = {
     userDAO.getEmailOrPhoneFromDeviceId(deviceId).map {
-      case Some((phone, email)) => GetPhoneOrEmailSuccess(phone, email)
-      case None => GetPhoneOrEmailSuccess(None, None)
+      case Some((phone, email)) =>
+        GetPhoneOrEmailSuccess(phone, email)
+      case _ =>
+        GetPhoneOrEmailSuccess(None, None)
     }
   }
 }

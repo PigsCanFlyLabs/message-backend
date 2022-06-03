@@ -6,14 +6,15 @@ import akka.http.scaladsl.model.HttpHeader
 import akka.http.scaladsl.model.headers.{Cookie, HttpCookiePair}
 import akka.pattern.ask
 import akka.util.Timeout
-import ca.pigscanfly.Application.executionContext
+
+import scala.concurrent.ExecutionContext.Implicits.global
 import ca.pigscanfly.actors.GetMessageActor._
 import ca.pigscanfly.actors.SendMessageActor._
 import ca.pigscanfly.actors.{GetMessageActor, SendMessageActor}
 import ca.pigscanfly.configs.ClientConstants.{swarmPassword, swarmUserName}
 import ca.pigscanfly.configs.Constants.SwarmBaseUrl
 import ca.pigscanfly.dao.UserDAO
-import ca.pigscanfly.models
+import ca.pigscanfly.{SwarmMessageClient, models}
 import ca.pigscanfly.models.{LoginCredentials, MessageDelivery, MessagePost, MessageRetrieval}
 import ca.pigscanfly.proto.MessageDataPB.{Message, MessageDataPB, Protocol}
 import ca.pigscanfly.util.Constants._
@@ -22,13 +23,11 @@ import ca.pigscanfly.util.{ProtoUtils, Validations}
 import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
 
-class SwarmService(twilioService: TwilioService)(actorSystem: ActorSystem, userDAO: UserDAO)
+case class SwarmService(twilioService: TwilioService)(userDAO: UserDAO, swarmMessageClient: SwarmMessageClient)
   extends SprayJsonSupport
     with Validations
     with ProtoUtils {
 
-  val getMessageActor: ActorRef = actorSystem.actorOf(GetMessageActor.props(userDAO))
-  val sendMessageActor: ActorRef = actorSystem.actorOf(SendMessageActor.props(userDAO))
 
   implicit val timeout: Timeout = Timeout(3.seconds)
 
@@ -41,8 +40,8 @@ class SwarmService(twilioService: TwilioService)(actorSystem: ActorSystem, userD
    * @return Future[List[GetMessage]]
    *         GetMessage contains (packetId, deviceType, deviceId, deviceName, dataType, userApplicationId, len, data, ackPacketId, status, hiveRxTime) of the  retrieved message
    */
-  def getMessages(): Future[MessageRetrieval] = {
-    swarmLogin(LoginCredentials(swarmUserName, swarmPassword)).flatMap { cookies: Seq[HttpHeader] =>
+  def getMessages(getMessageActor:ActorRef): Future[MessageRetrieval] = {
+    swarmLogin(LoginCredentials(swarmUserName, swarmPassword),getMessageActor).flatMap { cookies: Seq[HttpHeader] =>
       val messagesFut = (getMessageActor ? GetMessage(s"$SwarmBaseUrl/hive/api/v1/messages", cookies.toList)).mapTo[MessageRetrieval]
 
       messagesFut.map { messages =>
@@ -61,7 +60,7 @@ class SwarmService(twilioService: TwilioService)(actorSystem: ActorSystem, userD
    * @return Future[GetPhoneOrEmailSuccess]:
    *         GetPhoneOrEmailSuccess contains phone_number and email
    */
-  def getPhoneOrEmailFromDeviceId(deviceId: Long): Future[GetPhoneOrEmailSuccess] = {
+  def getPhoneOrEmailFromDeviceId(deviceId: Long,getMessageActor:ActorRef): Future[GetPhoneOrEmailSuccess] = {
     (getMessageActor ? GetEmailOrPhoneFromDeviceId(deviceId)).mapTo[GetPhoneOrEmailSuccess]
   }
 
@@ -79,8 +78,8 @@ class SwarmService(twilioService: TwilioService)(actorSystem: ActorSystem, userD
    * @return Future[MessageDelivery]:
    *         MessageDelivery: contains packetId and status of the sent message
    */
-  def postMessages(from: String, to: String, data: String): Future[MessageDelivery] = {
-    swarmLogin(LoginCredentials(swarmUserName, swarmPassword)).flatMap { cookies: Seq[HttpHeader] =>
+  def postMessages(from: String, to: String, data: String, sendMessageActor: ActorRef, getMessageActor: ActorRef): Future[MessageDelivery] = {
+    swarmLogin(LoginCredentials(swarmUserName, swarmPassword),getMessageActor).flatMap { cookies: Seq[HttpHeader] =>
       if (validateEmailPhone(from)) {
         ask(sendMessageActor, GetDeviceIdFromEmailOrPhone(from)).flatMap {
           case response: GetDeviceId =>
@@ -123,7 +122,7 @@ class SwarmService(twilioService: TwilioService)(actorSystem: ActorSystem, userD
    * @return Future[Seq[HttpHeader]]:
    *         If login is successful headers will be retrieved
    */
-  def swarmLogin(loginCredentials: LoginCredentials): Future[Seq[HttpHeader]] = {
+  def swarmLogin(loginCredentials: LoginCredentials, getMessageActor:ActorRef): Future[Seq[HttpHeader]] = {
     (getMessageActor ? SwarmLogin(s"$SwarmBaseUrl/login", loginCredentials)).mapTo[Seq[HttpHeader]]
   }
 

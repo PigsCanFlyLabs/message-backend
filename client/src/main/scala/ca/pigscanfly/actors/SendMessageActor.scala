@@ -4,7 +4,7 @@ import akka.actor.{Actor, ActorLogging, Props}
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.HttpHeader
 import akka.pattern.pipe
-import ca.pigscanfly.Application.swarmMessageClient
+import ca.pigscanfly.SwarmMessageClient
 import ca.pigscanfly.actors.SendMessageActor._
 import ca.pigscanfly.dao.UserDAO
 import ca.pigscanfly.httpClient.HttpClient
@@ -15,7 +15,7 @@ import scala.concurrent.Future
 
 object SendMessageActor {
 
-  def props(userDAO: UserDAO): Props = Props(new SendMessageActor(userDAO))
+  def props(userDAO: UserDAO, swarmMessageClient: SwarmMessageClient): Props = Props(new SendMessageActor(userDAO, swarmMessageClient))
 
   sealed trait Command
 
@@ -33,7 +33,7 @@ object SendMessageActor {
 
 }
 
-class SendMessageActor(userDAO: UserDAO) extends Actor with HttpClient with SprayJsonSupport with ActorLogging {
+class SendMessageActor(userDAO: UserDAO, swarmMessageClient: SwarmMessageClient) extends Actor with HttpClient with SprayJsonSupport with ActorLogging {
   override def receive: Receive = {
     case GetDeviceIdFromEmailOrPhone(from: String) =>
       log.info(s"SendMessageActor: Fetching device from: $from")
