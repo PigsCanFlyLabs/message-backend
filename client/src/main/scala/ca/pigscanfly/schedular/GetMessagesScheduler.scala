@@ -3,6 +3,8 @@ package ca.pigscanfly.schedular
 import akka.actor.{Actor, ActorLogging, ActorRef, Props, Scheduler}
 import ca.pigscanfly.components.MessageHistory
 import ca.pigscanfly.configs.ClientConstants.{schedulerInitialDelay, schedulerInterval}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props, Scheduler}
+import ca.pigscanfly.configs.ClientConstants.{schedulerInitialDelay, schedulerInterval}
 import ca.pigscanfly.models.GetMessage
 import ca.pigscanfly.proto.MessageDataPB.MessageDataPB
 import ca.pigscanfly.schedular.GetMessagesScheduler._

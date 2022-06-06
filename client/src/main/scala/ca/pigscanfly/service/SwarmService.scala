@@ -43,8 +43,8 @@ case class SwarmService(twilioService: TwilioService)(userDAO: UserDAO, swarmMes
    * @return Future[List[GetMessage]]
    *         GetMessage contains (packetId, deviceType, deviceId, deviceName, dataType, userApplicationId, len, data, ackPacketId, status, hiveRxTime) of the  retrieved message
    */
-  def getMessages(getMessageActor: ActorRef): Future[MessageRetrieval] = {
-    swarmLogin(LoginCredentials(swarmUserName, swarmPassword), getMessageActor).flatMap { cookies: Seq[HttpHeader] =>
+  def getMessages(getMessageActor:ActorRef): Future[MessageRetrieval] = {
+    swarmLogin(LoginCredentials(swarmUserName, swarmPassword),getMessageActor).flatMap { cookies: Seq[HttpHeader] =>
       val messagesFut = (getMessageActor ? GetMessage(s"$SwarmBaseUrl/hive/api/v1/messages", cookies.toList)).mapTo[MessageRetrieval]
 
       messagesFut.map { messages =>
@@ -63,7 +63,7 @@ case class SwarmService(twilioService: TwilioService)(userDAO: UserDAO, swarmMes
    * @return Future[GetPhoneOrEmailSuccess]:
    *         GetPhoneOrEmailSuccess contains phone_number and email
    */
-  def getPhoneOrEmailFromDeviceId(deviceId: Long, getMessageActor: ActorRef): Future[GetPhoneOrEmailSuccess] = {
+  def getPhoneOrEmailFromDeviceId(deviceId: Long,getMessageActor:ActorRef): Future[GetPhoneOrEmailSuccess] = {
     (getMessageActor ? GetEmailOrPhoneFromDeviceId(deviceId)).mapTo[GetPhoneOrEmailSuccess]
   }
 
@@ -82,7 +82,7 @@ case class SwarmService(twilioService: TwilioService)(userDAO: UserDAO, swarmMes
    *         MessageDelivery: contains packetId and status of the sent message
    */
   def postMessages(from: String, to: String, data: String, sendMessageActor: ActorRef, getMessageActor: ActorRef): Future[MessageDelivery] = {
-    swarmLogin(LoginCredentials(swarmUserName, swarmPassword), getMessageActor).flatMap { cookies: Seq[HttpHeader] =>
+    swarmLogin(LoginCredentials(swarmUserName, swarmPassword),getMessageActor).flatMap { cookies: Seq[HttpHeader] =>
       if (validateEmailPhone(from)) {
         ask(sendMessageActor, GetDeviceIdFromEmailOrPhone(from)).flatMap {
           case response: GetDeviceId =>
@@ -131,7 +131,7 @@ case class SwarmService(twilioService: TwilioService)(userDAO: UserDAO, swarmMes
    * @return Future[Seq[HttpHeader]]:
    *         If login is successful headers will be retrieved
    */
-  def swarmLogin(loginCredentials: LoginCredentials, getMessageActor: ActorRef): Future[Seq[HttpHeader]] = {
+  def swarmLogin(loginCredentials: LoginCredentials, getMessageActor:ActorRef): Future[Seq[HttpHeader]] = {
     (getMessageActor ? SwarmLogin(s"$SwarmBaseUrl/login", loginCredentials)).mapTo[Seq[HttpHeader]]
   }
 
