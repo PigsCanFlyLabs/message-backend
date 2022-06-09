@@ -34,7 +34,7 @@ object GetMessageActor {
 
   case class MessageAck(url: String, packageId: Int, headers: List[HttpHeader]) extends Command
 
-  case class GetPhoneOrEmailSuccess(phone: Option[String], email: Option[String]) extends Response
+  case class GetPhoneOrEmailSuccess(phone: Option[String], email: Option[String], customerId: Option[String]) extends Response
 
   case class Status(done: Boolean) extends Response
 
@@ -79,10 +79,10 @@ class GetMessageActor(userDAO: UserDAO, swarmMessageClient: SwarmMessageClient) 
    */
   def getEmailOrPhoneFromDeviceId(deviceId: Long): Future[Response] = {
     userDAO.getEmailOrPhoneFromDeviceId(deviceId).map {
-      case Some((phone, email)) =>
-        GetPhoneOrEmailSuccess(phone, email)
+      case Some((phone, email, customerId)) =>
+        GetPhoneOrEmailSuccess(phone, email, customerId)
       case _ =>
-        GetPhoneOrEmailSuccess(None, None)
+        GetPhoneOrEmailSuccess(None, None, None)
     }
   }
 }

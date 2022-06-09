@@ -75,6 +75,7 @@ class GetMessagesScheduler(swarmService: SwarmService, twilioService: TwilioServ
                 case EMAIl =>
                   log.info(s"GetMessagesScheduler: Detected source destination as EMAIL for TO: ${messageData.to}")
                   val messageHistory = MessageHistory(message.deviceId,
+                    fromInfo.customerId.getOrElse(""),
                     messageData.to,
                     sourceDestination,
                     "GET", message.packetId)
@@ -84,6 +85,7 @@ class GetMessagesScheduler(swarmService: SwarmService, twilioService: TwilioServ
                   log.info(s"GetMessagesScheduler: Detected source destination as SMS for TO: ${messageData.to}")
                   fromInfo.phone.fold(throw new Exception(s"Didn't found sender phone details of Device ID ::: ${message.deviceId}")) { fromPhone =>
                     val messageHistory = MessageHistory(message.deviceId,
+                      fromInfo.customerId.getOrElse(""),
                       messageData.to,
                       sourceDestination,
                       "GET", message.packetId)

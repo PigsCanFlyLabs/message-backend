@@ -11,9 +11,11 @@ final class MessageHistoryMapping(tag: Tag)
   extends Table[MessageHistory](tag, Some("spacebeaver"), "message_history") {
 
   def * : ProvenShape[MessageHistory] =
-    (deviceId, to, sourceDestination, requestType, packetId, timestamp).shaped <> (MessageHistory.tupled, MessageHistory.unapply)
+    (deviceId, customerId, to, sourceDestination, requestType, packetId, timestamp).shaped <> (MessageHistory.tupled, MessageHistory.unapply)
 
   def deviceId: Rep[Long] = column[Long]("device_id")
+
+  def customerId: Rep[String] = column[String]("customer_id")
 
   def to: Rep[String] = column[String]("receiver")
 

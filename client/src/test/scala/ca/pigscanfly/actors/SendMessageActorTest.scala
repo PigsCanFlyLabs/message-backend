@@ -41,25 +41,25 @@ class SendMessageActorTest(_system: ActorSystem) extends TestKit(_system)
   "GetMessageActorTest" must {
     "be able to CheckSubscription" in {
       val actorRef = system.actorOf(Props(new SendMessageActor(userDAO, swarmMessageClient) {
-        when(userDAO.checkUserSubscription(0L)) thenReturn Future(Some(true))
+        when(userDAO.checkUserSubscription(0L)) thenReturn Future(Some(true, Some("customer-id")))
       }))
       val result = (actorRef ? CheckSubscription(0L)).mapTo[CheckDeviceSubscription]
       Thread.sleep(5000)
       whenReady(result) {
         response =>
-          response shouldBe CheckDeviceSubscription(Some(true))
+          response shouldBe CheckDeviceSubscription(Some(true), Some("customer-id"))
       }
     }
 
     "be able to GetDeviceIdFromEmailOrPhone" in {
       val actorRef = system.actorOf(Props(new SendMessageActor(userDAO, swarmMessageClient) {
-        when(userDAO.getDeviceIdFromEmailOrPhone("from")) thenReturn Future(Some(0L))
+        when(userDAO.getDeviceIdFromEmailOrPhone("from")) thenReturn Future(Some(0L, Some("customer-id")))
       }))
       val result = (actorRef ? GetDeviceIdFromEmailOrPhone("from")).mapTo[GetDeviceId]
       Thread.sleep(5000)
       whenReady(result) {
         response =>
-          response shouldBe GetDeviceId(Some(0L))
+          response shouldBe GetDeviceId(Some(0L), Some("customer-id"))
       }
     }
 

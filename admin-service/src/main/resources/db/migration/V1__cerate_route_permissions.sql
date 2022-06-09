@@ -31,11 +31,13 @@ CREATE TABLE IF NOT EXISTS spacebeaver.users_mapping (
 );
 
 CREATE TABLE IF NOT EXISTS spacebeaver.message_logs (
+    device_id VARCHAR(50),
     customer_id VARCHAR(50),
 	receiver VARCHAR(50),
 	source_destination VARCHAR(50),
 	request_type VARCHAR(50),
 	message_id VARCHAR(50) UNIQUE,
 	date_time TIMESTAMP DEFAULT now(),
-	FOREIGN KEY(customer_id) REFERENCES spacebeaver.users_mapping(customer_id)
+	FOREIGN KEY(customer_id) REFERENCES spacebeaver.users_mapping(customer_id),
+	PRIMARY KEY(customer_id, date_time)
 );

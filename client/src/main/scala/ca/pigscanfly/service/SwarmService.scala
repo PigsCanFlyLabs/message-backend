@@ -105,7 +105,7 @@ case class SwarmService(twilioService: TwilioService)(userDAO: UserDAO, swarmMes
                       val messagePost = MessagePost(1, deviceId, 1, encodePostMessage(messageDataPB))
                       (sendMessageActor ? PostMessageCommand(s"$SwarmBaseUrl/hive/api/v1/messages", messagePost, cookies.toList)).mapTo[MessageDelivery].map {
                         postMessageResponse =>
-                          val messageHistory = MessageHistory(deviceId, to, sourceDestination, "POST", postMessageResponse.packetId)
+                          val messageHistory = MessageHistory(deviceId, response.customerId.getOrElse(""), to, sourceDestination, "POST", postMessageResponse.packetId)
                           saveMessageHistory(messageHistory, getMessageActor)
                           postMessageResponse
                       }
