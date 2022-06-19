@@ -1,6 +1,6 @@
 package ca.pigscanfly
 
-import akka.actor.{ActorRef, ActorSystem}
+import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.http.scaladsl.Http
 import ca.pigscanfly.actors.{GetMessageActor, SendMessageActor}
 import ca.pigscanfly.configs.ClientConstants._
@@ -8,7 +8,7 @@ import ca.pigscanfly.configs.Constants.{AccountSID, AuthToken}
 import ca.pigscanfly.controllers.SwarmController
 import ca.pigscanfly.dao.UserDAO
 import ca.pigscanfly.httpClient.HttpClient
-import ca.pigscanfly.schedular.GetMessagesScheduler
+import ca.pigscanfly.schedular.{GetMessagesScheduler, SendMessageManager}
 import ca.pigscanfly.service.{SwarmService, TwilioService}
 import com.twilio.Twilio
 import org.slf4j.{Logger, LoggerFactory}
@@ -26,8 +26,6 @@ object Application extends App {
 
     override implicit def executionContext: ExecutionContext = actorSystem.dispatcher
   }
-  val userDAO = new UserDAO()
-
   implicit val db: Database = Database.forURL(
     url = dbConfig.url,
     user = dbConfig.user,
@@ -38,6 +36,7 @@ object Application extends App {
       queueSize = dbConfig.queueSize)
   )
   implicit val schema: String = dbConfig.schema
+  val userDAO = new UserDAO()
 
   val getMessageActor: ActorRef = system.actorOf(GetMessageActor.props(userDAO, swarmMessageClient))
   val sendMessageActor: ActorRef = system.actorOf(SendMessageActor.props(userDAO, swarmMessageClient))
@@ -45,8 +44,9 @@ object Application extends App {
   implicit val searchLimit: Int = dbConfig.searchLimit
   val twilio: Unit = Twilio.init(AccountSID, AuthToken)
   val twilioService = new TwilioService()
-  val swarmService = new SwarmService(twilioService)(userDAO, swarmMessageClient)
-  val swarmController = new SwarmController(swarmService, sendMessageActor, getMessageActor)
+  val swarmService = SwarmService(twilioService)(userDAO, swarmMessageClient)
+  val sendMessageManager: ActorRef = system.actorOf(Props(new SendMessageManager(swarmService, sendMessageActor, getMessageActor)))
+  val swarmController = new SwarmController(swarmService, sendMessageActor, getMessageActor, sendMessageManager)
   val routerHandler = swarmController.routes
   val bindingFuture = Http().newServerAt(serverHost, serverPort).bind(routerHandler)
   protected val logger: Logger = LoggerFactory.getLogger(this.getClass)

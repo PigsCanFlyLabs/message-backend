@@ -12,7 +12,7 @@ import org.slf4j.{Logger, LoggerFactory}
 
 import scala.util.{Failure, Success}
 
-class SwarmController(swarmService: SwarmService, sendMessageActor: ActorRef, getMessageActor: ActorRef) {
+class SwarmController(swarmService: SwarmService, sendMessageActor: ActorRef, getMessageActor: ActorRef, sendMessageManager: ActorRef) {
   protected val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   def routes: Route = path("messages") {
@@ -26,7 +26,7 @@ class SwarmController(swarmService: SwarmService, sendMessageActor: ActorRef, ge
   } ~ path("messages") {
     post {
       formFields("From", "To", "Body") { (from, to, body) =>
-        val result = swarmService.postMessages(from, to, body, sendMessageActor, getMessageActor)
+        val result = swarmService.postMessages(from, to, body, sendMessageActor, getMessageActor, sendMessageManager)
         onComplete(result) {
           case Success(response) =>
             complete(HttpEntity(ContentTypes.`application/json`, response.asJson.toString))

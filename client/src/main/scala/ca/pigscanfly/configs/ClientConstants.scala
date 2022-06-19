@@ -9,6 +9,7 @@ object ClientConstants {
 
   val schedulerInitialDelay = config.getInt("scheduler.initial.delay")
   val schedulerInterval = config.getInt("scheduler.interval")
+  val messagePollingDelay = config.getInt("scheduler.polling.delay")
 
   val serverHost: String = config.getString("server.host")
   val serverPort: Int = config.getInt("server.port")

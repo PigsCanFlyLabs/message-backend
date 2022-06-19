@@ -8,7 +8,7 @@ import ca.pigscanfly.actors.GetMessageActor
 import ca.pigscanfly.actors.GetMessageActor.{GetEmailOrPhoneFromDeviceId, GetMessage, GetPhoneOrEmailSuccess, MessageAck, SwarmLogin}
 import ca.pigscanfly.actors.SendMessageActor.{CheckDeviceSubscription, CheckSubscription, GetDeviceId, GetDeviceIdFromEmailOrPhone, PostMessageCommand}
 import ca.pigscanfly.dao.UserDAO
-import ca.pigscanfly.models.{LoginCredentials, MessageDelivery, MessageRetrieval}
+import ca.pigscanfly.models.{LoginCredentials, MessageDelivery, MessageRetrieval, ScheduleSendMessageRequest}
 import ca.pigscanfly.service.{SwarmService, TwilioService}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.WordSpecLike
@@ -97,8 +97,14 @@ class SwarmServiceTest extends WordSpecLike with MockFactory {
             sender() ! HttpResponse.apply().headers
         }
       })
-      val result = Await.result(swarmService.postMessages("987653210", "8563210", "message", sendMessageTestActor, getMessageTestActor), 5 second)
-      assert(result == MessageDelivery(0, "pending"))
+      val sendMessageManager = TestActorRef(new Actor {
+        def receive: Receive = {
+          case SwarmLogin(_, _) =>
+            sender() ! HttpResponse.apply().headers
+        }
+      })
+     val result = Await.result(swarmService.postMessages("987653210", "8563210", "message", sendMessageTestActor, getMessageTestActor, sendMessageManager), 5 second)
+      assert(result == ScheduleSendMessageRequest("customer-id",0L,"8563210","message"))
     }
 
     "able to postMessage" in {
