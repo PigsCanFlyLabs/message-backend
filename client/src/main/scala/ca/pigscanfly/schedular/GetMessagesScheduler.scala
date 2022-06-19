@@ -1,6 +1,9 @@
 package ca.pigscanfly.schedular
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props, Scheduler}
+import ca.pigscanfly.components.MessageHistory
+import ca.pigscanfly.configs.ClientConstants.{schedulerInitialDelay, schedulerInterval}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props, Scheduler}
 import ca.pigscanfly.configs.ClientConstants.{schedulerInitialDelay, schedulerInterval}
 import ca.pigscanfly.models.GetMessage
 import ca.pigscanfly.proto.MessageDataPB.MessageDataPB
@@ -67,13 +70,27 @@ class GetMessagesScheduler(swarmService: SwarmService, twilioService: TwilioServ
             val messageDataPB: MessageDataPB = decodeGetMessage(message.data)
             messageDataPB.message.map { messageData =>
               log.info(s"GetMessagesScheduler: Detecting source destination: ${messageData.to}")
-              detectSourceDestination(messageData.to) match {
+              val sourceDestination = detectSourceDestination(messageData.to)
+              sourceDestination match {
                 case EMAIl =>
                   log.info(s"GetMessagesScheduler: Detected source destination as EMAIL for TO: ${messageData.to}")
+                  val messageHistory = MessageHistory(message.deviceId,
+                    fromInfo.customerId.getOrElse(""),
+                    messageData.to,
+                    sourceDestination,
+                    "GET", message.packetId)
+                  swarmService.saveMessageHistory(messageHistory, getMessageActor)
                   sendMail(messageData.to, message.data)
                 case SMS =>
                   log.info(s"GetMessagesScheduler: Detected source destination as SMS for TO: ${messageData.to}")
                   fromInfo.phone.fold(throw new Exception(s"Didn't found sender phone details of Device ID ::: ${message.deviceId}")) { fromPhone =>
+                    val messageHistory = MessageHistory(message.deviceId,
+                      fromInfo.customerId.getOrElse(""),
+                      messageData.to,
+                      sourceDestination,
+                      "GET", message.packetId)
+                    swarmService.saveMessageHistory(messageHistory, getMessageActor)
+                    sendMail(messageData.to, message.data)
                     twilioService.sendToTwilio(messageData.to, fromPhone, messageData.text)
                   }
                 case _ =>

@@ -1,5 +1,7 @@
 package ca.pigscanfly.components
 
+import java.time.OffsetDateTime
+
 final case class User(customerId: Option[String],
                       deviceId: Long,
                       phone: Option[String],

@@ -62,18 +62,18 @@ class SwarmServiceTest extends WordSpecLike with MockFactory {
       val testActor = TestActorRef(new Actor {
         def receive: Receive = {
           case GetEmailOrPhoneFromDeviceId(0L) ⇒
-            sender() ! GetPhoneOrEmailSuccess(Some("987653210"), Some("email@domain.com"))
+            sender() ! GetPhoneOrEmailSuccess(Some("987653210"), Some("email@domain.com"), Some("customer-id"))
         }
       })
       val result = Await.result(swarmService.getPhoneOrEmailFromDeviceId(0L, testActor), 5 second)
-      assert(result == GetPhoneOrEmailSuccess(Some("987653210"), Some("email@domain.com")))
+      assert(result == GetPhoneOrEmailSuccess(Some("987653210"), Some("email@domain.com"), Some("customer-id")))
     }
 
     "not able to get Phone Or Email From Device Id" in {
       val testActor = TestActorRef(new Actor {
         def receive: Receive = {
           case GetEmailOrPhoneFromDeviceId(0L) ⇒
-            sender() ! GetPhoneOrEmailSuccess(None, None)
+            sender() ! GetPhoneOrEmailSuccess(None, None, None)
         }
       })
       val result = Await.result(swarmService.getPhoneOrEmailFromDeviceId(0L, testActor), 5 second)
@@ -84,9 +84,9 @@ class SwarmServiceTest extends WordSpecLike with MockFactory {
       val sendMessageTestActor = TestActorRef(new Actor {
         def receive: Receive = {
           case GetDeviceIdFromEmailOrPhone(_) =>
-            sender() ! GetDeviceId(Some(0L))
+            sender() ! GetDeviceId(Some(0L), Some("customer-id"))
           case CheckSubscription(_) =>
-            sender() ! CheckDeviceSubscription(Some(false))
+            sender() ! CheckDeviceSubscription(Some(false), Some("customer-id"))
           case PostMessageCommand(_, _, _) =>
             sender() ! MessageDelivery(0, "pending")
         }

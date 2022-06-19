@@ -14,6 +14,7 @@ class UserDAO(implicit val db: Database,
   extends LazyLogging {
 
   val userQuery = TableQuery[UsersMapping]
+  val messageHistoryQuery = TableQuery[MessageHistoryMapping]
 
   /**
    * Check if user exists for new user creation
@@ -100,11 +101,11 @@ class UserDAO(implicit val db: Database,
    * @param deviceId : users device Id
    * @return is_disabled: identifier to check if user has subscription or not
    */
-  def checkUserSubscription(deviceId: Long): Future[Option[Boolean]] = {
+  def checkUserSubscription(deviceId: Long): Future[Option[(Boolean, Option[String])]] = {
     logger.info(s"UserDAO: Fetching user's is_disabled for device_id:$deviceId from spacebeaver.users_mapping table.")
     val query = userQuery
       .filter(col => col.deviceId === deviceId)
-      .map(_.isDisabled)
+      .map(col=> (col.isDisabled, col.customerId))
       .result
       .headOption
     db.run(query)
@@ -132,11 +133,11 @@ class UserDAO(implicit val db: Database,
    * @param from : user's email or phone_number
    * @return device_id
    */
-  def getDeviceIdFromEmailOrPhone(from: String): Future[Option[Long]] = {
+  def getDeviceIdFromEmailOrPhone(from: String): Future[Option[(Long, Option[String])]] = {
     logger.info(s"UserDAO: Fetching user's device_id for email/phone_number: $from from spacebeaver.users_mapping table.")
     val query = userQuery
       .filter(col => col.email === from || col.phone === from)
-      .map(_.deviceId)
+      .map(col=> (col.deviceId, col.customerId))
       .result
       .headOption
     db.run(query)
@@ -149,14 +150,18 @@ class UserDAO(implicit val db: Database,
    * @param deviceId : user's device_id
    * @return phone_number and email
    */
-  def getEmailOrPhoneFromDeviceId(deviceId: Long): Future[Option[(Option[String], Option[String])]] = {
+  def getEmailOrPhoneFromDeviceId(deviceId: Long): Future[Option[(Option[String], Option[String], Option[String])]] = {
     logger.info(s"UserDAO: Fetching user's email and phone_number for device_id: $deviceId from spacebeaver.users_mapping table.")
     val query = userQuery
       .filter(col => col.deviceId === deviceId)
-      .map(col => (col.phone, col.email))
+      .map(col => (col.phone, col.email, col.customerId))
       .result
       .headOption
     db.run(query)
+  }
+
+  def insertMessageHistory(messageHistory: MessageHistory): Future[Int] = {
+    db.run(messageHistoryQuery += messageHistory)
   }
 
 }

@@ -40,13 +40,13 @@ class GetMessageActorTest(_system: ActorSystem) extends TestKit(_system)
   "GetMessageActorTest" must {
     "be able to get Email Or Phone From Device Id" in {
       val actorRef = system.actorOf(Props(new GetMessageActor(userDAO, swarmMessageClient) {
-        when(userDAO.getEmailOrPhoneFromDeviceId(0L)) thenReturn Future(Some(Some("9876543210"), Some("email@domain.com")))
+        when(userDAO.getEmailOrPhoneFromDeviceId(0L)) thenReturn Future(Some(Some("9876543210"), Some("email@domain.com"), Some("customer-id")))
       }))
       val result = (actorRef ? GetEmailOrPhoneFromDeviceId(0L)).mapTo[Response]
       Thread.sleep(5000)
       whenReady(result) {
         response =>
-          response shouldBe GetPhoneOrEmailSuccess(Some("9876543210"), Some("email@domain.com"))
+          response shouldBe GetPhoneOrEmailSuccess(Some("9876543210"), Some("email@domain.com"), Some("customer-id"))
       }
     }
 
@@ -58,7 +58,7 @@ class GetMessageActorTest(_system: ActorSystem) extends TestKit(_system)
       Thread.sleep(5000)
       whenReady(result) {
         response =>
-          response shouldBe GetPhoneOrEmailSuccess(None, None)
+          response shouldBe GetPhoneOrEmailSuccess(None, None, None)
       }
     }
 

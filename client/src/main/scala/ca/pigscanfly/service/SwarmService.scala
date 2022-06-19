@@ -11,6 +11,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import ca.pigscanfly.actors.GetMessageActor._
 import ca.pigscanfly.actors.SendMessageActor._
 import ca.pigscanfly.actors.{GetMessageActor, SendMessageActor}
+import ca.pigscanfly.components.MessageHistory
 import ca.pigscanfly.configs.ClientConstants.{swarmPassword, swarmUserName}
 import ca.pigscanfly.configs.Constants.SwarmBaseUrl
 import ca.pigscanfly.dao.UserDAO
@@ -19,6 +20,7 @@ import ca.pigscanfly.models.{LoginCredentials, MessageDelivery, MessagePost, Mes
 import ca.pigscanfly.proto.MessageDataPB.{Message, MessageDataPB, Protocol}
 import ca.pigscanfly.util.Constants._
 import ca.pigscanfly.util.{ProtoUtils, Validations}
+import com.typesafe.scalalogging.LazyLogging
 
 import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
@@ -26,7 +28,8 @@ import scala.concurrent.duration.DurationInt
 case class SwarmService(twilioService: TwilioService)(userDAO: UserDAO, swarmMessageClient: SwarmMessageClient)
   extends SprayJsonSupport
     with Validations
-    with ProtoUtils {
+    with ProtoUtils
+    with LazyLogging {
 
 
   implicit val timeout: Timeout = Timeout(3.seconds)
@@ -88,7 +91,8 @@ case class SwarmService(twilioService: TwilioService)(userDAO: UserDAO, swarmMes
                 case response: CheckDeviceSubscription =>
                   response.isDisabled.fold(throw new Exception(s"Couldn't found subscription details of device ID $deviceId")) { isDeviceDisabled =>
                     if (!isDeviceDisabled) {
-                      val msg = detectSourceDestination(to) match {
+                      val sourceDestination = detectSourceDestination(to)
+                      val msg = sourceDestination match {
                         case EMAIl =>
                           Message(data, to, Protocol.values(1))
                         case SMS =>
@@ -99,7 +103,12 @@ case class SwarmService(twilioService: TwilioService)(userDAO: UserDAO, swarmMes
                       //TODO Gather msg in time window
                       val messageDataPB: MessageDataPB = MessageDataPB(1, Seq(msg), false)
                       val messagePost = MessagePost(1, deviceId, 1, encodePostMessage(messageDataPB))
-                      (sendMessageActor ? PostMessageCommand(s"$SwarmBaseUrl/hive/api/v1/messages", messagePost, cookies.toList)).mapTo[MessageDelivery]
+                      (sendMessageActor ? PostMessageCommand(s"$SwarmBaseUrl/hive/api/v1/messages", messagePost, cookies.toList)).mapTo[MessageDelivery].map {
+                        postMessageResponse =>
+                          val messageHistory = MessageHistory(deviceId, response.customerId.getOrElse(""), to, sourceDestination, "POST", postMessageResponse.packetId)
+                          saveMessageHistory(messageHistory, getMessageActor)
+                          postMessageResponse
+                      }
                     } else {
                       throw new Exception(s"[Device ID Disabled] Can't send message from device Id $deviceId")
                     }
@@ -124,6 +133,11 @@ case class SwarmService(twilioService: TwilioService)(userDAO: UserDAO, swarmMes
    */
   def swarmLogin(loginCredentials: LoginCredentials, getMessageActor:ActorRef): Future[Seq[HttpHeader]] = {
     (getMessageActor ? SwarmLogin(s"$SwarmBaseUrl/login", loginCredentials)).mapTo[Seq[HttpHeader]]
+  }
+
+  def saveMessageHistory(messageHistory: MessageHistory, getMessageActor: ActorRef): Future[Status] = {
+    logger.info(s"SwarmService: Sending request to save message history $messageHistory")
+    (getMessageActor ? SaveMessageHistory(messageHistory)).mapTo[Status]
   }
 
 }

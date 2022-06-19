@@ -82,7 +82,7 @@ class UserDAOSpec extends AsyncWordSpecLike with ScalaFutures with Matchers with
       for {
         res <- userDao.getEmailOrPhoneFromDeviceId(user.deviceId)
       } yield {
-        res shouldBe Some(user.phone, user.email)
+        res shouldBe Some(user.phone, user.email, user.customerId)
       }
     }
 
@@ -100,7 +100,7 @@ class UserDAOSpec extends AsyncWordSpecLike with ScalaFutures with Matchers with
 
     "be able to get Device Id From Email Or Phone" in {
       whenReady(userDao.getDeviceIdFromEmailOrPhone(user.email.getOrElse(""))) { res =>
-        res shouldBe Some(user.deviceId)
+        res shouldBe Some(user.deviceId, user.customerId)
       }
     }
 

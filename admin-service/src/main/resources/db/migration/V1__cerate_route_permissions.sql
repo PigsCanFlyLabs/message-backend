@@ -23,9 +23,21 @@ CREATE TABLE IF NOT EXISTS spacebeaver_admin.admin_login (
 CREATE SCHEMA IF NOT EXISTS spacebeaver;
 
 CREATE TABLE IF NOT EXISTS spacebeaver.users_mapping (
-    customer_id VARCHAR NOT NULL UNIQUE,
+    customer_id VARCHAR(50) NOT NULL UNIQUE,
 	email VARCHAR(50) UNIQUE,
 	device_id BIGINT PRIMARY KEY,
 	phone_number VARCHAR(50) UNIQUE,
 	is_disabled BOOLEAN DEFAULT FALSE NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS spacebeaver.message_logs (
+    device_id VARCHAR(50),
+    customer_id VARCHAR(50),
+	receiver VARCHAR(50),
+	source_destination VARCHAR(50),
+	request_type VARCHAR(50),
+	message_id VARCHAR(50) UNIQUE,
+	date_time TIMESTAMP DEFAULT now(),
+	FOREIGN KEY(customer_id) REFERENCES spacebeaver.users_mapping(customer_id),
+	PRIMARY KEY(customer_id, date_time)
 );
