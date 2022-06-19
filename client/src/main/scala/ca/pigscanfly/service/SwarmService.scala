@@ -33,7 +33,7 @@ case class SwarmService(twilioService: TwilioService)(userDAO: UserDAO, swarmMes
     with LazyLogging {
 
 
-  implicit val timeout: Timeout = Timeout(30.seconds)
+  implicit val timeout: Timeout = Timeout(3.seconds)
 
   /**
    * This method retrieves messages from Swarm satellite by performing three operations:
@@ -142,6 +142,7 @@ case class SwarmService(twilioService: TwilioService)(userDAO: UserDAO, swarmMes
     }
     Future.sequence(response)
   }
+
   /**
    * This method is to logged in the Swarm Satellite using swarm satellite's request url, username and password
    *
