@@ -35,10 +35,10 @@ class GetMessagesScheduler(swarmService: SwarmService, twilioService: TwilioServ
   /**
    * When the application will start Actor scheduler will start fetching messages from the Swarm Satellite with the delay of 2 minutes
    */
-//  override def preStart(): Unit = {
-//    self ! ScheduleGetMessage(schedulerInitialDelay.minute, schedulerInterval.minutes)
-//
-//  }
+  override def preStart(): Unit = {
+    self ! ScheduleGetMessage(schedulerInitialDelay.minute, schedulerInterval.minutes)
+
+  }
 
   def receive: Receive = {
     case ScheduleGetMessage(initialDelay, delay) =>
