@@ -1,6 +1,6 @@
 package ca.pigscanfly
 
-import akka.actor.{ActorRef, ActorSystem}
+import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.http.scaladsl.model.{ContentTypes, FormData, HttpEntity, Multipart, StatusCodes}
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.testkit.ScalatestRouteTest
@@ -8,7 +8,8 @@ import ca.pigscanfly.Application.{swarmMessageClient, system, userDAO}
 import ca.pigscanfly.actors.{GetMessageActor, SendMessageActor}
 import ca.pigscanfly.controllers.SwarmController
 import ca.pigscanfly.dao.UserDAO
-import ca.pigscanfly.models.{MessageDelivery, MessageRetrieval}
+import ca.pigscanfly.models.{MessageDelivery, MessageRetrieval, ScheduleSendMessageRequest}
+import ca.pigscanfly.schedular.SendMessageManager
 import ca.pigscanfly.service.{SwarmService, TwilioService}
 import org.mockito.MockitoSugar
 import org.mockito.MockitoSugar.mock
@@ -27,9 +28,10 @@ class SwarmControllerTest extends WordSpec with Matchers with ScalatestRouteTest
   val swarmService: SwarmService = mock[SwarmService]
   val sendMessageActor: ActorRef = system.actorOf(SendMessageActor.props(userDAO, swarmMessageClient))
   val getMessageActor: ActorRef = system.actorOf(GetMessageActor.props(userDAO, swarmMessageClient))
+  val sendMessageManager: ActorRef = system.actorOf(Props(new SendMessageManager(swarmService, sendMessageActor, getMessageActor)))
 
 
-  implicit val swarmController: SwarmController = new SwarmController(swarmService, sendMessageActor, getMessageActor)
+  implicit val swarmController: SwarmController = new SwarmController(swarmService, sendMessageActor, getMessageActor, sendMessageManager)
   val route: Route = swarmController.routes
 
 
@@ -41,8 +43,9 @@ class SwarmControllerTest extends WordSpec with Matchers with ScalatestRouteTest
   }
 
   "return OK for Post messages" in {
+    val respone=ScheduleSendMessageRequest("cysomerId",0L,"reciever","message")
     when(swarmService.postMessages("sender@domain.com", "reciever@domain.com",
-      "message", sendMessageActor, getMessageActor)) thenReturn Future.successful(MessageDelivery(1, "pending"))
+      "message", sendMessageActor, getMessageActor, sendMessageManager)) thenReturn Future.successful(respone)
     val request = FormData("From" -> "sender@domain.com", "To" -> "reciever@domain.com", "Body" -> "message")
     Post("/messages", request) ~> route ~> check {
       status shouldEqual StatusCodes.OK

@@ -60,7 +60,7 @@ trait SwarmMessageClient extends SprayJsonSupport with HttpClient with ProtoUtil
    *         MessageDelivery: contains packetId and status of the sent message
    */
   def sendMessage(url: String, msg: MessagePost, headers: List[HttpHeader]): Future[MessageDelivery] = {
-    sendRequest(url, headers, msg.copy(data = msg.data).asJson.toString(), HttpMethods.POST).flatMap { response =>
+    sendRequest(url, headers, msg.asJson.toString(), HttpMethods.POST).flatMap { response =>
       Unmarshal(response.entity).to[MessageDelivery]
     }
   }

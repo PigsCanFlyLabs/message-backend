@@ -11,3 +11,10 @@ object MessagePost extends DefaultJsonProtocol {
   implicit val encoder: Encoder[MessagePost] = deriveEncoder[MessagePost]
   implicit val decoder: Decoder[MessagePost] = deriveDecoder[MessagePost]
 }
+
+case class ScheduleSendMessageRequest(customerId: String, deviceId: Long, to: String, data: String)
+object ScheduleSendMessageRequest extends DefaultJsonProtocol {
+  implicit val format: RootJsonFormat[ScheduleSendMessageRequest] = jsonFormat4(ScheduleSendMessageRequest.apply)
+  implicit val encoder: Encoder[ScheduleSendMessageRequest] = deriveEncoder[ScheduleSendMessageRequest]
+  implicit val decoder: Decoder[ScheduleSendMessageRequest] = deriveDecoder[ScheduleSendMessageRequest]
+}

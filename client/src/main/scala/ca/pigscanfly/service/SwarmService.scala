@@ -2,7 +2,7 @@ package ca.pigscanfly.service
 
 import akka.actor.{ActorRef, ActorSystem}
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import akka.http.scaladsl.model.HttpHeader
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpHeader, HttpResponse}
 import akka.http.scaladsl.model.headers.{Cookie, HttpCookiePair}
 import akka.pattern.ask
 import akka.util.Timeout
@@ -16,8 +16,9 @@ import ca.pigscanfly.configs.ClientConstants.{swarmPassword, swarmUserName}
 import ca.pigscanfly.configs.Constants.SwarmBaseUrl
 import ca.pigscanfly.dao.UserDAO
 import ca.pigscanfly.{SwarmMessageClient, models}
-import ca.pigscanfly.models.{LoginCredentials, MessageDelivery, MessagePost, MessageRetrieval}
+import ca.pigscanfly.models.{LoginCredentials, MessageDelivery, MessagePost, MessageRetrieval, ScheduleSendMessageRequest}
 import ca.pigscanfly.proto.MessageDataPB.{Message, MessageDataPB, Protocol}
+import ca.pigscanfly.schedular.CollectMessages
 import ca.pigscanfly.util.Constants._
 import ca.pigscanfly.util.{ProtoUtils, Validations}
 import com.typesafe.scalalogging.LazyLogging
@@ -81,47 +82,65 @@ case class SwarmService(twilioService: TwilioService)(userDAO: UserDAO, swarmMes
    * @return Future[MessageDelivery]:
    *         MessageDelivery: contains packetId and status of the sent message
    */
-  def postMessages(from: String, to: String, data: String, sendMessageActor: ActorRef, getMessageActor: ActorRef): Future[MessageDelivery] = {
-    swarmLogin(LoginCredentials(swarmUserName, swarmPassword),getMessageActor).flatMap { cookies: Seq[HttpHeader] =>
-      if (validateEmailPhone(from)) {
-        ask(sendMessageActor, GetDeviceIdFromEmailOrPhone(from)).flatMap {
-          case response: GetDeviceId =>
-            response.deviceId.fold(throw new Exception(s"Device is not present for phone number $from")) { deviceId =>
-              ask(sendMessageActor, CheckSubscription(deviceId)).flatMap {
-                case response: CheckDeviceSubscription =>
-                  response.isDisabled.fold(throw new Exception(s"Couldn't found subscription details of device ID $deviceId")) { isDeviceDisabled =>
-                    if (!isDeviceDisabled) {
-                      val sourceDestination = detectSourceDestination(to)
-                      val msg = sourceDestination match {
-                        case EMAIl =>
-                          Message(data, to, Protocol.values(1))
-                        case SMS =>
-                          Message(data, to, Protocol.values(2))
-                        case UNKOWN =>
-                          throw new Exception("Invalid Source")
-                      }
-                      //TODO Gather msg in time window
-                      val messageDataPB: MessageDataPB = MessageDataPB(1, Seq(msg), false)
-                      val messagePost = MessagePost(1, deviceId, 1, encodePostMessage(messageDataPB))
-                      (sendMessageActor ? PostMessageCommand(s"$SwarmBaseUrl/hive/api/v1/messages", messagePost, cookies.toList)).mapTo[MessageDelivery].map {
-                        postMessageResponse =>
-                          val messageHistory = MessageHistory(deviceId, response.customerId.getOrElse(""), to, sourceDestination, "POST", postMessageResponse.packetId)
-                          saveMessageHistory(messageHistory, getMessageActor)
-                          postMessageResponse
-                      }
-                    } else {
-                      throw new Exception(s"[Device ID Disabled] Can't send message from device Id $deviceId")
-                    }
+  def postMessages(from: String, to: String, data: String, sendMessageActor: ActorRef, getMessageActor: ActorRef, sendMessageManager: ActorRef): Future[ScheduleSendMessageRequest] = {
+    if (validateEmailPhone(from)) {
+      ask(sendMessageActor, GetDeviceIdFromEmailOrPhone(from)).flatMap {
+        case response: GetDeviceId =>
+          response.deviceId.fold(throw new Exception(s"Device is not present for phone number $from")) { deviceId =>
+            ask(sendMessageActor, CheckSubscription(deviceId)).flatMap {
+              case response: CheckDeviceSubscription =>
+                response.isDisabled.fold(throw new Exception(s"Couldn't found subscription details of device ID $deviceId")) { isDeviceDisabled =>
+                  if (!isDeviceDisabled) {
+                    val message = ScheduleSendMessageRequest(customerId = response.customerId.getOrElse(""), deviceId, to, data)
+                    logger.info(s"Swarm Service: Sending Message: $message for actor state")
+                    sendMessageManager ! CollectMessages(message)
+                    logger.info(s"Swarm Service: Message: $message stored in actor state and will be sent")
+                    Future.successful(message)
+                  } else {
+                    throw new Exception(s"[Device ID Disabled] Can't send message from device Id $deviceId")
                   }
-                case ex => throw new Exception(s"Got exception while checking Subscription for device ID $deviceId ex:: $ex")
-              }
+                }
+              case ex => throw new Exception(s"Got exception while checking Subscription for device ID $deviceId ex:: $ex")
             }
-          case ex => throw new Exception(s"Got exception while getting Device ID for phone number $from ex:: $ex")
+          }
+        case ex => throw new Exception(s"Got exception while getting Device ID for phone number $from ex:: $ex")
+      }
+    } else {
+      throw new Exception(s"Message received from $from i.e. is not a phone number")
+    }
+  }
+
+  /**
+   * This method will send messages after polling delay
+   * @param sendMessageActor
+   * @param getMessageActor
+   * @param messages
+   * @return
+   */
+  def sendMessage(sendMessageActor: ActorRef, getMessageActor: ActorRef,
+                  messages:Seq[ScheduleSendMessageRequest]): Future[Seq[MessageDelivery]] = {
+   val response= messages.map { message=>
+      val sourceDestination: String = detectSourceDestination(message.to)
+      val msg: Message = sourceDestination match {
+        case EMAIl =>
+          Message(message.data, message.to, Protocol.values(1))
+        case SMS =>
+          Message(message.data, message.to, Protocol.values(2))
+        case UNKOWN =>
+          throw new Exception("Invalid Source")
+      }
+      val messageDataPB: MessageDataPB = MessageDataPB(1, Seq(msg), false)
+      val messagePost = MessagePost(1, message.deviceId, 1, encodePostMessage(messageDataPB))
+      swarmLogin(LoginCredentials(swarmUserName, swarmPassword), getMessageActor).flatMap { cookies: Seq[HttpHeader] =>
+        (sendMessageActor ? PostMessageCommand(s"$SwarmBaseUrl/hive/api/v1/messages", messagePost, cookies.toList)).mapTo[MessageDelivery].map {
+          postMessageResponse =>
+            val messageHistory = MessageHistory(message.deviceId, message.customerId, message.to, sourceDestination, "POST", postMessageResponse.packetId)
+            saveMessageHistory(messageHistory, getMessageActor)
+            postMessageResponse
         }
-      } else {
-        throw new Exception(s"Message received from $from i.e. is not a phone number")
       }
     }
+    Future.sequence(response)
   }
 
   /**
